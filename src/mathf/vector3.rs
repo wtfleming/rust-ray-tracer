@@ -50,7 +50,6 @@ impl Vector3 {
             self.x * rhs.y - self.y * rhs.x,
         )
     }
-
 }
 
 #[cfg(test)]
@@ -172,5 +171,4 @@ mod tests {
         assert_eq!(b_cross_a.y, -2.0);
         assert_eq!(b_cross_a.z, 1.0);
     }
-
 }
