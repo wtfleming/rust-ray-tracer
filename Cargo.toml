@@ -13,6 +13,6 @@ path = "src/lib.rs"
 [[bin]]
 name = "rust_ray_tracer"
 path = "src/bin/main.rs"
-#path = "src/bin/main.rs"
 
 [dependencies]
+num = "0.2.0"
