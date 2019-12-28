@@ -1,4 +1,4 @@
-use crate::mathf::color;
+use crate::color;
 
 pub struct Canvas {
     pub width: usize,

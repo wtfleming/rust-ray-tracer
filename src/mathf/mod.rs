@@ -1,7 +1,4 @@
 pub mod vector3;
-pub mod color;
-pub mod canvas;
-pub mod ppm;
 
 const EPSILON: f64 = 0.00001;
 

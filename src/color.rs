@@ -1,3 +1,5 @@
+use crate::mathf::approximately;
+
 #[derive(Debug, Clone)]
 pub struct Color {
     pub r: f64,
@@ -28,14 +30,13 @@ impl Color {
     }
 
     pub fn equals(&self, rhs: &Color) -> bool {
-        super::approximately(self.r, rhs.r) && super::approximately(self.g, rhs.g)  && super::approximately(self.b, rhs.b)
+        approximately(self.r, rhs.r) && approximately(self.g, rhs.g) && approximately(self.b, rhs.b)
     }
 
 }
 
 #[cfg(test)]
 mod tests {
-    use super::super::approximately;
     use super::*;
 
     #[test]

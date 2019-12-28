@@ -1,8 +1,8 @@
 // Code to convert a Canvas to PPM format
 // http://netpbm.sourceforge.net/doc/ppm.html
 
-use crate::mathf::canvas;
-use crate::mathf::color;
+use crate::canvas;
+use crate::color;
 
 pub fn canvas_to_ppm(canvas: &canvas::Canvas) -> String {
     ppm_header(&canvas) + &ppm_pixel_data(canvas)
@@ -42,7 +42,7 @@ fn ppm_pixel_data(canvas: &canvas::Canvas) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mathf::canvas::new;
+    use crate::canvas::new;
 
     #[test]
     fn it_creates_a_correct_ppm_header() {
