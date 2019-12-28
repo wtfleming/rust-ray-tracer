@@ -11,6 +11,48 @@ pub fn new(r: f64, g: f64, b: f64) -> Color {
     Color { r, g, b }
 }
 
+pub fn red() -> Color {
+    Color {
+        r: 1.0,
+        g: 0.0,
+        b: 0.0,
+    }
+}
+
+pub fn green() -> Color {
+    Color {
+        r: 0.0,
+        g: 1.0,
+        b: 0.0,
+    }
+}
+
+pub fn blue() -> Color {
+    Color {
+        r: 0.0,
+        g: 0.0,
+        b: 1.0,
+    }
+}
+
+pub fn black() -> Color {
+    Color {
+        r: 0.0,
+        g: 0.0,
+        b: 0.0,
+    }
+}
+
+pub fn white() -> Color {
+    Color {
+        r: 1.0,
+        g: 1.0,
+        b: 1.0,
+    }
+}
+
+
+
 impl Color {
     pub fn add(&self, rhs: &Color) -> Color {
         new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
@@ -32,7 +74,6 @@ impl Color {
     pub fn equals(&self, rhs: &Color) -> bool {
         approximately(self.r, rhs.r) && approximately(self.g, rhs.g) && approximately(self.b, rhs.b)
     }
-
 }
 
 #[cfg(test)]
@@ -94,5 +135,4 @@ mod tests {
         assert!(color.equals(&same_color));
         assert!(!color.equals(&different_color));
     }
-
 }
