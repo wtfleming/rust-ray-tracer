@@ -1,4 +1,6 @@
 pub mod vector3;
+pub mod vector4;
+pub mod matrix;
 
 const EPSILON: f64 = 0.00001;
 
