@@ -45,10 +45,10 @@ impl Matrix {
     }
 
     pub fn multiply_4x4(&self, rhs: &Matrix) -> Matrix {
-        // Only support multiplying 4x4 matrices for now
         if self.num_rows != 4 || self.num_cols != 4 || rhs.num_rows != 4 || rhs.num_cols != 4 {
-            panic!("We currently only support multiplying 4x4 matrices");
+            panic!("Currently only supports multiplying 4x4 matrices");
         }
+
         let mut matrix = new(4, 4);
         for row in 0..4 {
             for col in 0..4 {
@@ -62,9 +62,8 @@ impl Matrix {
     }
 
     pub fn multiply_vector4(&self, rhs: &Vector4) -> Vector4 {
-        // Only support multiplying 4x4 matrices for now
         if self.num_rows != 4 || self.num_cols != 4 {
-            panic!("We currently only support multiplying 4x4 matrices");
+            panic!("Currently only supports multiplying 4x4 matrices");
         }
 
         let mut vector = vector4::new(0.0, 0.0, 0.0, 0.0);
@@ -103,13 +102,6 @@ impl Matrix {
         matrix
     }
 
-    pub fn determinant_2x2(&self) -> f64 {
-        if self.num_rows != 2 || self.num_cols != 2 {
-            panic!("Must be a 2x2 matrix");
-        }
-        self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]
-    }
-
     // Return a copy of a matrix with a given row and column removed
     pub fn submatrix(&self, remove_row: usize, remove_col: usize) -> Matrix {
         let mut matrix = new(self.num_rows - 1, self.num_cols - 1);
@@ -132,24 +124,31 @@ impl Matrix {
     }
 
     // The minor of an element at row i and column j is the determinate of the submatrix at (i,j)
-    pub fn minor_3x3(&self, row: usize, col: usize) -> f64 {
-        if self.num_rows != 3 || self.num_cols != 3 {
-            panic!("Must be a 3x3 matrix");
-        }
+    pub fn minor(&self, row: usize, col: usize) -> f64 {
         let sub = self.submatrix(row, col);
-        sub.determinant_2x2()
+        sub.determinant()
     }
 
-    pub fn cofactor_3x3(&self, row: usize, col: usize) -> f64 {
-        if self.num_rows != 3 || self.num_cols != 3 {
-            panic!("Must be a 3x3 matrix");
-        }
-        let minor = self.minor_3x3(row, col);
+    pub fn cofactor(&self, row: usize, col: usize) -> f64 {
+        let minor = self.minor(row, col);
         let is_odd = (row + col) % 2 == 1;
         if is_odd {
             return -minor;
         }
         minor
+    }
+
+    pub fn determinant(&self) -> f64 {
+        if self.num_rows == 2 || self.num_cols == 2 {
+            return self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0];
+        }
+
+        let mut det = 0.0;
+        for col in 0..self.num_cols {
+            det = det + self.data[0][col] * self.cofactor(0, col);
+        }
+
+        det
     }
 }
 
@@ -453,18 +452,6 @@ mod tests {
     }
 
     #[test]
-    fn test_matrix_determinant_2x2() {
-        let mut matrix = new(2, 2);
-        matrix.data[0][0] = 1.0;
-        matrix.data[0][1] = 5.0;
-        matrix.data[1][0] = -3.0;
-        matrix.data[1][1] = 2.0;
-
-        let determinate = matrix.determinant_2x2();
-        assert!(approximately(determinate, 17.0));
-    }
-
-    #[test]
     fn test_matrix_submatrix_3x3() {
         let mut matrix = new(3, 3);
         matrix.data[0][0] = 1.0;
@@ -548,10 +535,10 @@ mod tests {
         matrix.data[2][1] = -1.0;
         matrix.data[2][2] = 5.0;
 
-        assert_eq!(matrix.minor_3x3(1, 0), 25.0);
+        assert_eq!(matrix.minor(1, 0), 25.0);
 
         let matrix_b = matrix.submatrix(1, 0);
-        assert_eq!(matrix_b.determinant_2x2(), 25.0);
+        assert_eq!(matrix_b.determinant(), 25.0);
     }
 
     #[test]
@@ -569,9 +556,72 @@ mod tests {
         matrix.data[2][1] = -1.0;
         matrix.data[2][2] = 5.0;
 
-        assert_eq!(matrix.minor_3x3(0, 0), -12.0);
-        assert_eq!(matrix.cofactor_3x3(0, 0), -12.0);
-        assert_eq!(matrix.minor_3x3(1, 0), 25.0);
-        assert_eq!(matrix.cofactor_3x3(1, 0), -25.0);
+        assert_eq!(matrix.minor(0, 0), -12.0);
+        assert_eq!(matrix.cofactor(0, 0), -12.0);
+        assert_eq!(matrix.minor(1, 0), 25.0);
+        assert_eq!(matrix.cofactor(1, 0), -25.0);
+    }
+
+    #[test]
+    fn test_2x2_matrix_determinant() {
+        let mut matrix = new(2, 2);
+        matrix.data[0][0] = 1.0;
+        matrix.data[0][1] = 5.0;
+        matrix.data[1][0] = -3.0;
+        matrix.data[1][1] = 2.0;
+
+        let determinate = matrix.determinant();
+        assert!(approximately(determinate, 17.0));
+    }
+
+    #[test]
+    fn test_3x3_matrix_determinate() {
+        let mut matrix = new(3, 3);
+        matrix.data[0][0] = 1.0;
+        matrix.data[0][1] = 2.0;
+        matrix.data[0][2] = 6.0;
+
+        matrix.data[1][0] = -5.0;
+        matrix.data[1][1] = 8.0;
+        matrix.data[1][2] = -4.0;
+
+        matrix.data[2][0] = 2.0;
+        matrix.data[2][1] = 6.0;
+        matrix.data[2][2] = 4.0;
+
+        assert_eq!(matrix.cofactor(0, 0), 56.0);
+        assert_eq!(matrix.cofactor(0, 1), 12.0);
+        assert_eq!(matrix.cofactor(0, 2), -46.0);
+        assert_eq!(matrix.determinant(), -196.0);
+    }
+
+    #[test]
+    fn test_4x4_matrix_determinate() {
+        let mut matrix = new(4, 4);
+        matrix.data[0][0] = -2.0;
+        matrix.data[0][1] = -8.0;
+        matrix.data[0][2] = 3.0;
+        matrix.data[0][3] = 5.0;
+
+        matrix.data[1][0] = -3.0;
+        matrix.data[1][1] = 1.0;
+        matrix.data[1][2] = 7.0;
+        matrix.data[1][3] = 3.0;
+
+        matrix.data[2][0] = 1.0;
+        matrix.data[2][1] = 2.0;
+        matrix.data[2][2] = -9.0;
+        matrix.data[2][3] = 6.0;
+
+        matrix.data[3][0] = -6.0;
+        matrix.data[3][1] = 7.0;
+        matrix.data[3][2] = 7.0;
+        matrix.data[3][3] = -9.0;
+
+        assert_eq!(matrix.cofactor(0, 0), 690.0);
+        assert_eq!(matrix.cofactor(0, 1), 447.0);
+        assert_eq!(matrix.cofactor(0, 2), 210.0);
+        assert_eq!(matrix.cofactor(0, 3), 51.0);
+        assert_eq!(matrix.determinant(), -4071.0);
     }
 }
