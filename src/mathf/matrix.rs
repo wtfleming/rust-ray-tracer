@@ -34,6 +34,9 @@ pub fn identity_4x4() -> Matrix {
 
 impl Matrix {
     pub fn equals(&self, rhs: &Matrix) -> bool {
+        if self.num_rows != rhs.num_rows || self.num_cols != rhs.num_cols {
+            return false;
+        }
         for r in 0..self.num_rows {
             for c in 0..self.num_cols {
                 if !mathf::approximately(self.data[r][c], rhs.data[r][c]) {
@@ -149,6 +152,28 @@ impl Matrix {
         }
 
         det
+    }
+
+    pub fn is_invertible(&self) -> bool {
+        mathf::approximately(self.determinant(), 0.0) == false
+    }
+
+    pub fn inverse(&self) -> Matrix {
+        if !self.is_invertible() {
+            panic!("To inverse a matrix it must be invertible");
+        }
+
+        let mut matrix = new(self.num_rows, self.num_cols);
+        for row in 0..self.num_rows {
+            for col in 0..self.num_cols {
+                let c = self.cofactor(row, col);
+
+                // note the "[col][row]" here which achieves a transpose
+                matrix.data[col][row] = c / self.determinant();
+            }
+        }
+
+        matrix
     }
 }
 
@@ -623,5 +648,258 @@ mod tests {
         assert_eq!(matrix.cofactor(0, 2), 210.0);
         assert_eq!(matrix.cofactor(0, 3), 51.0);
         assert_eq!(matrix.determinant(), -4071.0);
+    }
+
+    #[test]
+    fn test_4x4_matrix_is_invertible() {
+        let mut matrix = new(4, 4);
+        matrix.data[0][0] = 6.0;
+        matrix.data[0][1] = 4.0;
+        matrix.data[0][2] = 4.0;
+        matrix.data[0][3] = 4.0;
+
+        matrix.data[1][0] = 5.0;
+        matrix.data[1][1] = 5.0;
+        matrix.data[1][2] = 7.0;
+        matrix.data[1][3] = 6.0;
+
+        matrix.data[2][0] = 4.0;
+        matrix.data[2][1] = -9.0;
+        matrix.data[2][2] = 3.0;
+        matrix.data[2][3] = -7.0;
+
+        matrix.data[3][0] = 9.0;
+        matrix.data[3][1] = 1.0;
+        matrix.data[3][2] = 7.0;
+        matrix.data[3][3] = -6.0;
+
+        assert!(matrix.is_invertible());
+    }
+
+    #[test]
+    fn test_4x4_matrix_is_not_invertible() {
+        let mut matrix = new(4, 4);
+        matrix.data[0][0] = -4.0;
+        matrix.data[0][1] = 2.0;
+        matrix.data[0][2] = -2.0;
+        matrix.data[0][3] = -3.0;
+
+        matrix.data[1][0] = 9.0;
+        matrix.data[1][1] = 6.0;
+        matrix.data[1][2] = 2.0;
+        matrix.data[1][3] = 6.0;
+
+        matrix.data[2][0] = 0.0;
+        matrix.data[2][1] = -5.0;
+        matrix.data[2][2] = 1.0;
+        matrix.data[2][3] = -5.0;
+
+        matrix.data[3][0] = 0.0;
+        matrix.data[3][1] = 0.0;
+        matrix.data[3][2] = 0.0;
+        matrix.data[3][3] = 0.0;
+
+        assert!(!matrix.is_invertible());
+    }
+
+    #[test]
+    fn test_4x4_matrix_inverse() {
+        let mut matrix = new(4, 4);
+        matrix.data[0][0] = -5.0;
+        matrix.data[0][1] = 2.0;
+        matrix.data[0][2] = 6.0;
+        matrix.data[0][3] = -8.0;
+
+        matrix.data[1][0] = 1.0;
+        matrix.data[1][1] = -5.0;
+        matrix.data[1][2] = 1.0;
+        matrix.data[1][3] = 8.0;
+
+        matrix.data[2][0] = 7.0;
+        matrix.data[2][1] = 7.0;
+        matrix.data[2][2] = -6.0;
+        matrix.data[2][3] = -7.0;
+
+        matrix.data[3][0] = 1.0;
+        matrix.data[3][1] = -3.0;
+        matrix.data[3][2] = 7.0;
+        matrix.data[3][3] = 4.0;
+
+        let inverted_matrix = matrix.inverse();
+        assert_eq!(matrix.determinant(), 532.0);
+        assert_eq!(matrix.cofactor(2, 3), -160.0);
+        assert_eq!(inverted_matrix.data[3][2], -160.0 / 532.0);
+        assert_eq!(matrix.cofactor(3, 2), 105.0);
+        assert_eq!(inverted_matrix.data[2][3], 105.0 / 532.0);
+
+        let mut expected = new(4, 4);
+        expected.data[0][0] = 0.21805;
+        expected.data[0][1] = 0.45113;
+        expected.data[0][2] = 0.24060;
+        expected.data[0][3] = -0.04511;
+
+        expected.data[1][0] = -0.80827;
+        expected.data[1][1] = -1.45677;
+        expected.data[1][2] = -0.44361;
+        expected.data[1][3] = 0.52068;
+
+        expected.data[2][0] = -0.07895;
+        expected.data[2][1] = -0.22368;
+        expected.data[2][2] = -0.05263;
+        expected.data[2][3] = 0.19737;
+
+        expected.data[3][0] = -0.52256;
+        expected.data[3][1] = -0.81391;
+        expected.data[3][2] = -0.30075;
+        expected.data[3][3] = 0.30639;
+        assert!(inverted_matrix.equals(&expected));
+    }
+
+    #[test]
+    fn test_4x4_matrix_inverse_2() {
+        let mut matrix = new(4, 4);
+        matrix.data[0][0] = 8.0;
+        matrix.data[0][1] = -5.0;
+        matrix.data[0][2] = 9.0;
+        matrix.data[0][3] = 2.0;
+
+        matrix.data[1][0] = 7.0;
+        matrix.data[1][1] = 5.0;
+        matrix.data[1][2] = 6.0;
+        matrix.data[1][3] = 1.0;
+
+        matrix.data[2][0] = -6.0;
+        matrix.data[2][1] = 0.0;
+        matrix.data[2][2] = 9.0;
+        matrix.data[2][3] = 6.0;
+
+        matrix.data[3][0] = -3.0;
+        matrix.data[3][1] = 0.0;
+        matrix.data[3][2] = -9.0;
+        matrix.data[3][3] = -4.0;
+
+        let inverted_matrix = matrix.inverse();
+
+        let mut expected = new(4, 4);
+        expected.data[0][0] = -0.15385;
+        expected.data[0][1] = -0.15385;
+        expected.data[0][2] = -0.28205;
+        expected.data[0][3] = -0.53846;
+
+        expected.data[1][0] = -0.07692;
+        expected.data[1][1] = 0.12308;
+        expected.data[1][2] = 0.02564;
+        expected.data[1][3] = 0.03077;
+
+        expected.data[2][0] = 0.35897;
+        expected.data[2][1] = 0.35897;
+        expected.data[2][2] = 0.43590;
+        expected.data[2][3] = 0.92308;
+
+        expected.data[3][0] = -0.69231;
+        expected.data[3][1] = -0.69231;
+        expected.data[3][2] = -0.76923;
+        expected.data[3][3] = -1.92308;
+        assert!(inverted_matrix.equals(&expected));
+    }
+
+    #[test]
+    fn test_4x4_matrix_inverse_3() {
+        let mut matrix = new(4, 4);
+        matrix.data[0][0] = 9.0;
+        matrix.data[0][1] = 3.0;
+        matrix.data[0][2] = 0.0;
+        matrix.data[0][3] = 9.0;
+
+        matrix.data[1][0] = -5.0;
+        matrix.data[1][1] = -2.0;
+        matrix.data[1][2] = -6.0;
+        matrix.data[1][3] = -3.0;
+
+        matrix.data[2][0] = -4.0;
+        matrix.data[2][1] = 9.0;
+        matrix.data[2][2] = 6.0;
+        matrix.data[2][3] = 4.0;
+
+        matrix.data[3][0] = -7.0;
+        matrix.data[3][1] = 6.0;
+        matrix.data[3][2] = 6.0;
+        matrix.data[3][3] = 2.0;
+
+        let inverted_matrix = matrix.inverse();
+
+        let mut expected = new(4, 4);
+        expected.data[0][0] = -0.04074;
+        expected.data[0][1] = -0.07778;
+        expected.data[0][2] = 0.14444;
+        expected.data[0][3] = -0.22222;
+
+        expected.data[1][0] = -0.07778;
+        expected.data[1][1] = 0.03333;
+        expected.data[1][2] = 0.36667;
+        expected.data[1][3] = -0.33333;
+
+        expected.data[2][0] = -0.02901;
+        expected.data[2][1] = -0.14630;
+        expected.data[2][2] = -0.10926;
+        expected.data[2][3] = 0.12963;
+
+        expected.data[3][0] = 0.17778;
+        expected.data[3][1] = 0.06667;
+        expected.data[3][2] = -0.26667;
+        expected.data[3][3] = 0.33333;
+        assert!(inverted_matrix.equals(&expected));
+    }
+
+    #[test]
+    fn test_4x4_matrix_inverse_inverse() {
+        // Testing that if you multiply a matrix A by another matrix B, producing C,
+        // you can multiply C by the inverse of B to get A again.
+        let mut matrix_a = new(4, 4);
+        matrix_a.data[0][0] = 3.0;
+        matrix_a.data[0][1] = -9.0;
+        matrix_a.data[0][2] = 7.0;
+        matrix_a.data[0][3] = 3.0;
+
+        matrix_a.data[1][0] = 8.0;
+        matrix_a.data[1][1] = -8.0;
+        matrix_a.data[1][2] = 2.0;
+        matrix_a.data[1][3] = -9.0;
+
+        matrix_a.data[2][0] = -4.0;
+        matrix_a.data[2][1] = 4.0;
+        matrix_a.data[2][2] = 4.0;
+        matrix_a.data[2][3] = 1.0;
+
+        matrix_a.data[3][0] = -6.0;
+        matrix_a.data[3][1] = 5.0;
+        matrix_a.data[3][2] = -1.0;
+        matrix_a.data[3][3] = 1.0;
+
+        let mut matrix_b = new(4, 4);
+        matrix_b.data[0][0] = 8.0;
+        matrix_b.data[0][1] = 2.0;
+        matrix_b.data[0][2] = 2.0;
+        matrix_b.data[0][3] = 2.0;
+
+        matrix_b.data[1][0] = 3.0;
+        matrix_b.data[1][1] = -1.0;
+        matrix_b.data[1][2] = 7.0;
+        matrix_b.data[1][3] = -0.0;
+
+        matrix_b.data[2][0] = 7.0;
+        matrix_b.data[2][1] = 0.0;
+        matrix_b.data[2][2] = 5.0;
+        matrix_b.data[2][3] = 4.0;
+
+        matrix_b.data[3][0] = 6.0;
+        matrix_b.data[3][1] = -2.0;
+        matrix_b.data[3][2] = 0.0;
+        matrix_b.data[3][3] = 5.0;
+
+        let matrix_c = matrix_a.multiply_4x4(&matrix_b);
+
+        let result = matrix_c.multiply_4x4(&matrix_b.inverse());
+        assert!(result.equals(&matrix_a));
     }
 }
