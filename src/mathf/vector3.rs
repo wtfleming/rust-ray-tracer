@@ -1,8 +1,10 @@
+use crate::mathf;
+
 #[derive(Debug)]
 pub struct Vector3 {
-    x: f64,
-    y: f64,
-    z: f64,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
 pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
@@ -49,6 +51,10 @@ impl Vector3 {
             self.z * rhs.x - self.x * rhs.z,
             self.x * rhs.y - self.y * rhs.x,
         )
+    }
+
+    pub fn equals(&self, rhs: &Vector3) -> bool {
+        mathf::approximately(self.x, rhs.x) && mathf::approximately(self.y, rhs.y) && mathf::approximately(self.z, rhs.z)
     }
 }
 

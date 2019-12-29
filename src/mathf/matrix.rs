@@ -1,6 +1,8 @@
 use crate::mathf;
 use crate::mathf::vector4;
 use crate::mathf::vector4::Vector4;
+use crate::mathf::vector3;
+use crate::mathf::vector3::Vector3;
 
 #[derive(Debug)]
 pub struct Matrix {
@@ -32,6 +34,56 @@ pub fn identity_4x4() -> Matrix {
     matrix
 }
 
+
+/// Creates a translation matrix
+pub fn translation(vector3: &Vector3) -> Matrix {
+    let mut matrix = identity_4x4();
+    matrix.data[0][3] = vector3.x;
+    matrix.data[1][3] = vector3.y;
+    matrix.data[2][3] = vector3.z;
+    matrix
+}
+
+/// Creates a scaling matrix
+pub fn scaling(vector3: &Vector3) -> Matrix {
+    let mut matrix = identity_4x4();
+    matrix.data[0][0] = vector3.x;
+    matrix.data[1][1] = vector3.y;
+    matrix.data[2][2] = vector3.z;
+    matrix
+}
+
+/// Creates a rotation around the x axis matrix
+pub fn rotation_x(radians: f64) -> Matrix {
+    let mut matrix = identity_4x4();
+    matrix.data[1][1] = radians.cos();
+    matrix.data[1][2] = -radians.sin();
+    matrix.data[2][1] = radians.sin();
+    matrix.data[2][2] = radians.cos();
+    matrix
+}
+
+/// Creates a rotation around the y axis matrix
+pub fn rotation_y(radians: f64) -> Matrix {
+    let mut matrix = identity_4x4();
+    matrix.data[0][0] = radians.cos();
+    matrix.data[0][2] = radians.sin();
+    matrix.data[2][0] = -radians.sin();
+    matrix.data[2][2] = radians.cos();
+    matrix
+}
+
+/// Creates a rotation around the z axis matrix
+pub fn rotation_z(radians: f64) -> Matrix {
+    let mut matrix = identity_4x4();
+    matrix.data[0][0] = radians.cos();
+    matrix.data[0][1] = -radians.sin();
+    matrix.data[1][0] = radians.sin();
+    matrix.data[1][1] = radians.cos();
+    matrix
+}
+
+
 impl Matrix {
     pub fn equals(&self, rhs: &Matrix) -> bool {
         if self.num_rows != rhs.num_rows || self.num_cols != rhs.num_cols {
@@ -62,6 +114,15 @@ impl Matrix {
             }
         }
         matrix
+    }
+
+    pub fn multiply_vector3(&self, rhs: &Vector3) -> Vector3 {
+        if self.num_rows != 4 || self.num_cols != 4 {
+            panic!("Currently only supports multiplying 4x4 matrices");
+        }
+
+        let result = self.multiply_vector4(&vector4::new(rhs.x, rhs.y, rhs.z, 1.0));
+        vector3::new(result.x, result.y, result.z)
     }
 
     pub fn multiply_vector4(&self, rhs: &Vector4) -> Vector4 {
@@ -175,12 +236,14 @@ impl Matrix {
 
         matrix
     }
+
 }
 
 #[cfg(test)]
 mod tests {
     use super::super::approximately;
     use super::*;
+    use std::f64::consts::PI;
 
     #[test]
     fn it_creates_a_4x4_matrix() {
@@ -902,4 +965,102 @@ mod tests {
         let result = matrix_c.multiply_4x4(&matrix_b.inverse());
         assert!(result.equals(&matrix_a));
     }
+
+    #[test]
+    fn test_multiplying_by_a_translation_matrix() {
+        let transform = translation(&vector3::new(5.0, -3.0, 2.0));
+
+        let point = vector3::new(-3.0, 4.0, 5.0);
+        let result = transform.multiply_vector3(&point);
+        assert!(result.equals(&vector3::new(2.0, 1.0, 7.0)));
+    }
+
+    #[test]
+    fn test_multiplying_by_the_inverse_of_a_translation_matrix() {
+        let transform = translation(&vector3::new(5.0, -3.0, 2.0));
+        let inv = transform.inverse();
+
+        let point = vector3::new(-3.0, 4.0, 5.0);
+        let result = inv.multiply_vector3(&point);
+        assert!(result.equals(&vector3::new(-8.0, 7.0, 3.0)));
+    }
+
+    #[test]
+    fn test_multiplying_by_a_scaling_matrix() {
+        let transform = scaling(&vector3::new(2.0, 3.0, 4.0));
+
+        let point = vector3::new(-4.0, 6.0, 8.0);
+        let result = transform.multiply_vector3(&point);
+        assert!(result.equals(&vector3::new(-8.0, 18.0, 32.0)));
+    }
+
+    #[test]
+    fn test_multiplying_by_the_inverse_of_a_scaling_matrix() {
+        let transform = scaling(&vector3::new(2.0, 3.0, 4.0));
+        let inv = transform.inverse();
+
+        let point = vector3::new(-4.0, 6.0, 8.0);
+        let result = inv.multiply_vector3(&point);
+        assert!(result.equals(&vector3::new(-2.0, 2.0, 2.0)));
+    }
+
+    #[test]
+    fn test_reflection_is_scaling_by_a_negative_value() {
+        let transform = scaling(&vector3::new(-1.0, 1.0, 1.0));
+
+        let point = vector3::new(2.0, 3.0, 4.0);
+        let result = transform.multiply_vector3(&point);
+        assert!(result.equals(&vector3::new(-2.0, 3.0, 4.0)));
+    }
+
+    #[test]
+    fn test_rotate_around_x_axis() {
+        let point = vector3::new(0.0, 1.0, 0.0);
+        let half_quarter = rotation_x(PI / 4.0);
+        let full_quarter = rotation_x(PI / 2.0);
+
+        let half_quarter_expected = vector3::new(0.0, 2.0f64.sqrt() / 2.0, 2.0f64.sqrt() / 2.0);
+        assert!(&half_quarter.multiply_vector3(&point).equals(&half_quarter_expected));
+
+        let full_quarter_expected = vector3::new(0.0, 0.0, 1.0);
+        assert!(&full_quarter.multiply_vector3(&point).equals(&full_quarter_expected));
+    }
+
+    #[test]
+    fn test_inverse_of_rotate_around_x_axis_rotates_in_the_opposite_direction() {
+        let point = vector3::new(0.0, 1.0, 0.0);
+        let half_quarter = rotation_x(PI / 4.0);
+
+        let inv = half_quarter.inverse();
+        let half_quarter_expected = vector3::new(0.0, 2.0f64.sqrt() / 2.0, -(2.0f64.sqrt() / 2.0));
+        assert!(&inv.multiply_vector3(&point).equals(&half_quarter_expected));
+    }
+
+    #[test]
+    fn test_rotate_around_y_axis() {
+        let point = vector3::new(0.0, 0.0, 1.0);
+        let half_quarter = rotation_y(PI / 4.0);
+        let full_quarter = rotation_y(PI / 2.0);
+
+        let half_quarter_expected = vector3::new(2.0f64.sqrt() / 2.0, 0.0, 2.0f64.sqrt() / 2.0);
+        assert!(&half_quarter.multiply_vector3(&point).equals(&half_quarter_expected));
+
+        let full_quarter_expected = vector3::new(1.0, 0.0, 0.0);
+        assert!(&full_quarter.multiply_vector3(&point).equals(&full_quarter_expected));
+    }
+
+    #[test]
+    fn test_rotate_around_z_axis() {
+        let point = vector3::new(0.0, 1.0, 0.0);
+        let half_quarter = rotation_z(PI / 4.0);
+        let full_quarter = rotation_z(PI / 2.0);
+
+        let half_quarter_expected = vector3::new(-(2.0f64.sqrt() / 2.0), 2.0f64.sqrt() / 2.0, 0.0);
+        assert!(&half_quarter.multiply_vector3(&point).equals(&half_quarter_expected));
+
+       let full_quarter_expected = vector3::new(-1.0, 0.0, 0.0);
+       assert!(&full_quarter.multiply_vector3(&point).equals(&full_quarter_expected));
+    }
+
+
 }
