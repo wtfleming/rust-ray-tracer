@@ -1,3 +1,4 @@
+use crate::mathf::sphere;
 use crate::mathf::vector3;
 use crate::mathf::vector3::Vector3;
 
@@ -11,14 +12,6 @@ pub fn new(origin: Vector3, direction: Vector3) -> Ray {
     Ray { origin, direction }
 }
 
-static mut SPHERE_ID: u32 = 0;
-
-pub fn sphere() -> u32 {
-    unsafe {
-        SPHERE_ID += 1;
-        SPHERE_ID
-    }
-}
 
 impl Ray {
     /// Compute the point at the given distance t along the ray
@@ -26,7 +19,7 @@ impl Ray {
         self.origin.add(&self.direction.multiply(t))
     }
 
-    pub fn intersect(&self, _sphere_id: u32) -> Vec<f64> {
+    pub fn intersect(&self, _sphere: sphere::Sphere) -> Vec<f64> {
         let sphere_to_ray = self.origin.subtract(&vector3::new(0.0, 0.0, 0.0));
 
         let a = self.direction.dot(&self.direction);
@@ -84,7 +77,7 @@ mod tests {
     #[test]
     fn a_ray_intersects_a_sphere_at_two_points() {
         let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = sphere::new();
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0], 4.0);
@@ -94,7 +87,7 @@ mod tests {
     #[test]
     fn a_ray_intersects_a_sphere_at_a_tangent() {
         let ray = new(vector3::new(0.0, 1.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = sphere::new();
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0], 5.0);
@@ -104,7 +97,7 @@ mod tests {
     #[test]
     fn a_ray_misses_a_sphere() {
         let ray = new(vector3::new(0.0, 2.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = sphere::new();
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 0);
     }
@@ -112,7 +105,7 @@ mod tests {
     #[test]
     fn a_ray_originates_inside_a_sphere() {
         let ray = new(vector3::new(0.0, 0.0, 0.0), vector3::new(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = sphere::new();
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0], -1.0);
@@ -122,7 +115,7 @@ mod tests {
     #[test]
     fn a_sphere_is_behind_a_ray() {
         let ray = new(vector3::new(0.0, 0.0, 5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = sphere::new();
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0], -6.0);

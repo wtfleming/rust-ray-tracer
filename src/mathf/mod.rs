@@ -1,5 +1,6 @@
 pub mod matrix;
 pub mod ray;
+pub mod sphere;
 pub mod vector3;
 pub mod vector4;
 
