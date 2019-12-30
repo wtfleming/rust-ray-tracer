@@ -1,4 +1,5 @@
 pub mod matrix;
+pub mod ray;
 pub mod vector3;
 pub mod vector4;
 
