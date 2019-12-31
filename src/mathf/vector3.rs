@@ -13,10 +13,19 @@ pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
 
 impl PartialEq for Vector3 {
     fn eq(&self, other: &Self) -> bool {
-        mathf::approximately(self.x, other.x) && mathf::approximately(self.y, other.y) && mathf::approximately(self.z, other.z)
+        mathf::approximately(self.x, other.x)
+            && mathf::approximately(self.y, other.y)
+            && mathf::approximately(self.z, other.z)
     }
 }
 
+// impl std::ops::Add<Vector3> for Vector3 {
+//     type Output = Vector3;
+
+//     fn add(self, rhs: Vector3) -> Vector3 {
+//         new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+//     }
+// }
 
 impl Vector3 {
     pub fn add(&self, rhs: &Vector3) -> Vector3 {
@@ -78,6 +87,8 @@ mod tests {
     fn it_adds_vector3s() {
         let a = new(3.0, -2.0, 5.0);
         let b = new(-2.0, 3.0, 1.0);
+        // let c = a + b;
+        // println!("{:?}", b);
         let c = a.add(&b);
         assert_eq!(c.x, 1.0);
         assert_eq!(c.y, 1.0);
