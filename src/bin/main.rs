@@ -28,8 +28,10 @@ fn draw_circle() {
     let mut canvas = canvas::new(canvas_pixels, canvas_pixels);
     let color = color::red();
 
-
-    let shape = Rc::new(sphere::new());
+    let shape = sphere::new();
+    let t = matrix::scaling(&vector3::new(0.5, 1.0, 1.0));
+    let shape = shape.set_transform(t);
+    let shape = Rc::new(shape);
 
     for y in 0..canvas_pixels {
         let world_y = half - pixel_size * (y as f64);
