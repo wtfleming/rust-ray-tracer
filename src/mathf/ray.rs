@@ -1,8 +1,11 @@
 use crate::mathf::intersection;
 use crate::mathf::intersection::Intersection;
+use crate::mathf::matrix::Matrix;
 use crate::mathf::sphere;
 use crate::mathf::vector3;
 use crate::mathf::vector3::Vector3;
+use crate::mathf::vector4;
+
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -42,10 +45,12 @@ impl Ray {
     }
 
     pub fn intersect(&self, sphere: Rc<sphere::Sphere>) -> Vec<Intersection> {
-        let sphere_to_ray = self.origin.subtract(&vector3::new(0.0, 0.0, 0.0));
+        let ray2 = self.transform(&sphere.transform.inverse());
 
-        let a = self.direction.dot(&self.direction);
-        let b = 2.0 * self.direction.dot(&sphere_to_ray);
+        let sphere_to_ray = ray2.origin.subtract(&vector3::new(0.0, 0.0, 0.0));
+
+        let a = ray2.direction.dot(&ray2.direction);
+        let b = 2.0 * ray2.direction.dot(&sphere_to_ray);
         let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
         let discriminant = (b * b) - (4.0 * a * c);
 
@@ -62,12 +67,30 @@ impl Ray {
             vec![a, b]
         }
     }
+
+    pub fn transform(&self, matrix: &Matrix) -> Ray {
+        // TODO code smell here - maybe it makes sense for a ray to store vector4 instead of vector3?
+        // Or maybe have a separate Vector3 and Point structs?
+
+        // We only want translation matrices to affect "points" and not "vectors"
+        let origin = vector4::new(self.origin.x, self.origin.y, self.origin.z, 1.0);
+        let direction = vector4::new(self.direction.x, self.direction.y, self.direction.z, 0.0);
+
+        let origin = matrix.multiply_vector4(&origin);
+        let direction = matrix.multiply_vector4(&direction);
+
+        // Now convert back to a Vector3 representation
+        let origin = vector3::new(origin.x, origin.y, origin.z);
+        let direction = vector3::new(direction.x, direction.y, direction.z);
+        Ray { origin, direction }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::mathf::vector3;
+    use crate::mathf::matrix;
 
     #[test]
     fn it_creates_a_ray() {
@@ -199,4 +222,47 @@ mod tests {
 
         assert_eq!(i.unwrap(), i4_copy);
     }
+
+    #[test]
+    fn test_translating_a_ray() {
+        let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
+        let matrix = matrix::translation(&vector3::new(3.0, 4.0, 5.0));
+        let ray2 = ray.transform(&matrix);
+        assert_eq!(ray2.origin, vector3::new(4.0, 6.0, 8.0));
+        assert_eq!(ray2.direction, vector3::new(0.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn test_scaling_a_ray() {
+        let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
+        let matrix = matrix::scaling(&vector3::new(2.0, 3.0, 4.0));
+        let ray2 = ray.transform(&matrix);
+        assert_eq!(ray2.origin, vector3::new(2.0, 6.0, 12.0));
+        assert_eq!(ray2.direction, vector3::new(0.0, 3.0, 0.0));
+    }
+
+
+
+    #[test]
+    fn intersecting_a_scaled_sphere_with_a_ray() {
+        let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let s = sphere::new();
+        let s = s.set_transform(matrix::scaling(&vector3::new(2.0, 2.0, 2.0)));
+        let s = Rc::new(s);
+        let xs = ray.intersect(s);
+        assert_eq!(xs.len(), 2);
+        assert_eq!(xs[0].t, 3.0);
+        assert_eq!(xs[1].t, 7.0);
+    }
+
+    #[test]
+    fn intersecting_a_translated_sphere_with_a_ray() {
+        let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let s = sphere::new();
+        let s = s.set_transform(matrix::translation(&vector3::new(5.0, 0.0, 0.0)));
+        let s = Rc::new(s);
+        let xs = ray.intersect(s);
+        assert_eq!(xs.len(), 0);
+    }
+
 }
