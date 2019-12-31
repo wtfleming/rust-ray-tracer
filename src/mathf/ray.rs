@@ -12,7 +12,6 @@ pub fn new(origin: Vector3, direction: Vector3) -> Ray {
     Ray { origin, direction }
 }
 
-
 impl Ray {
     /// Compute the point at the given distance t along the ray
     pub fn position(&self, t: f64) -> Vector3 {
@@ -41,15 +40,14 @@ impl Ray {
 
 #[cfg(test)]
 mod tests {
-    //    use super::super::approximately;
     use super::*;
     use crate::mathf::vector3;
 
     #[test]
     fn it_creates_a_ray() {
         let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(4.0, 5.0, 6.0));
-        assert!(ray.origin.equals(&vector3::new(1.0, 2.0, 3.0)));
-        assert!(ray.direction.equals(&vector3::new(4.0, 5.0, 6.0)));
+        assert_eq!(ray.origin, vector3::new(1.0, 2.0, 3.0));
+        assert_eq!(ray.direction, vector3::new(4.0, 5.0, 6.0));
     }
 
     #[test]
@@ -58,20 +56,20 @@ mod tests {
 
         let position = ray.position(0.0);
         let expected = vector3::new(2.0, 3.0, 4.0);
-        assert!(position.equals(&expected));
+        assert_eq!(position, expected);
 
         let position = ray.position(1.0);
         println!("{:?}", position);
         let expected = vector3::new(3.0, 3.0, 4.0);
-        assert!(position.equals(&expected));
+        assert_eq!(position, expected);
 
         let position = ray.position(-1.0);
         let expected = vector3::new(1.0, 3.0, 4.0);
-        assert!(position.equals(&expected));
+        assert_eq!(position, expected);
 
         let position = ray.position(2.5);
         let expected = vector3::new(4.5, 3.0, 4.0);
-        assert!(position.equals(&expected));
+        assert_eq!(position, expected);
     }
 
     #[test]

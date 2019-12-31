@@ -11,6 +11,13 @@ pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
     Vector3 { x, y, z }
 }
 
+impl PartialEq for Vector3 {
+    fn eq(&self, other: &Self) -> bool {
+        mathf::approximately(self.x, other.x) && mathf::approximately(self.y, other.y) && mathf::approximately(self.z, other.z)
+    }
+}
+
+
 impl Vector3 {
     pub fn add(&self, rhs: &Vector3) -> Vector3 {
         new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
@@ -51,10 +58,6 @@ impl Vector3 {
             self.z * rhs.x - self.x * rhs.z,
             self.x * rhs.y - self.y * rhs.x,
         )
-    }
-
-    pub fn equals(&self, rhs: &Vector3) -> bool {
-        mathf::approximately(self.x, rhs.x) && mathf::approximately(self.y, rhs.y) && mathf::approximately(self.z, rhs.z)
     }
 }
 
