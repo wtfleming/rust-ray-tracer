@@ -16,3 +16,6 @@ path = "src/bin/main.rs"
 
 [dependencies]
 num = "0.2.0"
+
+# [profile.release]
+# debug = true
