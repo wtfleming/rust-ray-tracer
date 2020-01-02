@@ -1,6 +1,7 @@
 use crate::mathf;
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Vector3 {
     pub x: f64,
     pub y: f64,
@@ -11,36 +12,8 @@ pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
     Vector3 { x, y, z }
 }
 
-impl PartialEq for Vector3 {
-    fn eq(&self, other: &Self) -> bool {
-        mathf::approximately(self.x, other.x)
-            && mathf::approximately(self.y, other.y)
-            && mathf::approximately(self.z, other.z)
-    }
-}
-
 
 impl Vector3 {
-    pub fn add(&self, rhs: &Vector3) -> Vector3 {
-        new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
-    }
-
-    pub fn subtract(&self, rhs: &Vector3) -> Vector3 {
-        new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
-    }
-
-    pub fn multiply(&self, rhs: f64) -> Vector3 {
-        new(self.x * rhs, self.y * rhs, self.z * rhs)
-    }
-
-    pub fn divide(&self, rhs: f64) -> Vector3 {
-        new(self.x / rhs, self.y / rhs, self.z / rhs)
-    }
-
-    pub fn negate(&self) -> Vector3 {
-        new(-self.x, -self.y, -self.z)
-    }
-
     pub fn magnitude(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
@@ -63,6 +36,86 @@ impl Vector3 {
     }
 }
 
+
+
+impl PartialEq for Vector3 {
+    fn eq(&self, other: &Self) -> bool {
+        mathf::approximately(self.x, other.x)
+            && mathf::approximately(self.y, other.y)
+            && mathf::approximately(self.z, other.z)
+    }
+}
+
+// Should the 'a and 'b lifetimes be included like in the answer here?
+// https://stackoverflow.com/a/28005283/148239
+impl Add<&Vector3> for &Vector3 {
+    type Output = Vector3;
+    fn add(self, other: &Vector3) -> Vector3 {
+        Vector3 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
+impl Sub<&Vector3> for &Vector3 {
+    type Output = Vector3;
+    fn sub(self, other: &Vector3) -> Vector3 {
+        Vector3 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
+impl Mul<f64> for &Vector3 {
+    type Output = Vector3;
+    fn mul(self, other: f64) -> Vector3 {
+        Vector3 {
+            x: self.x * other,
+            y: self.y * other,
+            z: self.z * other,
+        }
+    }
+}
+
+impl Mul<f64> for Vector3 {
+    type Output = Vector3;
+    fn mul(self, other: f64) -> Vector3 {
+        Vector3 {
+            x: self.x * other,
+            y: self.y * other,
+            z: self.z * other,
+        }
+    }
+}
+
+impl Div<f64> for &Vector3 {
+    type Output = Vector3;
+    fn div(self, other: f64) -> Vector3 {
+        Vector3 {
+            x: self.x / other,
+            y: self.y / other,
+            z: self.z / other,
+        }
+    }
+}
+
+impl Neg for Vector3 {
+    type Output = Vector3;
+    fn neg(self) -> Vector3 {
+        Vector3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
+
+
 #[cfg(test)]
 mod tests {
     use super::super::approximately;
@@ -77,22 +130,20 @@ mod tests {
     }
 
     #[test]
-    fn it_adds_vector3s() {
+    fn test_add_by_reference() {
         let a = new(3.0, -2.0, 5.0);
         let b = new(-2.0, 3.0, 1.0);
-        // let c = a + b;
-        // println!("{:?}", b);
-        let c = a.add(&b);
+        let c = &a + &b;
         assert_eq!(c.x, 1.0);
         assert_eq!(c.y, 1.0);
         assert_eq!(c.z, 6.0);
     }
 
     #[test]
-    fn it_subtracts_vector3s() {
+    fn test_subtract_by_reference() {
         let a = new(3.0, 2.0, 1.0);
         let b = new(5.0, 6.0, 7.0);
-        let c = a.subtract(&b);
+        let c = &a - &b;
         assert_eq!(c.x, -2.0);
         assert_eq!(c.y, -4.0);
         assert_eq!(c.z, -6.0);
@@ -101,16 +152,16 @@ mod tests {
     #[test]
     fn it_multiplies_vector3s() {
         let a = new(1.0, -2.0, 3.0);
-        let b = a.multiply(3.5);
+        let b = &a * 3.5;
         assert_eq!(b.x, 3.5);
         assert_eq!(b.y, -7.0);
         assert_eq!(b.z, 10.5);
     }
 
     #[test]
-    fn it_divides_vector3s() {
+    fn test_divide() {
         let a = new(1.0, -2.0, 3.0);
-        let b = a.divide(2.0);
+        let b = &a / 2.0;
         assert_eq!(b.x, 0.5);
         assert_eq!(b.y, -1.0);
         assert_eq!(b.z, 1.5);
@@ -119,7 +170,7 @@ mod tests {
     #[test]
     fn it_negates_vector3s() {
         let vector = new(1.0, -2.0, 3.0);
-        let negated_vector = vector.negate();
+        let negated_vector = -vector;
         assert_eq!(negated_vector.x, -1.0);
         assert_eq!(negated_vector.y, 2.0);
         assert_eq!(negated_vector.z, -3.0);

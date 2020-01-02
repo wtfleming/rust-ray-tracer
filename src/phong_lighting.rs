@@ -19,7 +19,8 @@ pub fn lighting(
     let effective_color = material.color.multiply_color(&light.intensity);
 
     // Find the direction to the light source
-    let light_vector = light.position.subtract(point).normalize();
+    let light_vector = (&light.position - &point).normalize();
+
 
     // Compute the ambient contribution
     let ambient = effective_color.multiply_scalar(material.ambient);
@@ -30,8 +31,8 @@ pub fn lighting(
     let light_dot_normal = light_vector.dot(&normal_vector);
 
     if light_dot_normal < 0.0 {
-        diffuse = color::black();
-        specular = color::black();
+        diffuse = color::BLACK;
+        specular = color::BLACK;
     } else {
         // Compute the diffuse contribution
         diffuse = effective_color
@@ -41,11 +42,11 @@ pub fn lighting(
         // reflect_dot_eye represents the cosine of the angle between the reflection
         // vector and the eye vector. A negative number means the light reflects
         // away from the eye.
-        let reflect_vector = sphere::reflect(&light_vector.negate(), normal_vector);
+        let reflect_vector = sphere::reflect(&(-light_vector), normal_vector);
         let reflect_dot_eye = reflect_vector.dot(&eye_vector);
 
         if reflect_dot_eye <= 0.0 {
-            specular = color::black();
+            specular = color::BLACK;
         } else {
             // Compute the specular contribution
             let factor = reflect_dot_eye.powf(material.shininess);

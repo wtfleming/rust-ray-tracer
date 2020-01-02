@@ -5,8 +5,6 @@ use crate::mathf::matrix::Matrix;
 use crate::mathf::vector3;
 use crate::mathf::vector3::Vector3;
 
-
-//#[derive(Debug, Clone)]
 #[derive(Debug)]
 pub struct Sphere {
     pub id: u32,
@@ -15,13 +13,16 @@ pub struct Sphere {
 }
 
 pub fn new() -> Sphere {
-    Sphere { id: sphere_id(), transform: matrix::identity_4x4(), material: material::new() }
+    Sphere {
+        id: sphere_id(),
+        transform: matrix::identity_4x4(),
+        material: material::new(),
+    }
 }
 
 pub fn reflect(vector: &Vector3, normal: &Vector3) -> Vector3 {
-    vector.subtract(&normal.multiply(2.0).multiply(vector.dot(&normal)))
+    vector - &(normal * 2.0 * vector.dot(&normal))
 }
-
 
 impl PartialEq for Sphere {
     fn eq(&self, other: &Self) -> bool {
@@ -38,31 +39,40 @@ pub fn sphere_id() -> u32 {
     }
 }
 
-
 impl Sphere {
     pub fn set_transform(&self, transform: Matrix) -> Sphere {
-        Sphere { id: self.id, transform, material: self.material.clone() }
+        Sphere {
+            id: self.id,
+            transform,
+            material: self.material.clone(),
+        }
     }
 
     pub fn set_material(&self, material: Material) -> Sphere {
-        Sphere { id: self.id, transform: self.transform.clone(), material }
+        Sphere {
+            id: self.id,
+            transform: self.transform.clone(),
+            material,
+        }
     }
-
 
     pub fn normal_at(&self, world_point: &Vector3) -> Vector3 {
         let object_point = self.transform.inverse().multiply_vector3(&world_point);
-        let object_normal = object_point.subtract(&vector3::new(0.0, 0.0, 0.0));
-        let world_normal = self.transform.inverse().transpose().multiply_vector3(&object_normal);
+        let object_normal = &object_point - &vector3::new(0.0, 0.0, 0.0);
+        let world_normal = self
+            .transform
+            .inverse()
+            .transpose()
+            .multiply_vector3(&object_normal);
         world_normal.normalize()
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mathf::vector3;
     use crate::material;
+    use crate::mathf::vector3;
     use std::f64::consts::PI;
 
     #[test]
@@ -104,14 +114,29 @@ mod tests {
     #[test]
     fn the_normal_on_a_sphere_at_a_nonaxial_point() {
         let s = new();
-        let n = s.normal_at(&vector3::new(3.0f64.sqrt() / 3.0, 3.0f64.sqrt() / 3.0, 3.0f64.sqrt() / 3.0));
-        assert_eq!(n, vector3::new(3.0f64.sqrt() / 3.0, 3.0f64.sqrt() / 3.0, 3.0f64.sqrt() / 3.0));
+        let n = s.normal_at(&vector3::new(
+            3.0f64.sqrt() / 3.0,
+            3.0f64.sqrt() / 3.0,
+            3.0f64.sqrt() / 3.0,
+        ));
+        assert_eq!(
+            n,
+            vector3::new(
+                3.0f64.sqrt() / 3.0,
+                3.0f64.sqrt() / 3.0,
+                3.0f64.sqrt() / 3.0
+            )
+        );
     }
 
     #[test]
     fn the_normal_is_a_normalized_vector() {
         let s = new();
-        let n = s.normal_at(&vector3::new(3.0f64.sqrt() / 3.0, 3.0f64.sqrt() / 3.0, 3.0f64.sqrt() / 3.0));
+        let n = s.normal_at(&vector3::new(
+            3.0f64.sqrt() / 3.0,
+            3.0f64.sqrt() / 3.0,
+            3.0f64.sqrt() / 3.0,
+        ));
         assert_eq!(n, n.normalize());
     }
 
@@ -127,9 +152,14 @@ mod tests {
     #[test]
     fn computing_the_normal_on_a_transformed_sphere() {
         let s = new();
-        let m = matrix::scaling(&vector3::new(1.0, 0.5, 1.0)).multiply_4x4(&matrix::rotation_z(PI / 5.0));
+        let m = matrix::scaling(&vector3::new(1.0, 0.5, 1.0))
+            .multiply_4x4(&matrix::rotation_z(PI / 5.0));
         let s = s.set_transform(m);
-        let n = s.normal_at(&vector3::new(0.0, 2.0f64.sqrt() / 2.0, -(2.0f64.sqrt() / 2.0)));
+        let n = s.normal_at(&vector3::new(
+            0.0,
+            2.0f64.sqrt() / 2.0,
+            -(2.0f64.sqrt() / 2.0),
+        ));
         assert_eq!(n, vector3::new(0.0, 0.97014, -0.24254));
     }
 
@@ -168,5 +198,4 @@ mod tests {
 
         assert_eq!(s.material, m2);
     }
-
 }

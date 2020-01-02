@@ -1,7 +1,5 @@
-//use crate::mathf::approximately;
 use crate::mathf;
 use std::ops::{Add, Sub};
-
 
 #[derive(Debug, Clone)]
 pub struct Color {
@@ -22,64 +20,53 @@ impl PartialEq for Color {
     }
 }
 
-
-pub fn red() -> Color {
-    Color {
-        r: 1.0,
-        g: 0.0,
-        b: 0.0,
-    }
-}
-
-pub fn green() -> Color {
-    Color {
-        r: 0.0,
-        g: 1.0,
-        b: 0.0,
-    }
-}
-
-pub fn blue() -> Color {
-    Color {
-        r: 0.0,
-        g: 0.0,
-        b: 1.0,
-    }
-}
-
-pub fn black() -> Color {
-    Color {
-        r: 0.0,
-        g: 0.0,
-        b: 0.0,
-    }
-}
-
-pub fn white() -> Color {
-    Color {
-        r: 1.0,
-        g: 1.0,
-        b: 1.0,
-    }
-}
-
+pub const RED: Color = Color {
+    r: 1.,
+    g: 0.,
+    b: 0.,
+};
+pub const GREEN: Color = Color {
+    r: 0.,
+    g: 1.,
+    b: 0.,
+};
+pub const BLUE: Color = Color {
+    r: 0.,
+    g: 0.,
+    b: 1.,
+};
+pub const BLACK: Color = Color {
+    r: 0.,
+    g: 0.,
+    b: 0.,
+};
+pub const WHITE: Color = Color {
+    r: 1.,
+    g: 1.,
+    b: 1.,
+};
 
 impl Add for Color {
     type Output = Color;
-
     fn add(self, other: Color) -> Color {
-        Color {r: self.r + other.r, g: self.g + other.g, b: self.b + other.b }
+        Color {
+            r: self.r + other.r,
+            g: self.g + other.g,
+            b: self.b + other.b,
+        }
     }
 }
 
 impl Sub for Color {
     type Output = Color;
-
     fn sub(self, other: Color) -> Color {
-        Color {r: self.r - other.r, g: self.g - other.g, b: self.b - other.b }
+        Color {
+            r: self.r - other.r,
+            g: self.g - other.g,
+            b: self.b - other.b,
+        }
     }
 }
-
 
 impl Color {
     pub fn multiply_scalar(&self, rhs: f64) -> Color {

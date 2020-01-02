@@ -50,7 +50,7 @@ fn draw_circle_lit() {
 
             let ray_origin = vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
-            let r = ray::new(ray_origin, position.subtract(&ray_origin2).normalize());
+            let r = ray::new(ray_origin, (&position - &ray_origin2).normalize());
             let xs = r.intersect(Rc::clone(&shape));
 
             let xs = intersection::new_intersections(xs);
@@ -59,7 +59,7 @@ fn draw_circle_lit() {
             if let Some(hit_info) = hit {
                 let point = r.position(hit_info.t);
                 let normal = hit_info.object.normal_at(&point);
-                let eye = r.direction.negate();
+                let eye = -r.direction;
                 let color = phong_lighting::lighting(
                     &hit_info.object.material,
                     &light,
@@ -86,7 +86,7 @@ fn draw_circle() {
     let half = wall_size / 2.0;
 
     let mut canvas = canvas::new(canvas_pixels, canvas_pixels);
-    let color = color::red();
+    let color = color::RED;
 
     let shape = sphere::new();
     let t = matrix::scaling(&vector3::new(0.5, 1.0, 1.0));
@@ -101,7 +101,7 @@ fn draw_circle() {
             let position = vector3::new(world_x, world_y, wall_z);
             let ray_origin = vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
-            let r = ray::new(ray_origin, position.subtract(&ray_origin2));
+            let r = ray::new(ray_origin, &position - &ray_origin2);
             let xs = r.intersect(Rc::clone(&shape));
 
             let xs = intersection::new_intersections(xs);
@@ -119,9 +119,9 @@ fn draw_circle() {
 #[allow(dead_code)]
 fn draw_simple() {
     let mut canvas = canvas::new(5, 3);
-    let red = color::red();
-    let green = color::green();
-    let blue = color::blue();
+    let red = color::RED;
+    let green = color::GREEN;
+    let blue = color::BLUE;
     canvas.write_pixel(0, 0, &red);
     canvas.write_pixel(2, 1, &green);
     canvas.write_pixel(4, 2, &blue);
@@ -134,13 +134,13 @@ fn draw_simple() {
 fn draw_clock() {
     let mut canvas = canvas::new(100, 100);
     let radius = 30.0;
-    let red = color::red();
+    let red = color::RED;
 
     let origin = vector3::new(0.0, 0.0, 0.0);
-    let to_center_of_canvas = vector3::new(50.0, 50.0, 0.0);
 
     // Draw a dot for every hour on a clock
     for x in 0..12 {
+        let to_center_of_canvas = vector3::new(50.0, 50.0, 0.0);
         let rotation_degrees = (x as f64) * (360.0 / 12.0);
 
         let rotation_mat = matrix::rotation_z(mathf::degree_to_radian(rotation_degrees));
@@ -148,8 +148,8 @@ fn draw_clock() {
 
         let position = rotation_mat
             .multiply_4x4(&translation_mat)
-            .multiply_vector3(&origin)
-            .add(&to_center_of_canvas);
+            .multiply_vector3(&origin);
+        let position = &position + &to_center_of_canvas;
 
         canvas.write_pixel(position.y as isize, position.x as isize, &red);
     }

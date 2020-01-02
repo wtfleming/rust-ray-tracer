@@ -41,13 +41,13 @@ pub fn hit(intersections: &intersection::Intersections) -> Option<Intersection> 
 impl Ray {
     /// Compute the point at the given distance t along the ray
     pub fn position(&self, t: f64) -> Vector3 {
-        self.origin.add(&self.direction.multiply(t))
+        &self.origin + &(&self.direction * t)
     }
 
     pub fn intersect(&self, sphere: Rc<sphere::Sphere>) -> Vec<Intersection> {
         let ray2 = self.transform(&sphere.transform.inverse());
 
-        let sphere_to_ray = ray2.origin.subtract(&vector3::new(0.0, 0.0, 0.0));
+        let sphere_to_ray = &ray2.origin - &vector3::new(0.0, 0.0, 0.0);
 
         let a = ray2.direction.dot(&ray2.direction);
         let b = 2.0 * ray2.direction.dot(&sphere_to_ray);
@@ -89,8 +89,8 @@ impl Ray {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mathf::vector3;
     use crate::mathf::matrix;
+    use crate::mathf::vector3;
 
     #[test]
     fn it_creates_a_ray() {
@@ -241,8 +241,6 @@ mod tests {
         assert_eq!(ray2.direction, vector3::new(0.0, 3.0, 0.0));
     }
 
-
-
     #[test]
     fn intersecting_a_scaled_sphere_with_a_ray() {
         let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
@@ -264,5 +262,4 @@ mod tests {
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 0);
     }
-
 }
