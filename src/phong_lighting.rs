@@ -16,14 +16,13 @@ pub fn lighting(
     let specular;
 
     // Combine the surface color with the light's color/intensity
-    let effective_color = material.color.multiply_color(&light.intensity);
+    let effective_color = &material.color * &light.intensity;
 
     // Find the direction to the light source
     let light_vector = (&light.position - &point).normalize();
 
-
     // Compute the ambient contribution
-    let ambient = effective_color.multiply_scalar(material.ambient);
+    let ambient = &effective_color * material.ambient;
 
     // light_dot_normal represents the cosine of the angle between the light
     // vector and the normal vector. A negative number means the light is
@@ -35,9 +34,7 @@ pub fn lighting(
         specular = color::BLACK;
     } else {
         // Compute the diffuse contribution
-        diffuse = effective_color
-            .multiply_scalar(material.diffuse)
-            .multiply_scalar(light_dot_normal);
+        diffuse = &effective_color * material.diffuse * light_dot_normal;
 
         // reflect_dot_eye represents the cosine of the angle between the reflection
         // vector and the eye vector. A negative number means the light reflects
@@ -50,10 +47,7 @@ pub fn lighting(
         } else {
             // Compute the specular contribution
             let factor = reflect_dot_eye.powf(material.shininess);
-            specular = light
-                .intensity
-                .multiply_scalar(material.specular)
-                .multiply_scalar(factor);
+            specular = light.intensity.clone() * material.specular * factor;
         }
     }
 

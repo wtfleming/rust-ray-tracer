@@ -1,5 +1,5 @@
 use crate::mathf;
-use std::ops::{Add, Sub};
+use std::ops;
 
 #[derive(Debug, Clone)]
 pub struct Color {
@@ -46,7 +46,7 @@ pub const WHITE: Color = Color {
     b: 1.,
 };
 
-impl Add for Color {
+impl ops::Add for Color {
     type Output = Color;
     fn add(self, other: Color) -> Color {
         Color {
@@ -57,7 +57,7 @@ impl Add for Color {
     }
 }
 
-impl Sub for Color {
+impl ops::Sub for Color {
     type Output = Color;
     fn sub(self, other: Color) -> Color {
         Color {
@@ -68,14 +68,49 @@ impl Sub for Color {
     }
 }
 
-impl Color {
-    pub fn multiply_scalar(&self, rhs: f64) -> Color {
-        new(self.r * rhs, self.g * rhs, self.b * rhs)
+impl ops::Mul<f64> for Color {
+    type Output = Color;
+    fn mul(self, other: f64) -> Color {
+        Color {
+            r: self.r * other,
+            g: self.g * other,
+            b: self.b * other,
+        }
     }
+}
 
-    // Hadamard Product
-    pub fn multiply_color(&self, rhs: &Color) -> Color {
-        new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
+impl ops::Mul<f64> for &Color {
+    type Output = Color;
+    fn mul(self, other: f64) -> Color {
+        Color {
+            r: self.r * other,
+            g: self.g * other,
+            b: self.b * other,
+        }
+    }
+}
+
+impl ops::Mul<Color> for Color {
+    type Output = Color;
+    fn mul(self, other: Color) -> Color {
+        // Hadamard Product
+        Color {
+            r: self.r * other.r,
+            g: self.g * other.g,
+            b: self.b * other.b,
+        }
+    }
+}
+
+impl ops::Mul<&Color> for &Color {
+    type Output = Color;
+    fn mul(self, other: &Color) -> Color {
+        // Hadamard Product
+        Color {
+            r: self.r * other.r,
+            g: self.g * other.g,
+            b: self.b * other.b,
+        }
     }
 }
 
@@ -114,7 +149,7 @@ mod tests {
     #[test]
     fn it_multiplies_color_by_a_scalar() {
         let a = new(0.2, 0.3, 0.4);
-        let b = a.multiply_scalar(2.0);
+        let b = a * 2.0;
         assert!(mathf::approximately(b.r, 0.4));
         assert!(mathf::approximately(b.g, 0.6));
         assert!(mathf::approximately(b.b, 0.8));
@@ -124,7 +159,7 @@ mod tests {
     fn it_multiplies_color_by_a_color() {
         let a = new(1.0, 0.2, 0.4);
         let b = new(0.9, 1.0, 0.1);
-        let c = a.multiply_color(&b);
+        let c = a * b;
         assert!(mathf::approximately(c.r, 0.9));
         assert!(mathf::approximately(c.g, 0.2));
         assert!(mathf::approximately(c.b, 0.04));

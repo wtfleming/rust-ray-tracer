@@ -1,5 +1,5 @@
 use crate::mathf;
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops;
 
 #[derive(Debug, Clone)]
 pub struct Vector3 {
@@ -48,7 +48,7 @@ impl PartialEq for Vector3 {
 
 // Should the 'a and 'b lifetimes be included like in the answer here?
 // https://stackoverflow.com/a/28005283/148239
-impl Add<&Vector3> for &Vector3 {
+impl ops::Add<&Vector3> for &Vector3 {
     type Output = Vector3;
     fn add(self, other: &Vector3) -> Vector3 {
         Vector3 {
@@ -59,7 +59,7 @@ impl Add<&Vector3> for &Vector3 {
     }
 }
 
-impl Sub<&Vector3> for &Vector3 {
+impl ops::Sub<&Vector3> for &Vector3 {
     type Output = Vector3;
     fn sub(self, other: &Vector3) -> Vector3 {
         Vector3 {
@@ -70,7 +70,7 @@ impl Sub<&Vector3> for &Vector3 {
     }
 }
 
-impl Mul<f64> for &Vector3 {
+impl ops::Mul<f64> for &Vector3 {
     type Output = Vector3;
     fn mul(self, other: f64) -> Vector3 {
         Vector3 {
@@ -81,7 +81,7 @@ impl Mul<f64> for &Vector3 {
     }
 }
 
-impl Mul<f64> for Vector3 {
+impl ops::Mul<f64> for Vector3 {
     type Output = Vector3;
     fn mul(self, other: f64) -> Vector3 {
         Vector3 {
@@ -92,7 +92,7 @@ impl Mul<f64> for Vector3 {
     }
 }
 
-impl Div<f64> for &Vector3 {
+impl ops::Div<f64> for &Vector3 {
     type Output = Vector3;
     fn div(self, other: f64) -> Vector3 {
         Vector3 {
@@ -103,7 +103,7 @@ impl Div<f64> for &Vector3 {
     }
 }
 
-impl Neg for Vector3 {
+impl ops::Neg for Vector3 {
     type Output = Vector3;
     fn neg(self) -> Vector3 {
         Vector3 {
