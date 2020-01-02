@@ -1,5 +1,6 @@
 //use crate::mathf::approximately;
 use crate::mathf;
+use std::ops::{Add, Sub};
 
 
 #[derive(Debug, Clone)]
@@ -63,16 +64,24 @@ pub fn white() -> Color {
 }
 
 
+impl Add for Color {
+    type Output = Color;
+
+    fn add(self, other: Color) -> Color {
+        Color {r: self.r + other.r, g: self.g + other.g, b: self.b + other.b }
+    }
+}
+
+impl Sub for Color {
+    type Output = Color;
+
+    fn sub(self, other: Color) -> Color {
+        Color {r: self.r - other.r, g: self.g - other.g, b: self.b - other.b }
+    }
+}
+
 
 impl Color {
-    pub fn add(&self, rhs: &Color) -> Color {
-        new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
-    }
-
-    pub fn subtract(&self, rhs: &Color) -> Color {
-        new(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b)
-    }
-
     pub fn multiply_scalar(&self, rhs: f64) -> Color {
         new(self.r * rhs, self.g * rhs, self.b * rhs)
     }
@@ -80,10 +89,6 @@ impl Color {
     // Hadamard Product
     pub fn multiply_color(&self, rhs: &Color) -> Color {
         new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
-    }
-
-    pub fn equals(&self, rhs: &Color) -> bool {
-        mathf::approximately(self.r, rhs.r) && mathf::approximately(self.g, rhs.g) && mathf::approximately(self.b, rhs.b)
     }
 }
 
@@ -103,7 +108,7 @@ mod tests {
     fn it_adds_colors() {
         let a = new(0.9, 0.6, 0.75);
         let b = new(0.7, 0.1, 0.25);
-        let c = a.add(&b);
+        let c = a + b;
         assert!(mathf::approximately(c.r, 1.6));
         assert!(mathf::approximately(c.g, 0.7));
         assert!(mathf::approximately(c.b, 1.0));
@@ -113,7 +118,7 @@ mod tests {
     fn it_subtracts_colors() {
         let a = new(0.9, 0.6, 0.75);
         let b = new(0.7, 0.1, 0.25);
-        let c = a.subtract(&b);
+        let c = a - b;
         assert!(mathf::approximately(c.r, 0.2));
         assert!(mathf::approximately(c.g, 0.5));
         assert!(mathf::approximately(c.b, 0.5));
@@ -143,7 +148,7 @@ mod tests {
         let color = new(0.5, 0.4, 1.7);
         let same_color = new(0.5, 0.4, 1.7);
         let different_color = new(0.1, 0.2, 1.3);
-        assert!(color.equals(&same_color));
-        assert!(!color.equals(&different_color));
+        assert!(color == same_color);
+        assert!(color != different_color);
     }
 }

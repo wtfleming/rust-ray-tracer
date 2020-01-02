@@ -56,7 +56,7 @@ pub fn lighting(
         }
     }
 
-    ambient.add(&diffuse).add(&specular)
+    ambient + diffuse + specular
 }
 
 #[cfg(test)]

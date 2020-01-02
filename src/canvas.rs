@@ -43,9 +43,9 @@ mod tests {
     #[test]
     fn it_inits_all_colors_to_zero_when_creating_a_canvas() {
         let canvas = new(10, 20);
-        let black = color::new(0.0, 0.0, 0.0);
         for color in canvas.pixels.iter().flat_map(|r| r.iter()) {
-            assert!(color.equals(&black));
+            let black = color::new(0.0, 0.0, 0.0);
+            assert!(color == &black);
         }
     }
 
@@ -54,9 +54,9 @@ mod tests {
         let mut canvas = new(10, 20);
         let red = color::new(1.0, 0.0, 0.0);
         canvas.write_pixel(2, 3, &red);
-        assert!(canvas.pixels[2][3].equals(&red));
+        assert!(canvas.pixels[2][3] == red);
 
         let black = color::new(0.0, 0.0, 0.0);
-        assert!(canvas.pixels[1][2].equals(&black));
+        assert!(canvas.pixels[1][2] == black);
     }
 }
