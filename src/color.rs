@@ -1,4 +1,6 @@
-use crate::mathf::approximately;
+//use crate::mathf::approximately;
+use crate::mathf;
+
 
 #[derive(Debug, Clone)]
 pub struct Color {
@@ -10,6 +12,15 @@ pub struct Color {
 pub fn new(r: f64, g: f64, b: f64) -> Color {
     Color { r, g, b }
 }
+
+impl PartialEq for Color {
+    fn eq(&self, other: &Self) -> bool {
+        mathf::approximately(self.r, other.r)
+            && mathf::approximately(self.g, other.g)
+            && mathf::approximately(self.b, other.b)
+    }
+}
+
 
 pub fn red() -> Color {
     Color {
@@ -72,7 +83,7 @@ impl Color {
     }
 
     pub fn equals(&self, rhs: &Color) -> bool {
-        approximately(self.r, rhs.r) && approximately(self.g, rhs.g) && approximately(self.b, rhs.b)
+        mathf::approximately(self.r, rhs.r) && mathf::approximately(self.g, rhs.g) && mathf::approximately(self.b, rhs.b)
     }
 }
 
@@ -83,9 +94,9 @@ mod tests {
     #[test]
     fn it_creates_a_color() {
         let color = new(0.5, 0.4, 1.7);
-        assert!(approximately(color.r, 0.5));
-        assert!(approximately(color.g, 0.4));
-        assert!(approximately(color.b, 1.7));
+        assert!(mathf::approximately(color.r, 0.5));
+        assert!(mathf::approximately(color.g, 0.4));
+        assert!(mathf::approximately(color.b, 1.7));
     }
 
     #[test]
@@ -93,9 +104,9 @@ mod tests {
         let a = new(0.9, 0.6, 0.75);
         let b = new(0.7, 0.1, 0.25);
         let c = a.add(&b);
-        assert!(approximately(c.r, 1.6));
-        assert!(approximately(c.g, 0.7));
-        assert!(approximately(c.b, 1.0));
+        assert!(mathf::approximately(c.r, 1.6));
+        assert!(mathf::approximately(c.g, 0.7));
+        assert!(mathf::approximately(c.b, 1.0));
     }
 
     #[test]
@@ -103,18 +114,18 @@ mod tests {
         let a = new(0.9, 0.6, 0.75);
         let b = new(0.7, 0.1, 0.25);
         let c = a.subtract(&b);
-        assert!(approximately(c.r, 0.2));
-        assert!(approximately(c.g, 0.5));
-        assert!(approximately(c.b, 0.5));
+        assert!(mathf::approximately(c.r, 0.2));
+        assert!(mathf::approximately(c.g, 0.5));
+        assert!(mathf::approximately(c.b, 0.5));
     }
 
     #[test]
     fn it_multiplies_color_by_a_scalar() {
         let a = new(0.2, 0.3, 0.4);
         let b = a.multiply_scalar(2.0);
-        assert!(approximately(b.r, 0.4));
-        assert!(approximately(b.g, 0.6));
-        assert!(approximately(b.b, 0.8));
+        assert!(mathf::approximately(b.r, 0.4));
+        assert!(mathf::approximately(b.g, 0.6));
+        assert!(mathf::approximately(b.b, 0.8));
     }
 
     #[test]
@@ -122,9 +133,9 @@ mod tests {
         let a = new(1.0, 0.2, 0.4);
         let b = new(0.9, 1.0, 0.1);
         let c = a.multiply_color(&b);
-        assert!(approximately(c.r, 0.9));
-        assert!(approximately(c.g, 0.2));
-        assert!(approximately(c.b, 0.04));
+        assert!(mathf::approximately(c.r, 0.9));
+        assert!(mathf::approximately(c.g, 0.2));
+        assert!(mathf::approximately(c.b, 0.04));
     }
 
     #[test]

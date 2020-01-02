@@ -4,7 +4,7 @@ use crate::mathf::vector3::Vector3;
 use crate::mathf::vector4;
 use crate::mathf::vector4::Vector4;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Matrix {
     pub num_rows: usize,
     pub num_cols: usize,

@@ -19,13 +19,6 @@ impl PartialEq for Vector3 {
     }
 }
 
-// impl std::ops::Add<Vector3> for Vector3 {
-//     type Output = Vector3;
-
-//     fn add(self, rhs: Vector3) -> Vector3 {
-//         new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
-//     }
-// }
 
 impl Vector3 {
     pub fn add(&self, rhs: &Vector3) -> Vector3 {

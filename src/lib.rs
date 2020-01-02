@@ -1,5 +1,8 @@
-pub mod mathf;
-pub mod ppm;
-pub mod color;
 pub mod canvas;
+pub mod color;
+pub mod material;
+pub mod mathf;
+pub mod phong_lighting;
+pub mod point_light;
+pub mod ppm;
 
