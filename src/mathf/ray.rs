@@ -69,10 +69,9 @@ impl Ray {
     }
 
     pub fn transform(&self, matrix: &Matrix) -> Ray {
-        // TODO code smell here - maybe it makes sense for a ray to store vector4 instead of vector3?
-        // Or maybe have a separate Vector3 and Point structs?
-
-        // We only want translation matrices to affect "points" and not "vectors"
+        // We only want translation matrices to affect "points" and not "vectors".
+        // By setting w to be 1 the point * transform = transformed point in space;
+        // If w = 0 then point * transform = only rotated point.
         let origin = vector4::new(self.origin.x, self.origin.y, self.origin.z, 1.0);
         let direction = vector4::new(self.direction.x, self.direction.y, self.direction.z, 0.0);
 
