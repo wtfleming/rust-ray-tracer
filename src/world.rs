@@ -36,8 +36,8 @@ pub fn default_world() -> World {
     s1.material.specular = 0.2;
     let s1 = Rc::new(s1);
 
-    let s2 = sphere::new();
-    let s2 = s2.set_transform(matrix::scaling(&vector3::new(0.5, 0.5, 0.5)));
+    let mut s2 = sphere::new();
+    s2.transform = matrix::scaling(&vector3::new(0.5, 0.5, 0.5));
     let s2 = Rc::new(s2);
 
     World {
@@ -205,7 +205,7 @@ mod tests {
 
             let mut s2 = sphere::new();
             s2.material.ambient = 1.0;
-            let s2 = s2.set_transform(matrix::scaling(&vector3::new(0.5, 0.5, 0.5)));
+            s2.transform = matrix::scaling(&vector3::new(0.5, 0.5, 0.5));
             let s2 = Rc::new(s2);
 
             World {

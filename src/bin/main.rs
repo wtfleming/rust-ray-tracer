@@ -33,8 +33,8 @@ fn draw_circle_lit() {
     let mut material = material::new();
     material.color = color::new(1.0, 0.2, 1.0);
 
-    let shape = sphere::new();
-    let shape = shape.set_material(material);
+    let mut shape = sphere::new();
+    shape.material = material;
     let shape = Rc::new(shape);
 
     let light_position = vector3::new(-10.0, 10.0, -10.0);
@@ -88,9 +88,9 @@ fn draw_circle() {
     let mut canvas = canvas::new(canvas_pixels, canvas_pixels);
     let color = color::RED;
 
-    let shape = sphere::new();
+    let mut shape = sphere::new();
     let t = matrix::scaling(&vector3::new(0.5, 1.0, 1.0));
-    let shape = shape.set_transform(t);
+    shape.transform = t;
     let shape = Rc::new(shape);
 
     for y in 0..canvas_pixels {

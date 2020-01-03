@@ -30,6 +30,7 @@ impl PartialEq for Sphere {
     }
 }
 
+// TODO there is likely a better way to handle this than using an unsafe block
 static mut SPHERE_ID: u32 = 0;
 
 pub fn sphere_id() -> u32 {
@@ -40,21 +41,6 @@ pub fn sphere_id() -> u32 {
 }
 
 impl Sphere {
-    pub fn set_transform(&self, transform: Matrix) -> Sphere {
-        Sphere {
-            id: self.id,
-            transform,
-            material: self.material.clone(),
-        }
-    }
-    pub fn set_material(&self, material: Material) -> Sphere {
-        Sphere {
-            id: self.id,
-            transform: self.transform.clone(),
-            material,
-        }
-    }
-
     pub fn normal_at(&self, world_point: &Vector3) -> Vector3 {
         let object_point = self.transform.inverse().multiply_vector3(&world_point);
         let object_normal = &object_point - &vector3::new(0.0, 0.0, 0.0);
@@ -82,9 +68,9 @@ mod tests {
 
     #[test]
     fn changing_a_sphere_transformation() {
-        let s = new();
+        let mut s = new();
         let t = matrix::translation(&vector3::new(2.0, 3.0, 4.0));
-        let s = s.set_transform(t);
+        s.transform = t;
         let expected = matrix::translation(&vector3::new(2.0, 3.0, 4.0));
         assert_eq!(s.transform, expected);
     }
@@ -141,19 +127,19 @@ mod tests {
 
     #[test]
     fn computing_the_normal_on_a_translated_sphere() {
-        let s = new();
+        let mut s = new();
         let t = matrix::translation(&vector3::new(0.0, 1.0, 0.0));
-        let s = s.set_transform(t);
+        s.transform = t;
         let n = s.normal_at(&vector3::new(0.0, 1.70711, -0.70711));
         assert_eq!(n, vector3::new(0.0, 0.70711, -0.70711));
     }
 
     #[test]
     fn computing_the_normal_on_a_transformed_sphere() {
-        let s = new();
+        let mut s = new();
         let m = matrix::scaling(&vector3::new(1.0, 0.5, 1.0))
             .multiply_4x4(&matrix::rotation_z(PI / 5.0));
-        let s = s.set_transform(m);
+        s.transform = m;
         let n = s.normal_at(&vector3::new(
             0.0,
             2.0f64.sqrt() / 2.0,
@@ -187,14 +173,14 @@ mod tests {
 
     #[test]
     fn a_sphere_may_be_assigned_a_material() {
-        let s = new();
+        let mut sphere = new();
         let mut m = material::new();
         m.ambient = 1.0;
-        let s = s.set_material(m);
+        sphere.material = m;
 
         let mut m2 = material::new();
         m2.ambient = 1.0;
 
-        assert_eq!(s.material, m2);
+        assert_eq!(sphere.material, m2);
     }
 }
