@@ -3,7 +3,6 @@ use crate::color::Color;
 use crate::mathf::intersection;
 use crate::mathf::intersection::Computations;
 use crate::mathf::intersection::Intersection;
-use crate::mathf::matrix;
 use crate::mathf::ray;
 use crate::mathf::ray::Ray;
 use crate::mathf::sphere;
@@ -12,6 +11,7 @@ use crate::mathf::vector3;
 use crate::phong_lighting;
 use crate::point_light;
 use crate::point_light::PointLight;
+use crate::transformations;
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -37,7 +37,7 @@ pub fn default_world() -> World {
     let s1 = Rc::new(s1);
 
     let mut s2 = sphere::new();
-    s2.transform = matrix::scaling(&vector3::new(0.5, 0.5, 0.5));
+    s2.transform = transformations::scaling(&vector3::new(0.5, 0.5, 0.5));
     let s2 = Rc::new(s2);
 
     World {
@@ -130,7 +130,7 @@ mod tests {
         assert!(world
             .objects
             .iter()
-            .any(|sphere| sphere.transform == matrix::scaling(&vector3::new(0.5, 0.5, 0.5))));
+            .any(|sphere| sphere.transform == transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
     }
 
     #[test]
@@ -205,7 +205,7 @@ mod tests {
 
             let mut s2 = sphere::new();
             s2.material.ambient = 1.0;
-            s2.transform = matrix::scaling(&vector3::new(0.5, 0.5, 0.5));
+            s2.transform = transformations::scaling(&vector3::new(0.5, 0.5, 0.5));
             let s2 = Rc::new(s2);
 
             World {

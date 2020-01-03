@@ -5,6 +5,7 @@ use crate::mathf::matrix::Matrix;
 use crate::mathf::vector3;
 use crate::mathf::vector3::Vector3;
 
+
 #[derive(Debug)]
 pub struct Sphere {
     pub id: u32,
@@ -58,6 +59,7 @@ mod tests {
     use super::*;
     use crate::material;
     use crate::mathf::vector3;
+    use crate::transformations;
     use std::f64::consts::PI;
 
     #[test]
@@ -69,9 +71,9 @@ mod tests {
     #[test]
     fn changing_a_sphere_transformation() {
         let mut s = new();
-        let t = matrix::translation(&vector3::new(2.0, 3.0, 4.0));
+        let t = transformations::translation(&vector3::new(2.0, 3.0, 4.0));
         s.transform = t;
-        let expected = matrix::translation(&vector3::new(2.0, 3.0, 4.0));
+        let expected = transformations::translation(&vector3::new(2.0, 3.0, 4.0));
         assert_eq!(s.transform, expected);
     }
 
@@ -128,7 +130,7 @@ mod tests {
     #[test]
     fn computing_the_normal_on_a_translated_sphere() {
         let mut s = new();
-        let t = matrix::translation(&vector3::new(0.0, 1.0, 0.0));
+        let t = transformations::translation(&vector3::new(0.0, 1.0, 0.0));
         s.transform = t;
         let n = s.normal_at(&vector3::new(0.0, 1.70711, -0.70711));
         assert_eq!(n, vector3::new(0.0, 0.70711, -0.70711));
@@ -137,8 +139,8 @@ mod tests {
     #[test]
     fn computing_the_normal_on_a_transformed_sphere() {
         let mut s = new();
-        let m = matrix::scaling(&vector3::new(1.0, 0.5, 1.0))
-            .multiply_4x4(&matrix::rotation_z(PI / 5.0));
+        let m = transformations::scaling(&vector3::new(1.0, 0.5, 1.0))
+            .multiply_4x4(&transformations::rotation_z(PI / 5.0));
         s.transform = m;
         let n = s.normal_at(&vector3::new(
             0.0,

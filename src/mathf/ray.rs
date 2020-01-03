@@ -87,8 +87,8 @@ impl Ray {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mathf::matrix;
     use crate::mathf::vector3;
+    use crate::transformations;
 
     #[test]
     fn it_creates_a_ray() {
@@ -224,7 +224,7 @@ mod tests {
     #[test]
     fn test_translating_a_ray() {
         let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
-        let matrix = matrix::translation(&vector3::new(3.0, 4.0, 5.0));
+        let matrix = transformations::translation(&vector3::new(3.0, 4.0, 5.0));
         let ray2 = ray.transform(&matrix);
         assert_eq!(ray2.origin, vector3::new(4.0, 6.0, 8.0));
         assert_eq!(ray2.direction, vector3::new(0.0, 1.0, 0.0));
@@ -233,7 +233,7 @@ mod tests {
     #[test]
     fn test_scaling_a_ray() {
         let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
-        let matrix = matrix::scaling(&vector3::new(2.0, 3.0, 4.0));
+        let matrix = transformations::scaling(&vector3::new(2.0, 3.0, 4.0));
         let ray2 = ray.transform(&matrix);
         assert_eq!(ray2.origin, vector3::new(2.0, 6.0, 12.0));
         assert_eq!(ray2.direction, vector3::new(0.0, 3.0, 0.0));
@@ -243,7 +243,7 @@ mod tests {
     fn intersecting_a_scaled_sphere_with_a_ray() {
         let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let mut s = sphere::new();
-        s.transform = matrix::scaling(&vector3::new(2.0, 2.0, 2.0));
+        s.transform = transformations::scaling(&vector3::new(2.0, 2.0, 2.0));
         let s = Rc::new(s);
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
@@ -255,7 +255,7 @@ mod tests {
     fn intersecting_a_translated_sphere_with_a_ray() {
         let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let mut s = sphere::new();
-        s.transform = matrix::translation(&vector3::new(5.0, 0.0, 0.0));
+        s.transform = transformations::translation(&vector3::new(5.0, 0.0, 0.0));
         let s = Rc::new(s);
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 0);

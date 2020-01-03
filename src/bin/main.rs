@@ -6,13 +6,13 @@ use rust_ray_tracer::color;
 use rust_ray_tracer::material;
 use rust_ray_tracer::mathf;
 use rust_ray_tracer::mathf::intersection;
-use rust_ray_tracer::mathf::matrix;
 use rust_ray_tracer::mathf::ray;
 use rust_ray_tracer::mathf::sphere;
 use rust_ray_tracer::mathf::vector3;
 use rust_ray_tracer::phong_lighting;
 use rust_ray_tracer::point_light;
 use rust_ray_tracer::ppm;
+use rust_ray_tracer::transformations;
 
 fn main() {
     // draw_simple();
@@ -89,7 +89,7 @@ fn draw_circle() {
     let color = color::RED;
 
     let mut shape = sphere::new();
-    let t = matrix::scaling(&vector3::new(0.5, 1.0, 1.0));
+    let t = transformations::scaling(&vector3::new(0.5, 1.0, 1.0));
     shape.transform = t;
     let shape = Rc::new(shape);
 
@@ -143,8 +143,8 @@ fn draw_clock() {
         let to_center_of_canvas = vector3::new(50.0, 50.0, 0.0);
         let rotation_degrees = (x as f64) * (360.0 / 12.0);
 
-        let rotation_mat = matrix::rotation_z(mathf::degree_to_radian(rotation_degrees));
-        let translation_mat = matrix::translation(&vector3::new(radius, radius, 0.0));
+        let rotation_mat = transformations::rotation_z(mathf::degree_to_radian(rotation_degrees));
+        let translation_mat = transformations::translation(&vector3::new(radius, radius, 0.0));
 
         let position = rotation_mat
             .multiply_4x4(&translation_mat)
