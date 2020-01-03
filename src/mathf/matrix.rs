@@ -253,8 +253,8 @@ impl Matrix {
 
 #[cfg(test)]
 mod tests {
-    use super::super::approximately;
     use super::*;
+    use crate::mathf::approximately;
     use std::f64::consts::PI;
 
     #[test]
