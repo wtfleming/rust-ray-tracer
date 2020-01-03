@@ -14,6 +14,12 @@ pub fn new(position: Vector3, intensity: Color) -> PointLight {
     }
 }
 
+impl PartialEq for PointLight {
+    fn eq(&self, other: &Self) -> bool {
+        self.position == other.position && self.intensity == other.intensity
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

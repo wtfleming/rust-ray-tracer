@@ -47,7 +47,6 @@ impl Sphere {
             material: self.material.clone(),
         }
     }
-
     pub fn set_material(&self, material: Material) -> Sphere {
         Sphere {
             id: self.id,

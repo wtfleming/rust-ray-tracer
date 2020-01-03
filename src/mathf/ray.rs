@@ -5,7 +5,6 @@ use crate::mathf::sphere;
 use crate::mathf::vector3;
 use crate::mathf::vector3::Vector3;
 use crate::mathf::vector4;
-
 use std::rc::Rc;
 
 #[derive(Debug)]
