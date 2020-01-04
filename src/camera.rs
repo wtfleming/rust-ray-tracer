@@ -152,7 +152,7 @@ mod tests {
         let from = vector3::new(0., 0., -5.);
         let to = vector3::new(0., 0., 0.);
         let up = vector3::new(0., 1., 0.);
-        camera.transform = transformations::view_transform(&from, &to, &up);
+        camera.transform = transformations::view_transform(from, to, up);
         let image = camera.render(&world);
 
         let pixel_at = &image.pixels[5][5];

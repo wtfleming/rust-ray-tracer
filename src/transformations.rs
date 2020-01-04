@@ -64,8 +64,8 @@ pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix 
 }
 
 
-pub fn view_transform(from: &Vector3, to: &Vector3, up: &Vector3) -> Matrix {
-    let forward = (to - from).normalize();
+pub fn view_transform(from: Vector3, to: Vector3, up: Vector3) -> Matrix {
+    let forward = (&to - &from).normalize();
     let upn = up.normalize();
     let left = forward.cross(&upn);
     let true_up = left.cross(&forward);
@@ -279,7 +279,7 @@ mod tests {
         let from = vector3::new(0., 0., 0.);
         let to = vector3::new(0., 0., -1.);
         let up = vector3::new(0., 1., 0.);
-        let transform = view_transform(&from, &to, &up);
+        let transform = view_transform(from, to, up);
         assert_eq!(transform, matrix::identity_4x4());
     }
 
@@ -288,7 +288,7 @@ mod tests {
         let from = vector3::new(0., 0., 0.);
         let to = vector3::new(0., 0., 1.);
         let up = vector3::new(0., 1., 0.);
-        let transform = view_transform(&from, &to, &up);
+        let transform = view_transform(from, to, up);
         assert_eq!(transform, scaling(&vector3::new(-1., 1., -1.)));
     }
 
@@ -297,7 +297,7 @@ mod tests {
         let from = vector3::new(0., 0., 8.);
         let to = vector3::new(0., 0., 0.);
         let up = vector3::new(0., 1., 0.);
-        let transform = view_transform(&from, &to, &up);
+        let transform = view_transform(from, to, up);
         assert_eq!(transform, translation(&vector3::new(0., 0., -8.)));
     }
 
@@ -306,8 +306,7 @@ mod tests {
         let from = vector3::new(1., 3., 2.);
         let to = vector3::new(4., -2., 8.);
         let up = vector3::new(1., 1., 0.);
-        let transform = view_transform(&from, &to, &up);
-        //        assert_eq!(transform, matrix::translation(&vector3::new(0., 0., -8.)));
+        let transform = view_transform(from, to, up);
 
         assert!(approximately(transform.data[0][0], -0.50709));
         assert!(approximately(transform.data[0][1], 0.50709));

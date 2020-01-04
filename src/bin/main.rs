@@ -85,9 +85,9 @@ fn draw_three_spheres_scene() {
     let mut camera = Camera::new(100, 50, PI / 3.);
     //let mut camera = Camera::new(700, 500, PI / 3.);
     camera.transform = transformations::view_transform(
-        &vector3::new(0., 1.5, -5.),
-        &vector3::new(0., 1., 0.),
-        &vector3::new(0., 1., 0.),
+        vector3::new(0., 1.5, -5.),
+        vector3::new(0., 1., 0.),
+        vector3::new(0., 1., 0.),
     );
 
     let canvas = camera.render(&world);
