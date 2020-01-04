@@ -49,7 +49,7 @@ impl World {
             None => color::BLACK,
             Some(i) => {
                 let comps = i.prepare_computations(&ray);
-                self.shade_hit(&comps)
+                self.shade_hit(comps)
             }
         }
     }
@@ -67,8 +67,7 @@ impl World {
         Intersections::new(result)
     }
 
-
-    fn shade_hit(&self, computations: &Computations) -> Color {
+    fn shade_hit(&self, computations: Computations) -> Color {
         // For now it's probably ok to just panic, but probably should handle this better?
         if self.light == None {
             panic!("You must add a light to a world before attempting to render it");
@@ -145,7 +144,7 @@ mod tests {
         let shape = &world.objects[0];
         let intersection = Intersection::new(4., Rc::clone(&shape));
         let computations = intersection.prepare_computations(&ray);
-        let color = world.shade_hit(&computations);
+        let color = world.shade_hit(computations);
 
         assert_eq!(color, Color::new(0.38066, 0.47583, 0.2855));
     }
@@ -162,7 +161,7 @@ mod tests {
         let shape = &world.objects[1];
         let intersection = Intersection::new(0.5, Rc::clone(&shape));
         let computations = intersection.prepare_computations(&ray);
-        let color = world.shade_hit(&computations);
+        let color = world.shade_hit(computations);
 
         assert_eq!(color, Color::new(0.90498, 0.90498, 0.90498));
     }

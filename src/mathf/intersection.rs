@@ -52,7 +52,6 @@ impl Intersections {
 
         result
     }
-
 }
 
 impl Intersection {
@@ -61,10 +60,9 @@ impl Intersection {
     }
 
     pub fn prepare_computations(&self, ray: &Ray) -> Computations {
-        let ray_position = ray.position(self.t);
-
+        let point = ray.position(self.t);
         let eye_vector = -(ray.direction.clone());
-        let mut normal_vector = self.object.normal_at(&ray_position);
+        let mut normal_vector = self.object.normal_at(&point);
 
         let is_inside;
         if normal_vector.dot(&eye_vector) < 0. {
@@ -77,7 +75,7 @@ impl Intersection {
         Computations {
             t: self.t,
             object: Rc::clone(&self.object),
-            point: ray_position,
+            point: point,
             eye_vector,
             normal_vector,
             is_inside,
