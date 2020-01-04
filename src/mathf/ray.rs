@@ -1,4 +1,3 @@
-use crate::mathf::intersection;
 use crate::mathf::intersection::Intersection;
 use crate::mathf::matrix::Matrix;
 use crate::mathf::sphere;
@@ -13,31 +12,10 @@ pub struct Ray {
     pub direction: Vector3,
 }
 
-pub fn hit(intersections: &intersection::Intersections) -> Option<Intersection> {
-    // If there is a hit, it will be the intersection with the lowest nonnegative t value
-
-    let mut result: Option<Intersection> = None;
-    for i in &intersections.intersections {
-        if i.t >= 0.0 {
-            match &result {
-                None => result = Some(i.clone()),
-                Some(x) => {
-                    if i.t < x.t {
-                        result = Some(i.clone())
-                    }
-                }
-            }
-        }
-    }
-
-    result
-}
-
 impl Ray {
     pub fn new(origin: Vector3, direction: Vector3) -> Ray {
         Ray { origin, direction }
     }
-
 
     /// Compute the point at the given distance t along the ray
     pub fn position(&self, t: f64) -> Vector3 {
@@ -88,9 +66,9 @@ impl Ray {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mathf::intersection::Intersections;
     use crate::mathf::vector3;
     use crate::transformations;
-    use crate::mathf::intersection::Intersections;
 
     #[test]
     fn it_creates_a_ray() {
@@ -181,7 +159,7 @@ mod tests {
         let i1_copy = i1.clone();
         let i2 = Intersection::new(2.0, Rc::clone(&s));
         let xs = Intersections::new(vec![i2, i1]);
-        let i = hit(&xs);
+        let i = xs.hit();
 
         assert_eq!(i.unwrap(), i1_copy);
     }
@@ -193,7 +171,7 @@ mod tests {
         let i2 = Intersection::new(2.0, Rc::clone(&s));
         let i2_copy = i2.clone();
         let xs = Intersections::new(vec![i2, i1]);
-        let i = hit(&xs);
+        let i = xs.hit();
 
         assert_eq!(i.unwrap(), i2_copy);
     }
@@ -204,7 +182,7 @@ mod tests {
         let i1 = Intersection::new(-2.0, Rc::clone(&s));
         let i2 = Intersection::new(-1.0, Rc::clone(&s));
         let xs = Intersections::new(vec![i2, i1]);
-        let i = hit(&xs);
+        let i = xs.hit();
 
         assert!(i.is_none());
     }
@@ -218,7 +196,7 @@ mod tests {
         let i4 = Intersection::new(2.0, Rc::clone(&s));
         let i4_copy = i4.clone();
         let xs = Intersections::new(vec![i1, i2, i3, i4]);
-        let i = hit(&xs);
+        let i = xs.hit();
 
         assert_eq!(i.unwrap(), i4_copy);
     }

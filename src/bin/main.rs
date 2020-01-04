@@ -5,7 +5,6 @@ use rust_ray_tracer::color::Color;
 use rust_ray_tracer::material::Material;
 use rust_ray_tracer::mathf;
 use rust_ray_tracer::mathf::intersection::Intersections;
-use rust_ray_tracer::mathf::ray;
 use rust_ray_tracer::mathf::ray::Ray;
 use rust_ray_tracer::mathf::sphere;
 use rust_ray_tracer::mathf::vector3;
@@ -84,6 +83,7 @@ fn draw_three_spheres_scene() {
     world.objects = vec![Rc::new(floor), Rc::new(wall_left), Rc::new(wall_right), Rc::new(middle), Rc::new(right), Rc::new(left)];
 
     let mut camera = Camera::new(100, 50, PI / 3.);
+    //let mut camera = Camera::new(700, 500, PI / 3.);
     camera.transform = transformations::view_transform(
         &vector3::new(0., 1.5, -5.),
         &vector3::new(0., 1., 0.),
@@ -130,7 +130,7 @@ fn draw_circle_lit() {
             let xs = r.intersect(Rc::clone(&shape));
 
             let xs = Intersections::new(xs);
-            let hit = ray::hit(&xs);
+            let hit = xs.hit();
 
             if let Some(hit_info) = hit {
                 let point = r.position(hit_info.t);
@@ -181,7 +181,7 @@ fn draw_circle() {
             let xs = r.intersect(Rc::clone(&shape));
 
             let xs = Intersections::new(xs);
-            let hit = ray::hit(&xs);
+            let hit = xs.hit();
             if hit.is_some() {
                 canvas.write_pixel(x as isize, y as isize, &color);
             }

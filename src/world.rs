@@ -1,7 +1,6 @@
 use crate::color;
 use crate::color::Color;
 use crate::mathf::intersection::{Computations, Intersection, Intersections};
-use crate::mathf::ray;
 use crate::mathf::ray::Ray;
 use crate::mathf::sphere;
 use crate::mathf::sphere::Sphere;
@@ -46,9 +45,7 @@ pub fn default_world() -> World {
 impl World {
     pub fn color_at(&self, ray: Ray) -> Color {
         let xs = self.intersect(&ray);
-        let hit = ray::hit(&xs);
-
-        match hit {
+        match xs.hit() {
             None => color::BLACK,
             Some(i) => {
                 let comps = i.prepare_computations(&ray);

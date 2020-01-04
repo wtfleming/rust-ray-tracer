@@ -32,6 +32,27 @@ impl Intersections {
     pub fn new(intersections: Vec<Intersection>) -> Intersections {
         Intersections { intersections }
     }
+
+    pub fn hit(&self) -> Option<Intersection> {
+        // If there is a hit, it will be the intersection with the lowest nonnegative t value
+
+        let mut result: Option<Intersection> = None;
+        for i in &self.intersections {
+            if i.t >= 0.0 {
+                match &result {
+                    None => result = Some(i.clone()),
+                    Some(x) => {
+                        if i.t < x.t {
+                            result = Some(i.clone())
+                        }
+                    }
+                }
+            }
+        }
+
+        result
+    }
+
 }
 
 impl Intersection {
