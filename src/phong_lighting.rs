@@ -57,73 +57,71 @@ pub fn lighting(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::color;
-    use crate::material;
     use crate::mathf::vector3;
-    use crate::point_light;
+
 
     #[test]
     fn lighting_with_the_eye_between_the_light_and_surface() {
-        let material = material::new();
+        let material = Material::new();
         let position = vector3::new(0.0, 0.0, 0.0);
 
         let eye_vector = vector3::new(0.0, 0.0, -1.0);
         let normal_vector = vector3::new(0.0, 0.0, -1.0);
-        let light = point_light::new(vector3::new(0.0, 0.0, -10.0), color::new(1.0, 1.0, 1.0));
+        let light = PointLight::new(vector3::new(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
         let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
 
-        assert_eq!(result, color::new(1.9, 1.9, 1.9));
+        assert_eq!(result, Color::new(1.9, 1.9, 1.9));
     }
 
     #[test]
     fn lighting_with_the_eye_between_the_light_and_surface_eye_offset_45_degrees() {
-        let material = material::new();
+        let material = Material::new();
         let position = vector3::new(0.0, 0.0, 0.0);
 
         let eye_vector = vector3::new(0.0, 2.0f64.sqrt() / 2.0, -2.0f64.sqrt() / 2.0);
         let normal_vector = vector3::new(0.0, 0.0, -1.0);
-        let light = point_light::new(vector3::new(0.0, 0.0, -10.0), color::new(1.0, 1.0, 1.0));
+        let light = PointLight::new(vector3::new(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
         let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
 
-        assert_eq!(result, color::new(1.0, 1.0, 1.0));
+        assert_eq!(result, Color::new(1.0, 1.0, 1.0));
     }
 
     #[test]
     fn lighting_with_eye_opposite_surface() {
-        let material = material::new();
+        let material = Material::new();
         let position = vector3::new(0.0, 0.0, 0.0);
 
         let eye_vector = vector3::new(0.0, 0.0, -1.0);
         let normal_vector = vector3::new(0.0, 0.0, -1.0);
-        let light = point_light::new(vector3::new(0.0, 10.0, -10.0), color::new(1.0, 1.0, 1.0));
+        let light = PointLight::new(vector3::new(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
 
-        assert_eq!(result, color::new(0.73640, 0.73640, 0.73640));
+        assert_eq!(result, Color::new(0.73640, 0.73640, 0.73640));
     }
 
     #[test]
     fn lighting_with_the_eye_in_the_path_of_the_reflection_vector() {
-        let material = material::new();
+        let material = Material::new();
         let position = vector3::new(0.0, 0.0, 0.0);
 
         let eye_vector = vector3::new(0.0, -2.0f64.sqrt() / 2.0, -2.0f64.sqrt() / 2.0);
         let normal_vector = vector3::new(0.0, 0.0, -1.0);
-        let light = point_light::new(vector3::new(0.0, 10.0, -10.0), color::new(1.0, 1.0, 1.0));
+        let light = PointLight::new(vector3::new(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
 
-        assert_eq!(result, color::new(1.6364, 1.6364, 1.6364));
+        assert_eq!(result, Color::new(1.6364, 1.6364, 1.6364));
     }
 
     #[test]
     fn lighting_with_the_light_behind_the_surface() {
-        let material = material::new();
+        let material = Material::new();
         let position = vector3::new(0.0, 0.0, 0.0);
 
         let eye_vector = vector3::new(0.0, 0.0, -1.0);
         let normal_vector = vector3::new(0.0, 0.0, -1.0);
-        let light = point_light::new(vector3::new(0.0, 0.0, 10.0), color::new(1.0, 1.0, 1.0));
+        let light = PointLight::new(vector3::new(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
         let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
 
-        assert_eq!(result, color::new(0.1, 0.1, 0.1));
+        assert_eq!(result, Color::new(0.1, 0.1, 0.1));
     }
 }

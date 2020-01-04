@@ -2,7 +2,7 @@
 // http://netpbm.sourceforge.net/doc/ppm.html
 
 use crate::canvas;
-use crate::color;
+use crate::color::Color;
 
 pub fn canvas_to_ppm(canvas: &canvas::Canvas) -> String {
     ppm_header(&canvas) + &ppm_pixel_data(canvas)
@@ -13,7 +13,7 @@ fn f64_to_ppm_pixel(value: f64) -> u8 {
     (clamped * 255.0).ceil() as u8
 }
 
-fn color_to_ppm_pixel(color: &color::Color) -> String {
+fn color_to_ppm_pixel(color: &Color) -> String {
     let red = f64_to_ppm_pixel(color.r);
     let green = f64_to_ppm_pixel(color.g);
     let blue = f64_to_ppm_pixel(color.b);
@@ -42,11 +42,12 @@ fn ppm_pixel_data(canvas: &canvas::Canvas) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::canvas::new;
+    use crate::canvas::Canvas;
+
 
     #[test]
     fn it_creates_a_correct_ppm_header() {
-        let canvas = new(5, 3);
+        let canvas = Canvas::new(5, 3);
         let ppm = canvas_to_ppm(&canvas);
         let split = ppm.split("\n").collect::<Vec<_>>();
         assert_eq!(split[0], "P3");
@@ -56,10 +57,10 @@ mod tests {
 
     #[test]
     fn it_creates_the_correct_ppm_pixel_data() {
-        let mut canvas = new(5, 3);
-        let c1 = color::new(1.5, 0.0, 0.0);
-        let c2 = color::new(0.0, 0.5, 0.0);
-        let c3 = color::new(-0.5, 0.0, 1.0);
+        let mut canvas = Canvas::new(5, 3);
+        let c1 = Color::new(1.5, 0.0, 0.0);
+        let c2 = Color::new(0.0, 0.5, 0.0);
+        let c3 = Color::new(-0.5, 0.0, 1.0);
         canvas.write_pixel(0, 0, &c1);
         canvas.write_pixel(2, 1, &c2);
         canvas.write_pixel(4, 2, &c3);
@@ -71,19 +72,19 @@ mod tests {
 
     #[test]
     fn test_color_to_ppm_pixel() {
-        let c1 = color::new(1.5, 0.0, 0.0);
+        let c1 = Color::new(1.5, 0.0, 0.0);
         assert_eq!(color_to_ppm_pixel(&c1), "255 0 0");
 
-        let c2 = color::new(0.0, 0.5, 0.0);
+        let c2 = Color::new(0.0, 0.5, 0.0);
         assert_eq!(color_to_ppm_pixel(&c2), "0 128 0");
 
-        let c3 = color::new(-0.5, 0.0, 1.0);
+        let c3 = Color::new(-0.5, 0.0, 1.0);
         assert_eq!(color_to_ppm_pixel(&c3), "0 0 255");
     }
 
     #[test]
     fn ppm_files_are_terminated_with_newline() {
-        let canvas = new(1, 1);
+        let canvas = Canvas::new(1, 1);
         let ppm = canvas_to_ppm(&canvas);
         let split = ppm.split("\n").collect::<Vec<_>>();
         assert_eq!(split[0], "P3");

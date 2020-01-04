@@ -1,4 +1,3 @@
-use crate::color;
 use crate::color::Color;
 use crate::mathf;
 
@@ -11,13 +10,15 @@ pub struct Material {
     pub shininess: f64,
 }
 
-pub fn new() -> Material {
-    Material {
-        color: color::new(1.0, 1.0, 1.0),
-        ambient: 0.1,
-        diffuse: 0.9,
-        specular: 0.9,
-        shininess: 200.0,
+impl Material {
+    pub fn new() -> Material {
+        Material {
+            color: Color::new(1.0, 1.0, 1.0),
+            ambient: 0.1,
+            diffuse: 0.9,
+            specular: 0.9,
+            shininess: 200.0,
+        }
     }
 }
 
@@ -34,12 +35,11 @@ impl PartialEq for Material {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::color;
 
     #[test]
     fn test_the_default_material() {
-        let material = new();
-        assert_eq!(material.color, color::new(1.0, 1.0, 1.0));
+        let material = Material::new();
+        assert_eq!(material.color, Color::new(1.0, 1.0, 1.0));
         assert_eq!(material.ambient, 0.1);
         assert_eq!(material.diffuse, 0.9);
         assert_eq!(material.specular, 0.9);

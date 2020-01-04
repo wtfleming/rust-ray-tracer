@@ -1,4 +1,3 @@
-use crate::material;
 use crate::material::Material;
 use crate::mathf::matrix;
 use crate::mathf::matrix::Matrix;
@@ -17,7 +16,7 @@ pub fn new() -> Sphere {
     Sphere {
         id: sphere_id(),
         transform: matrix::identity_4x4(),
-        material: material::new(),
+        material: Material::new(),
     }
 }
 
@@ -57,7 +56,6 @@ impl Sphere {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::material;
     use crate::mathf::vector3;
     use crate::transformations;
     use std::f64::consts::PI;
@@ -169,18 +167,18 @@ mod tests {
     #[test]
     fn a_sphere_has_a_default_material() {
         let s = new();
-        let m = material::new();
+        let m = Material::new();
         assert_eq!(s.material, m);
     }
 
     #[test]
     fn a_sphere_may_be_assigned_a_material() {
         let mut sphere = new();
-        let mut m = material::new();
+        let mut m = Material::new();
         m.ambient = 1.0;
         sphere.material = m;
 
-        let mut m2 = material::new();
+        let mut m2 = Material::new();
         m2.ambient = 1.0;
 
         assert_eq!(sphere.material, m2);

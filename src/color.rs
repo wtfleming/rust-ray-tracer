@@ -8,8 +8,10 @@ pub struct Color {
     pub b: f64,
 }
 
-pub fn new(r: f64, g: f64, b: f64) -> Color {
-    Color { r, g, b }
+impl Color {
+    pub fn new(r: f64, g: f64, b: f64) -> Color {
+        Color { r, g, b }
+    }
 }
 
 impl PartialEq for Color {
@@ -120,7 +122,7 @@ mod tests {
 
     #[test]
     fn it_creates_a_color() {
-        let color = new(0.5, 0.4, 1.7);
+        let color = Color::new(0.5, 0.4, 1.7);
         assert!(mathf::approximately(color.r, 0.5));
         assert!(mathf::approximately(color.g, 0.4));
         assert!(mathf::approximately(color.b, 1.7));
@@ -128,8 +130,8 @@ mod tests {
 
     #[test]
     fn it_adds_colors() {
-        let a = new(0.9, 0.6, 0.75);
-        let b = new(0.7, 0.1, 0.25);
+        let a = Color::new(0.9, 0.6, 0.75);
+        let b = Color::new(0.7, 0.1, 0.25);
         let c = a + b;
         assert!(mathf::approximately(c.r, 1.6));
         assert!(mathf::approximately(c.g, 0.7));
@@ -138,8 +140,8 @@ mod tests {
 
     #[test]
     fn it_subtracts_colors() {
-        let a = new(0.9, 0.6, 0.75);
-        let b = new(0.7, 0.1, 0.25);
+        let a = Color::new(0.9, 0.6, 0.75);
+        let b = Color::new(0.7, 0.1, 0.25);
         let c = a - b;
         assert!(mathf::approximately(c.r, 0.2));
         assert!(mathf::approximately(c.g, 0.5));
@@ -148,7 +150,7 @@ mod tests {
 
     #[test]
     fn it_multiplies_color_by_a_scalar() {
-        let a = new(0.2, 0.3, 0.4);
+        let a = Color::new(0.2, 0.3, 0.4);
         let b = a * 2.0;
         assert!(mathf::approximately(b.r, 0.4));
         assert!(mathf::approximately(b.g, 0.6));
@@ -157,8 +159,8 @@ mod tests {
 
     #[test]
     fn it_multiplies_color_by_a_color() {
-        let a = new(1.0, 0.2, 0.4);
-        let b = new(0.9, 1.0, 0.1);
+        let a = Color::new(1.0, 0.2, 0.4);
+        let b = Color::new(0.9, 1.0, 0.1);
         let c = a * b;
         assert!(mathf::approximately(c.r, 0.9));
         assert!(mathf::approximately(c.g, 0.2));
@@ -167,9 +169,9 @@ mod tests {
 
     #[test]
     fn test_color_equals() {
-        let color = new(0.5, 0.4, 1.7);
-        let same_color = new(0.5, 0.4, 1.7);
-        let different_color = new(0.1, 0.2, 1.3);
+        let color = Color::new(0.5, 0.4, 1.7);
+        let same_color = Color::new(0.5, 0.4, 1.7);
+        let different_color = Color::new(0.1, 0.2, 1.3);
         assert!(color == same_color);
         assert!(color != different_color);
     }

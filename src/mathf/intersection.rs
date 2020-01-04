@@ -68,7 +68,6 @@ impl Intersection {
 mod tests {
     use super::*;
     use crate::mathf::approximately;
-    use crate::mathf::ray;
     use crate::mathf::vector3;
 
     #[test]
@@ -93,7 +92,7 @@ mod tests {
 
     #[test]
     fn precomputing_the_state_of_an_intersection() {
-        let ray = ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
+        let ray = Ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
         let sphere = Rc::new(sphere::new());
         let i = Intersection::new(4., Rc::clone(&sphere));
 
@@ -107,7 +106,7 @@ mod tests {
 
     #[test]
     fn test_precomputing_the_hit_when_an_intersection_happens_on_the_outside() {
-        let ray = ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
+        let ray = Ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
         let sphere = Rc::new(sphere::new());
         let i = Intersection::new(4., Rc::clone(&sphere));
 
@@ -117,7 +116,7 @@ mod tests {
 
     #[test]
     fn test_precomputing_the_hit_when_an_intersection_happens_on_the_inside() {
-        let ray = ray::new(vector3::new(0., 0., 0.), vector3::new(0., 0., 1.));
+        let ray = Ray::new(vector3::new(0., 0., 0.), vector3::new(0., 0., 1.));
         let sphere = Rc::new(sphere::new());
         let i = Intersection::new(1., Rc::clone(&sphere));
 

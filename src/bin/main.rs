@@ -1,14 +1,16 @@
-use rust_ray_tracer::camera;
-use rust_ray_tracer::canvas;
+use rust_ray_tracer::camera::Camera;
+use rust_ray_tracer::canvas::Canvas;
 use rust_ray_tracer::color;
-use rust_ray_tracer::material;
+use rust_ray_tracer::color::Color;
+use rust_ray_tracer::material::Material;
 use rust_ray_tracer::mathf;
 use rust_ray_tracer::mathf::intersection::Intersections;
 use rust_ray_tracer::mathf::ray;
+use rust_ray_tracer::mathf::ray::Ray;
 use rust_ray_tracer::mathf::sphere;
 use rust_ray_tracer::mathf::vector3;
 use rust_ray_tracer::phong_lighting;
-use rust_ray_tracer::point_light;
+use rust_ray_tracer::point_light::PointLight;
 use rust_ray_tracer::ppm;
 use rust_ray_tracer::transformations;
 use rust_ray_tracer::world;
@@ -28,8 +30,8 @@ fn main() {
 fn draw_three_spheres_scene() {
     let mut floor = sphere::new();
     floor.transform = transformations::scaling(&vector3::new(10., 0.01, 10.));
-    floor.material = material::new();
-    floor.material.color = color::new(1.0, 0.9, 0.9);
+    floor.material = Material::new();
+    floor.material.color = Color::new(1.0, 0.9, 0.9);
     floor.material.specular = 0.;
 
     let mut wall_left = sphere::new();
@@ -38,8 +40,8 @@ fn draw_three_spheres_scene() {
         .multiply_4x4(&transformations::rotation_x(PI / 2.))
         .multiply_4x4(&transformations::scaling(&vector3::new(10., 0.01, 10.)));
 
-    wall_left.material = material::new();
-    wall_left.material.color = color::new(1.0, 0.9, 0.9);
+    wall_left.material = Material::new();
+    wall_left.material.color = Color::new(1.0, 0.9, 0.9);
     wall_left.material.specular = 0.;
 
 
@@ -49,39 +51,39 @@ fn draw_three_spheres_scene() {
         .multiply_4x4(&transformations::rotation_x(PI / 2.))
         .multiply_4x4(&transformations::scaling(&vector3::new(10., 0.01, 10.)));
 
-    wall_right.material = material::new();
-    wall_right.material.color = color::new(1.0, 0.9, 0.9);
+    wall_right.material = Material::new();
+    wall_right.material.color = Color::new(1.0, 0.9, 0.9);
     wall_right.material.specular = 0.;
 
 
     let mut middle = sphere::new();
     middle.transform = transformations::translation(&vector3::new(-0.5, 1., 0.5));
-    middle.material = material::new();
-    middle.material.color = color::new(0.1, 1., 0.5);
+    middle.material = Material::new();
+    middle.material.color = Color::new(0.1, 1., 0.5);
     middle.material.diffuse = 0.7;
     middle.material.specular = 0.3;
 
     let mut right = sphere::new();
     right.transform = transformations::translation(&vector3::new(1.5, 0.5, -0.5)).multiply_4x4(&transformations::scaling(&vector3::new(0.5, 0.5, 0.5)));
-    right.material = material::new();
-    right.material.color = color::new(0.5, 1., 0.1);
+    right.material = Material::new();
+    right.material.color = Color::new(0.5, 1., 0.1);
     right.material.diffuse = 0.7;
     right.material.specular = 0.3;
 
     let mut left = sphere::new();
     left.transform = transformations::translation(&vector3::new(-1.5, 0.33, -0.75)).multiply_4x4(&transformations::scaling(&vector3::new(0.33, 0.33, 0.33)));
-    left.material = material::new();
-    left.material.color = color::new(1.0, 0.8, 0.1);
+    left.material = Material::new();
+    left.material.color = Color::new(1.0, 0.8, 0.1);
     left.material.diffuse = 0.7;
     left.material.specular = 0.3;
 
 
     let mut world = world::new();
-    let light = point_light::new(vector3::new(-10., 10., -10.), color::WHITE);
+    let light = PointLight::new(vector3::new(-10., 10., -10.), color::WHITE);
     world.light = Some(light);
     world.objects = vec![Rc::new(floor), Rc::new(wall_left), Rc::new(wall_right), Rc::new(middle), Rc::new(right), Rc::new(left)];
 
-    let mut camera = camera::new(100, 50, PI / 3.);
+    let mut camera = Camera::new(100, 50, PI / 3.);
     camera.transform = transformations::view_transform(
         &vector3::new(0., 1.5, -5.),
         &vector3::new(0., 1., 0.),
@@ -102,18 +104,18 @@ fn draw_circle_lit() {
     let pixel_size = wall_size / (canvas_pixels as f64);
     let half = wall_size / 2.0;
 
-    let mut canvas = canvas::new(canvas_pixels, canvas_pixels);
+    let mut canvas = Canvas::new(canvas_pixels, canvas_pixels);
 
-    let mut material = material::new();
-    material.color = color::new(1.0, 0.2, 1.0);
+    let mut material = Material::new();
+    material.color = Color::new(1.0, 0.2, 1.0);
 
     let mut shape = sphere::new();
     shape.material = material;
     let shape = Rc::new(shape);
 
     let light_position = vector3::new(-10.0, 10.0, -10.0);
-    let light_color = color::new(1.0, 1.0, 1.0);
-    let light = point_light::new(light_position, light_color);
+    let light_color = Color::new(1.0, 1.0, 1.0);
+    let light = PointLight::new(light_position, light_color);
 
     for y in 0..canvas_pixels {
         let world_y = half - pixel_size * (y as f64);
@@ -124,7 +126,7 @@ fn draw_circle_lit() {
 
             let ray_origin = vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
-            let r = ray::new(ray_origin, (&position - &ray_origin2).normalize());
+            let r = Ray::new(ray_origin, (&position - &ray_origin2).normalize());
             let xs = r.intersect(Rc::clone(&shape));
 
             let xs = Intersections::new(xs);
@@ -159,7 +161,7 @@ fn draw_circle() {
     let pixel_size = wall_size / (canvas_pixels as f64);
     let half = wall_size / 2.0;
 
-    let mut canvas = canvas::new(canvas_pixels, canvas_pixels);
+    let mut canvas = Canvas::new(canvas_pixels, canvas_pixels);
     let color = color::RED;
 
     let mut shape = sphere::new();
@@ -175,7 +177,7 @@ fn draw_circle() {
             let position = vector3::new(world_x, world_y, wall_z);
             let ray_origin = vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
-            let r = ray::new(ray_origin, &position - &ray_origin2);
+            let r = Ray::new(ray_origin, &position - &ray_origin2);
             let xs = r.intersect(Rc::clone(&shape));
 
             let xs = Intersections::new(xs);
@@ -192,7 +194,7 @@ fn draw_circle() {
 
 #[allow(dead_code)]
 fn draw_simple() {
-    let mut canvas = canvas::new(5, 3);
+    let mut canvas = Canvas::new(5, 3);
     let red = color::RED;
     let green = color::GREEN;
     let blue = color::BLUE;
@@ -206,7 +208,7 @@ fn draw_simple() {
 
 #[allow(dead_code)]
 fn draw_clock() {
-    let mut canvas = canvas::new(100, 100);
+    let mut canvas = Canvas::new(100, 100);
     let radius = 30.0;
     let red = color::RED;
 

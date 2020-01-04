@@ -13,10 +13,6 @@ pub struct Ray {
     pub direction: Vector3,
 }
 
-pub fn new(origin: Vector3, direction: Vector3) -> Ray {
-    Ray { origin, direction }
-}
-
 pub fn hit(intersections: &intersection::Intersections) -> Option<Intersection> {
     // If there is a hit, it will be the intersection with the lowest nonnegative t value
 
@@ -38,6 +34,11 @@ pub fn hit(intersections: &intersection::Intersections) -> Option<Intersection> 
 }
 
 impl Ray {
+    pub fn new(origin: Vector3, direction: Vector3) -> Ray {
+        Ray { origin, direction }
+    }
+
+
     /// Compute the point at the given distance t along the ray
     pub fn position(&self, t: f64) -> Vector3 {
         &self.origin + &(&self.direction * t)
@@ -93,14 +94,14 @@ mod tests {
 
     #[test]
     fn it_creates_a_ray() {
-        let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(4.0, 5.0, 6.0));
+        let ray = Ray::new(vector3::new(1.0, 2.0, 3.0), vector3::new(4.0, 5.0, 6.0));
         assert_eq!(ray.origin, vector3::new(1.0, 2.0, 3.0));
         assert_eq!(ray.direction, vector3::new(4.0, 5.0, 6.0));
     }
 
     #[test]
     fn test_ray_position() {
-        let ray = new(vector3::new(2.0, 3.0, 4.0), vector3::new(1.0, 0.0, 0.0));
+        let ray = Ray::new(vector3::new(2.0, 3.0, 4.0), vector3::new(1.0, 0.0, 0.0));
 
         let position = ray.position(0.0);
         let expected = vector3::new(2.0, 3.0, 4.0);
@@ -122,7 +123,7 @@ mod tests {
 
     #[test]
     fn a_ray_intersects_a_sphere_at_two_points() {
-        let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let s = Rc::new(sphere::new());
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
@@ -132,7 +133,7 @@ mod tests {
 
     #[test]
     fn a_ray_intersects_a_sphere_at_a_tangent() {
-        let ray = new(vector3::new(0.0, 1.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(vector3::new(0.0, 1.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let s = Rc::new(sphere::new());
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
@@ -142,7 +143,7 @@ mod tests {
 
     #[test]
     fn a_ray_misses_a_sphere() {
-        let ray = new(vector3::new(0.0, 2.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(vector3::new(0.0, 2.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let s = Rc::new(sphere::new());
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 0);
@@ -150,7 +151,7 @@ mod tests {
 
     #[test]
     fn a_ray_originates_inside_a_sphere() {
-        let ray = new(vector3::new(0.0, 0.0, 0.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(vector3::new(0.0, 0.0, 0.0), vector3::new(0.0, 0.0, 1.0));
         let s = Rc::new(sphere::new());
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
@@ -160,7 +161,7 @@ mod tests {
 
     #[test]
     fn a_sphere_is_behind_a_ray() {
-        let ray = new(vector3::new(0.0, 0.0, 5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(vector3::new(0.0, 0.0, 5.0), vector3::new(0.0, 0.0, 1.0));
         let s = Rc::new(sphere::new());
         let s2 = Rc::clone(&s);
 
@@ -224,7 +225,7 @@ mod tests {
 
     #[test]
     fn test_translating_a_ray() {
-        let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
+        let ray = Ray::new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
         let matrix = transformations::translation(&vector3::new(3.0, 4.0, 5.0));
         let ray2 = ray.transform(&matrix);
         assert_eq!(ray2.origin, vector3::new(4.0, 6.0, 8.0));
@@ -233,7 +234,7 @@ mod tests {
 
     #[test]
     fn test_scaling_a_ray() {
-        let ray = new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
+        let ray = Ray::new(vector3::new(1.0, 2.0, 3.0), vector3::new(0.0, 1.0, 0.0));
         let matrix = transformations::scaling(&vector3::new(2.0, 3.0, 4.0));
         let ray2 = ray.transform(&matrix);
         assert_eq!(ray2.origin, vector3::new(2.0, 6.0, 12.0));
@@ -242,7 +243,7 @@ mod tests {
 
     #[test]
     fn intersecting_a_scaled_sphere_with_a_ray() {
-        let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let mut s = sphere::new();
         s.transform = transformations::scaling(&vector3::new(2.0, 2.0, 2.0));
         let s = Rc::new(s);
@@ -254,7 +255,7 @@ mod tests {
 
     #[test]
     fn intersecting_a_translated_sphere_with_a_ray() {
-        let ray = new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let mut s = sphere::new();
         s.transform = transformations::translation(&vector3::new(5.0, 0.0, 0.0));
         let s = Rc::new(s);
