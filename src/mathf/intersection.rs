@@ -15,29 +15,30 @@ pub struct Computations {
     pub point: Vector3,
     pub eye_vector: Vector3,
     pub normal_vector: Vector3,
-    pub is_inside: bool
+    pub is_inside: bool,
 }
-
 
 pub struct Intersections {
     pub intersections: Vec<Intersection>,
 }
 
-pub fn new_intersections(intersections: Vec<Intersection>) -> Intersections {
-    Intersections { intersections }
-}
-
-pub fn new(t: f64, object: Rc<sphere::Sphere>) -> Intersection {
-    Intersection { t, object }
-}
-
 impl PartialEq for Intersection {
-    fn eq(&self, other: &Self) -> bool {
-        self.t == other.t && self.object == other.object
+    fn eq(&self, other: &Intersection) -> bool {
+        self.t == other.t && &self.object == &other.object
+    }
+}
+
+impl Intersections {
+    pub fn new(intersections: Vec<Intersection>) -> Intersections {
+        Intersections { intersections }
     }
 }
 
 impl Intersection {
+    pub fn new(t: f64, object: Rc<sphere::Sphere>) -> Intersection {
+        Intersection { t, object }
+    }
+
     pub fn prepare_computations(&self, ray: &Ray) -> Computations {
         let ray_position = ray.position(self.t);
 
@@ -70,11 +71,10 @@ mod tests {
     use crate::mathf::ray;
     use crate::mathf::vector3;
 
-
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
         let s = Rc::new(sphere::new());
-        let i = new(3.5, Rc::clone(&s));
+        let i = Intersection::new(3.5, Rc::clone(&s));
         assert!(approximately(i.t, 3.5));
         assert_eq!(i.object, s);
     }
@@ -82,10 +82,10 @@ mod tests {
     #[test]
     fn aggregating_intersections() {
         let s = Rc::new(sphere::new());
-        let i1 = new(1.0, Rc::clone(&s));
-        let i2 = new(2.0, Rc::clone(&s));
+        let i1 = Intersection::new(1.0, Rc::clone(&s));
+        let i2 = Intersection::new(2.0, Rc::clone(&s));
 
-        let xs = new_intersections(vec![i1, i2]);
+        let xs = Intersections::new(vec![i1, i2]);
         assert_eq!(xs.intersections.len(), 2);
         assert_eq!(xs.intersections[0].t, 1.0);
         assert_eq!(xs.intersections[1].t, 2.0);
@@ -95,7 +95,7 @@ mod tests {
     fn precomputing_the_state_of_an_intersection() {
         let ray = ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
         let sphere = Rc::new(sphere::new());
-        let i = new(4., Rc::clone(&sphere));
+        let i = Intersection::new(4., Rc::clone(&sphere));
 
         let computations = i.prepare_computations(&ray);
         assert_eq!(computations.t, i.t);
@@ -109,7 +109,7 @@ mod tests {
     fn test_precomputing_the_hit_when_an_intersection_happens_on_the_outside() {
         let ray = ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
         let sphere = Rc::new(sphere::new());
-        let i = new(4., Rc::clone(&sphere));
+        let i = Intersection::new(4., Rc::clone(&sphere));
 
         let computations = i.prepare_computations(&ray);
         assert!(!computations.is_inside);
@@ -119,7 +119,7 @@ mod tests {
     fn test_precomputing_the_hit_when_an_intersection_happens_on_the_inside() {
         let ray = ray::new(vector3::new(0., 0., 0.), vector3::new(0., 0., 1.));
         let sphere = Rc::new(sphere::new());
-        let i = new(1., Rc::clone(&sphere));
+        let i = Intersection::new(1., Rc::clone(&sphere));
 
         let computations = i.prepare_computations(&ray);
         assert_eq!(computations.point, vector3::new(0., 0., 1.));
@@ -129,5 +129,4 @@ mod tests {
         // Normal would have been (0, 0, 1), but is inverted
         assert_eq!(computations.normal_vector, vector3::new(0., 0., -1.));
     }
-
 }

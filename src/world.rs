@@ -1,8 +1,6 @@
 use crate::color;
 use crate::color::Color;
-use crate::mathf::intersection;
-use crate::mathf::intersection::Computations;
-use crate::mathf::intersection::Intersection;
+use crate::mathf::intersection::{Computations, Intersection, Intersections};
 use crate::mathf::ray;
 use crate::mathf::ray::Ray;
 use crate::mathf::sphere;
@@ -48,8 +46,7 @@ pub fn default_world() -> World {
 
 impl World {
     pub fn color_at(&self, ray: Ray) -> Color {
-        let xs = self.intersect_world(&ray);
-        let xs = intersection::new_intersections(xs);
+        let xs = self.intersect(&ray);
         let hit = ray::hit(&xs);
 
         match hit {
@@ -61,7 +58,8 @@ impl World {
         }
     }
 
-    fn intersect_world(&self, ray: &Ray) -> Vec<Intersection> {
+
+    fn intersect(&self, ray: &Ray) -> Intersections {
         let mut result: Vec<Intersection> = vec![];
         for object in self.objects.iter() {
             let i = ray.intersect(Rc::clone(&object));
@@ -69,8 +67,10 @@ impl World {
         }
 
         result.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
-        result
+
+        Intersections::new(result)
     }
+
 
     fn shade_hit(&self, computations: &Computations) -> Color {
         // For now it's probably ok to just panic, but probably should handle this better?
@@ -95,7 +95,6 @@ impl World {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mathf::intersection;
     use crate::mathf::ray;
     use crate::point_light;
 
@@ -137,12 +136,12 @@ mod tests {
     fn test_intersect_a_world_with_a_ray() {
         let world = default_world();
         let ray = ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let xs = world.intersect_world(&ray);
-        assert_eq!(xs.len(), 4);
-        assert_eq!(xs[0].t, 4.0);
-        assert_eq!(xs[1].t, 4.5);
-        assert_eq!(xs[2].t, 5.5);
-        assert_eq!(xs[3].t, 6.0);
+        let xs = world.intersect(&ray);
+        assert_eq!(xs.intersections.len(), 4);
+        assert_eq!(xs.intersections[0].t, 4.0);
+        assert_eq!(xs.intersections[1].t, 4.5);
+        assert_eq!(xs.intersections[2].t, 5.5);
+        assert_eq!(xs.intersections[3].t, 6.0);
     }
 
     #[test]
@@ -150,7 +149,7 @@ mod tests {
         let world = default_world();
         let ray = ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[0];
-        let intersection = intersection::new(4., Rc::clone(&shape));
+        let intersection = Intersection::new(4., Rc::clone(&shape));
         let computations = intersection.prepare_computations(&ray);
         let color = world.shade_hit(&computations);
 
@@ -167,7 +166,7 @@ mod tests {
 
         let ray = ray::new(vector3::new(0.0, 0.0, 0.0), vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[1];
-        let intersection = intersection::new(0.5, Rc::clone(&shape));
+        let intersection = Intersection::new(0.5, Rc::clone(&shape));
         let computations = intersection.prepare_computations(&ray);
         let color = world.shade_hit(&computations);
 

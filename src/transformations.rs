@@ -63,6 +63,7 @@ pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix 
     matrix
 }
 
+
 pub fn view_transform(from: &Vector3, to: &Vector3, up: &Vector3) -> Matrix {
     let forward = (to - from).normalize();
     let upn = up.normalize();

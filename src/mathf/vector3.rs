@@ -12,7 +12,6 @@ pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
     Vector3 { x, y, z }
 }
 
-
 impl Vector3 {
     pub fn magnitude(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
@@ -35,8 +34,6 @@ impl Vector3 {
         )
     }
 }
-
-
 
 impl PartialEq for Vector3 {
     fn eq(&self, other: &Self) -> bool {
@@ -113,8 +110,6 @@ impl ops::Neg for Vector3 {
         }
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

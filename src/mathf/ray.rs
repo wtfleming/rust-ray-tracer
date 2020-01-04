@@ -61,8 +61,8 @@ impl Ray {
             let t1 = (-b - disc_root) / (2.0 * a);
             let t2 = (-b + disc_root) / (2.0 * a);
 
-            let a = intersection::new(t1, Rc::clone(&sphere));
-            let b = intersection::new(t2, Rc::clone(&sphere));
+            let a = Intersection::new(t1, Rc::clone(&sphere));
+            let b = Intersection::new(t2, Rc::clone(&sphere));
             vec![a, b]
         }
     }
@@ -89,6 +89,7 @@ mod tests {
     use super::*;
     use crate::mathf::vector3;
     use crate::transformations;
+    use crate::mathf::intersection::Intersections;
 
     #[test]
     fn it_creates_a_ray() {
@@ -175,10 +176,10 @@ mod tests {
     #[test]
     fn test_the_hit_when_all_intersections_have_positive_t() {
         let s = Rc::new(sphere::new());
-        let i1 = intersection::new(1.0, Rc::clone(&s));
+        let i1 = Intersection::new(1.0, Rc::clone(&s));
         let i1_copy = i1.clone();
-        let i2 = intersection::new(2.0, Rc::clone(&s));
-        let xs = intersection::new_intersections(vec![i2, i1]);
+        let i2 = Intersection::new(2.0, Rc::clone(&s));
+        let xs = Intersections::new(vec![i2, i1]);
         let i = hit(&xs);
 
         assert_eq!(i.unwrap(), i1_copy);
@@ -187,10 +188,10 @@ mod tests {
     #[test]
     fn test_the_hit_when_some_intersections_have_negative_t() {
         let s = Rc::new(sphere::new());
-        let i1 = intersection::new(-1.0, Rc::clone(&s));
-        let i2 = intersection::new(2.0, Rc::clone(&s));
+        let i1 = Intersection::new(-1.0, Rc::clone(&s));
+        let i2 = Intersection::new(2.0, Rc::clone(&s));
         let i2_copy = i2.clone();
-        let xs = intersection::new_intersections(vec![i2, i1]);
+        let xs = Intersections::new(vec![i2, i1]);
         let i = hit(&xs);
 
         assert_eq!(i.unwrap(), i2_copy);
@@ -199,9 +200,9 @@ mod tests {
     #[test]
     fn test_the_hit_when_all_intersections_have_negative_t() {
         let s = Rc::new(sphere::new());
-        let i1 = intersection::new(-2.0, Rc::clone(&s));
-        let i2 = intersection::new(-1.0, Rc::clone(&s));
-        let xs = intersection::new_intersections(vec![i2, i1]);
+        let i1 = Intersection::new(-2.0, Rc::clone(&s));
+        let i2 = Intersection::new(-1.0, Rc::clone(&s));
+        let xs = Intersections::new(vec![i2, i1]);
         let i = hit(&xs);
 
         assert!(i.is_none());
@@ -210,12 +211,12 @@ mod tests {
     #[test]
     fn test_the_hit_is_always_the_lowest_nonnegative_intersection() {
         let s = Rc::new(sphere::new());
-        let i1 = intersection::new(5.0, Rc::clone(&s));
-        let i2 = intersection::new(7.0, Rc::clone(&s));
-        let i3 = intersection::new(-3.0, Rc::clone(&s));
-        let i4 = intersection::new(2.0, Rc::clone(&s));
+        let i1 = Intersection::new(5.0, Rc::clone(&s));
+        let i2 = Intersection::new(7.0, Rc::clone(&s));
+        let i3 = Intersection::new(-3.0, Rc::clone(&s));
+        let i4 = Intersection::new(2.0, Rc::clone(&s));
         let i4_copy = i4.clone();
-        let xs = intersection::new_intersections(vec![i1, i2, i3, i4]);
+        let xs = Intersections::new(vec![i1, i2, i3, i4]);
         let i = hit(&xs);
 
         assert_eq!(i.unwrap(), i4_copy);
