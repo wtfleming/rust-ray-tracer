@@ -66,30 +66,14 @@ pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix 
 
 pub fn view_transform(from: Vector3, to: Vector3, up: Vector3) -> Matrix {
     let forward = (&to - &from).normalize();
-    let upn = up.normalize();
-    let left = forward.cross(&upn);
+    let left = forward.cross(&up.normalize());
     let true_up = left.cross(&forward);
 
     let mut orientation = matrix::identity_4x4();
-    orientation.data[0][0] = left.x;
-    orientation.data[0][1] = left.y;
-    orientation.data[0][2] = left.z;
-    orientation.data[0][3] = 0.;
-
-    orientation.data[1][0] = true_up.x;
-    orientation.data[1][1] = true_up.y;
-    orientation.data[1][2] = true_up.z;
-    orientation.data[1][3] = 0.;
-
-    orientation.data[2][0] = -forward.x;
-    orientation.data[2][1] = -forward.y;
-    orientation.data[2][2] = -forward.z;
-    orientation.data[2][3] = 0.;
-
-    orientation.data[3][0] = 0.;
-    orientation.data[3][1] = 0.;
-    orientation.data[3][2] = 0.;
-    orientation.data[3][3] = 1.;
+    orientation.data[0] = vec![left.x, left.y, left.z, 0.];
+    orientation.data[1] = vec![true_up.x, true_up.y, true_up.z, 0.];
+    orientation.data[2] = vec![-forward.x, -forward.y, -forward.z, 0.];
+    orientation.data[3] = vec![0., 0., 0., 1.];
 
     orientation.multiply_4x4(&translation(&vector3::new(-from.x, -from.y, -from.z)))
 }
