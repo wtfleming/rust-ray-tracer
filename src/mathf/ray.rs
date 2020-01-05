@@ -23,22 +23,22 @@ impl Ray {
     }
 
     pub fn intersect(&self, sphere: Rc<sphere::Sphere>) -> Vec<Intersection> {
-        let ray2 = self.transform(&sphere.transform.inverse());
+        let ray = self.transform(&sphere.transform.inverse());
 
-        let sphere_to_ray = &ray2.origin - &vector3::new(0.0, 0.0, 0.0);
+        let sphere_to_ray = &ray.origin - &vector3::new(0.0, 0.0, 0.0);
 
-        let a = ray2.direction.dot(&ray2.direction);
-        let b = 2.0 * ray2.direction.dot(&sphere_to_ray);
-        let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
-        let discriminant = (b * b) - (4.0 * a * c);
+        let a = ray.direction.dot(&ray.direction);
+        let b = 2. * ray.direction.dot(&sphere_to_ray);
+        let c = sphere_to_ray.dot(&sphere_to_ray) - 1.;
+        let discriminant = (b * b) - (4. * a * c);
 
         if discriminant < 0.0 {
             // When the discrimint is negative then the ray missed and there were no intersections
             vec![]
         } else {
             let disc_root = discriminant.sqrt();
-            let t1 = (-b - disc_root) / (2.0 * a);
-            let t2 = (-b + disc_root) / (2.0 * a);
+            let t1 = (-b - disc_root) / (2. * a);
+            let t2 = (-b + disc_root) / (2. * a);
 
             let a = Intersection::new(t1, Rc::clone(&sphere));
             let b = Intersection::new(t2, Rc::clone(&sphere));

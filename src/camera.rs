@@ -18,19 +18,19 @@ pub struct Camera {
 impl Camera {
     pub fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera {
         let half_view = (field_of_view / 2.).tan();
-        let aspect = hsize as f64 / vsize as f64;
+        let aspect_ratio = hsize as f64 / vsize as f64;
 
         let half_width;
         let half_height;
-
-        if aspect >= 1. {
+        if aspect_ratio >= 1. {
             half_width = half_view;
-            half_height = half_view / aspect;
+            half_height = half_view / aspect_ratio;
         } else {
-            half_width = half_view * aspect;
+            half_width = half_view * aspect_ratio;
             half_height = half_view;
         }
-        let pixel_size = (half_width * 2.) / hsize as f64;
+
+        let pixel_size = half_width * 2. / hsize as f64;
 
         Camera {
             hsize,
