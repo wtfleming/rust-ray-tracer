@@ -9,13 +9,18 @@ use crate::mathf::vector3::Vector3;
 pub struct Sphere {
     pub id: u32,
     pub material: Material,
-    pub transform: Matrix,
+    transform: Matrix,
 }
 
-pub fn new() -> Sphere {
+
+pub fn new(transform: Option<Matrix>) -> Sphere {
+    let t =  match transform {
+        None => matrix::identity_4x4(),
+        Some(i) => i
+    };
     Sphere {
         id: sphere_id(),
-        transform: matrix::identity_4x4(),
+        transform: t,
         material: Material::new(),
     }
 }
@@ -41,6 +46,10 @@ pub fn sphere_id() -> u32 {
 }
 
 impl Sphere {
+    pub fn get_transform(&self) -> Matrix {
+        self.transform.clone()
+    }
+
     pub fn normal_at(&self, world_point: &Vector3) -> Vector3 {
         let object_point = self.transform.inverse().multiply_vector3(&world_point);
         let object_normal = &object_point - &vector3::new(0.0, 0.0, 0.0);
@@ -62,13 +71,13 @@ mod tests {
 
     #[test]
     fn test_a_sphere_default_transformation() {
-        let s = new();
+        let s = new(None);
         assert_eq!(s.transform, matrix::identity_4x4());
     }
 
     #[test]
     fn changing_a_sphere_transformation() {
-        let mut s = new();
+        let mut s = new(None);
         let t = transformations::translation(&vector3::new(2.0, 3.0, 4.0));
         s.transform = t;
         let expected = transformations::translation(&vector3::new(2.0, 3.0, 4.0));
@@ -77,28 +86,28 @@ mod tests {
 
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
-        let s = new();
+        let s = new(None);
         let n = s.normal_at(&vector3::new(1.0, 0.0, 0.0));
         assert_eq!(n, vector3::new(1.0, 0.0, 0.0));
     }
 
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_y_axis() {
-        let s = new();
+        let s = new(None);
         let n = s.normal_at(&vector3::new(0.0, 1.0, 0.0));
         assert_eq!(n, vector3::new(0.0, 1.0, 0.0));
     }
 
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_z_axis() {
-        let s = new();
+        let s = new(None);
         let n = s.normal_at(&vector3::new(0.0, 0.0, 1.0));
         assert_eq!(n, vector3::new(0.0, 0.0, 1.0));
     }
 
     #[test]
     fn the_normal_on_a_sphere_at_a_nonaxial_point() {
-        let s = new();
+        let s = new(None);
         let n = s.normal_at(&vector3::new(
             3.0f64.sqrt() / 3.0,
             3.0f64.sqrt() / 3.0,
@@ -116,7 +125,7 @@ mod tests {
 
     #[test]
     fn the_normal_is_a_normalized_vector() {
-        let s = new();
+        let s = new(None);
         let n = s.normal_at(&vector3::new(
             3.0f64.sqrt() / 3.0,
             3.0f64.sqrt() / 3.0,
@@ -127,19 +136,17 @@ mod tests {
 
     #[test]
     fn computing_the_normal_on_a_translated_sphere() {
-        let mut s = new();
-        let t = transformations::translation(&vector3::new(0.0, 1.0, 0.0));
-        s.transform = t;
+        let s = new(Some(transformations::translation(&vector3::new(0.0, 1.0, 0.0))));
         let n = s.normal_at(&vector3::new(0.0, 1.70711, -0.70711));
         assert_eq!(n, vector3::new(0.0, 0.70711, -0.70711));
     }
 
     #[test]
     fn computing_the_normal_on_a_transformed_sphere() {
-        let mut s = new();
+
         let m = transformations::scaling(&vector3::new(1.0, 0.5, 1.0))
             .multiply_4x4(&transformations::rotation_z(PI / 5.0));
-        s.transform = m;
+        let s = new(Some(m));
         let n = s.normal_at(&vector3::new(
             0.0,
             2.0f64.sqrt() / 2.0,
@@ -166,14 +173,14 @@ mod tests {
 
     #[test]
     fn a_sphere_has_a_default_material() {
-        let s = new();
+        let s = new(None);
         let m = Material::new();
         assert_eq!(s.material, m);
     }
 
     #[test]
     fn a_sphere_may_be_assigned_a_material() {
-        let mut sphere = new();
+        let mut sphere = new(None);
         let mut m = Material::new();
         m.ambient = 1.0;
         sphere.material = m;

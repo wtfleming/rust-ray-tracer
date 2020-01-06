@@ -26,14 +26,13 @@ pub fn new() -> World {
 pub fn default_world() -> World {
     let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
-    let mut s1 = sphere::new();
+    let mut s1 = sphere::new(None);
     s1.material.color = Color::new(0.8, 1.0, 0.6);
     s1.material.diffuse = 0.7;
     s1.material.specular = 0.2;
     let s1 = Rc::new(s1);
 
-    let mut s2 = sphere::new();
-    s2.transform = transformations::scaling(&vector3::new(0.5, 0.5, 0.5));
+    let s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
     let s2 = Rc::new(s2);
 
     World {
@@ -122,7 +121,7 @@ mod tests {
         assert!(world
             .objects
             .iter()
-            .any(|sphere| sphere.transform == transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
+            .any(|sphere| sphere.get_transform() == transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
     }
 
     #[test]
@@ -188,16 +187,15 @@ mod tests {
         let world = {
             let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
-            let mut s1 = sphere::new();
+            let mut s1 = sphere::new(None);
             s1.material.color = Color::new(0.8, 1.0, 0.6);
             s1.material.ambient = 1.0;
             s1.material.diffuse = 0.7;
             s1.material.specular = 0.2;
             let s1 = Rc::new(s1);
 
-            let mut s2 = sphere::new();
+            let mut s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
             s2.material.ambient = 1.0;
-            s2.transform = transformations::scaling(&vector3::new(0.5, 0.5, 0.5));
             let s2 = Rc::new(s2);
 
             World {
