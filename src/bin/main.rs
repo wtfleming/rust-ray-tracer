@@ -83,7 +83,9 @@ fn draw_three_spheres_scene() {
     world.objects = vec![Rc::new(floor), Rc::new(wall_left), Rc::new(wall_right), Rc::new(middle), Rc::new(right), Rc::new(left)];
 
     let mut camera = Camera::new(100, 50, PI / 3.);
-    //let mut camera = Camera::new(700, 500, PI / 3.);
+    //    let mut camera = Camera::new(50, 100, PI / 3.);
+    //        let mut camera = Camera::new(100, 100, PI / 3.);
+    //    let mut camera = Camera::new(10, 5, PI / 3.);
     camera.transform = transformations::view_transform(
         vector3::new(0., 1.5, -5.),
         vector3::new(0., 1., 0.),

@@ -75,7 +75,7 @@ impl Intersection {
         Computations {
             t: self.t,
             object: Rc::clone(&self.object),
-            point: point,
+            point,
             eye_vector,
             normal_vector,
             is_inside,
