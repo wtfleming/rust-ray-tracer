@@ -7,9 +7,10 @@ use crate::mathf::vector3::Vector3;
 
 #[derive(Debug)]
 pub struct Sphere {
-    pub id: u32,
+    id: u32,
     pub material: Material,
     transform: Matrix,
+    inverse_transform: Matrix
 }
 
 
@@ -18,10 +19,12 @@ pub fn new(transform: Option<Matrix>) -> Sphere {
         None => matrix::identity_4x4(),
         Some(i) => i
     };
+    let inverse_transform = t.inverse().clone();
     Sphere {
         id: sphere_id(),
         transform: t,
         material: Material::new(),
+        inverse_transform,
     }
 }
 
@@ -46,8 +49,12 @@ pub fn sphere_id() -> u32 {
 }
 
 impl Sphere {
-    pub fn get_transform(&self) -> Matrix {
-        self.transform.clone()
+    pub fn get_transform(&self) -> &Matrix {
+        &self.transform
+    }
+
+    pub fn get_inverse_transform(&self) -> &Matrix {
+        &self.inverse_transform
     }
 
     pub fn normal_at(&self, world_point: &Vector3) -> Vector3 {

@@ -23,7 +23,7 @@ impl Ray {
     }
 
     pub fn intersect(&self, sphere: Rc<sphere::Sphere>) -> Vec<Intersection> {
-        let ray = self.transform(&sphere.get_transform().inverse());
+        let ray = self.transform(&sphere.get_inverse_transform());
 
         let sphere_to_ray = &ray.origin - &vector3::new(0.0, 0.0, 0.0);
 
@@ -224,7 +224,7 @@ mod tests {
     #[test]
     fn intersecting_a_scaled_sphere_with_a_ray() {
         let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let mut s = sphere::new(Some(transformations::scaling(&vector3::new(2.0, 2.0, 2.0))));
+        let s = sphere::new(Some(transformations::scaling(&vector3::new(2.0, 2.0, 2.0))));
         let s = Rc::new(s);
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
@@ -235,7 +235,7 @@ mod tests {
     #[test]
     fn intersecting_a_translated_sphere_with_a_ray() {
         let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let mut s = sphere::new(Some(transformations::translation(&vector3::new(5.0, 0.0, 0.0))));
+        let s = sphere::new(Some(transformations::translation(&vector3::new(5.0, 0.0, 0.0))));
         let s = Rc::new(s);
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 0);
