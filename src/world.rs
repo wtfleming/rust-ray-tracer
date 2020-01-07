@@ -121,7 +121,7 @@ mod tests {
         assert!(world
             .objects
             .iter()
-            .any(|sphere| sphere.get_transform() == &transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
+            .any(|sphere| sphere.transform() == &transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
     }
 
     #[test]

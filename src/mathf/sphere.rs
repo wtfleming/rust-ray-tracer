@@ -49,11 +49,11 @@ pub fn sphere_id() -> u32 {
 }
 
 impl Sphere {
-    pub fn get_transform(&self) -> &Matrix {
+    pub fn transform(&self) -> &Matrix {
         &self.transform
     }
 
-    pub fn get_inverse_transform(&self) -> &Matrix {
+    pub fn inverse_transform(&self) -> &Matrix {
         &self.inverse_transform
     }
 

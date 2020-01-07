@@ -23,7 +23,7 @@ impl Ray {
     }
 
     pub fn intersect(&self, sphere: Rc<sphere::Sphere>) -> Vec<Intersection> {
-        let ray = self.transform(&sphere.get_inverse_transform());
+        let ray = self.transform(&sphere.inverse_transform());
 
         let sphere_to_ray = &ray.origin - &vector3::new(0.0, 0.0, 0.0);
 
