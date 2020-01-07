@@ -1,5 +1,5 @@
-use crate::mathf::intersection::Intersection;
 use crate::material::Material;
+use crate::mathf::intersection::Intersection;
 use crate::mathf::matrix::Matrix;
 use crate::mathf::ray::Ray;
 use crate::mathf::vector3::Vector3;
@@ -11,10 +11,8 @@ pub struct Sphere {
     id: u32,
     material: Material,
     transform: Matrix,
-    inverse_transform: Matrix
+    inverse_transform: Matrix,
 }
-
-
 
 pub fn reflect(vector: &Vector3, normal: &Vector3) -> Vector3 {
     vector - &(normal * 2.0 * vector.dot(&normal))
@@ -38,13 +36,13 @@ pub fn sphere_id() -> u32 {
 
 impl Sphere {
     pub fn new(transform: Option<Matrix>, material: Option<Material>) -> Sphere {
-        let t =  match transform {
+        let t = match transform {
             None => Matrix::identity_4x4(),
-            Some(x) => x
+            Some(x) => x,
         };
         let mat = match material {
             None => Material::new(),
-            Some(x) => x
+            Some(x) => x,
         };
         let inverse_transform = t.inverse().clone();
 
@@ -79,15 +77,15 @@ impl Sphere {
         world_normal.normalize()
     }
 
-    pub fn intersect(sphere: Rc<Sphere>, ray_in: &Ray) -> Vec<Intersection> {
-        let ray = ray_in.transform(&sphere.inverse_transform());
+    pub fn intersect(sphere: Rc<Sphere>, world_ray: &Ray) -> Vec<Intersection> {
+        let object_ray = world_ray.transform(&sphere.inverse_transform());
 
-        let sphere_to_ray = &ray.origin - &Vector3::new(0.0, 0.0, 0.0);
+        let sphere_to_ray = &object_ray.origin - &Vector3::new(0.0, 0.0, 0.0);
 
-        // println!("{:?}", sphere_to_ray); // TODO THIS SEEMS TO ALWAYS BE THE SAME FOR EACH PIXEL - IF SO CAN CACHE IT ON THE SPHERE OBJECT?    
+        // println!("{:?}", sphere_to_ray); // TODO THIS SEEMS TO ALWAYS BE THE SAME FOR EACH PIXEL - IF SO CAN CACHE IT ON THE SPHERE OBJECT?
 
-        let a = ray.direction.dot(&ray.direction);
-        let b = 2. * ray.direction.dot(&sphere_to_ray);
+        let a = object_ray.direction.dot(&object_ray.direction);
+        let b = 2. * object_ray.direction.dot(&sphere_to_ray);
         let c = sphere_to_ray.dot(&sphere_to_ray) - 1.;
         let discriminant = (b * b) - (4. * a * c);
 
@@ -104,8 +102,6 @@ impl Sphere {
             vec![a, b]
         }
     }
-
-
 }
 
 #[cfg(test)]
@@ -183,7 +179,10 @@ mod tests {
 
     #[test]
     fn computing_the_normal_on_a_translated_sphere() {
-        let s = Sphere::new(Some(transformations::translation(&Vector3::new(0.0, 1.0, 0.0))), None);
+        let s = Sphere::new(
+            Some(transformations::translation(&Vector3::new(0.0, 1.0, 0.0))),
+            None,
+        );
         let n = s.normal_at(&Vector3::new(0.0, 1.70711, -0.70711));
         assert_eq!(n, Vector3::new(0.0, 0.70711, -0.70711));
     }
@@ -239,7 +238,10 @@ mod tests {
     #[test]
     fn intersecting_a_scaled_sphere_with_a_ray() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(Some(transformations::scaling(&Vector3::new(2.0, 2.0, 2.0))), None);
+        let s = Sphere::new(
+            Some(transformations::scaling(&Vector3::new(2.0, 2.0, 2.0))),
+            None,
+        );
         let s = Rc::new(s);
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 2);
@@ -250,13 +252,16 @@ mod tests {
     #[test]
     fn intersecting_a_translated_sphere_with_a_ray() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Sphere::new(Some(transformations::translation(&Vector3::new(5.0, 0.0, 0.0))), None);
+        let s = Sphere::new(
+            Some(transformations::translation(&Vector3::new(5.0, 0.0, 0.0))),
+            None,
+        );
         let s = Rc::new(s);
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 0);
     }
 
-        #[test]
+    #[test]
     fn a_ray_intersects_a_sphere_at_two_points() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
         let s = Rc::new(Sphere::new(None, None));
