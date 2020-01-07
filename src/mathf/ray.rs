@@ -104,7 +104,7 @@ mod tests {
     #[test]
     fn a_ray_intersects_a_sphere_at_two_points() {
         let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 4.0);
@@ -114,7 +114,7 @@ mod tests {
     #[test]
     fn a_ray_intersects_a_sphere_at_a_tangent() {
         let ray = Ray::new(vector3::new(0.0, 1.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 5.0);
@@ -124,7 +124,7 @@ mod tests {
     #[test]
     fn a_ray_misses_a_sphere() {
         let ray = Ray::new(vector3::new(0.0, 2.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 0);
     }
@@ -132,7 +132,7 @@ mod tests {
     #[test]
     fn a_ray_originates_inside_a_sphere() {
         let ray = Ray::new(vector3::new(0.0, 0.0, 0.0), vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -1.0);
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn a_sphere_is_behind_a_ray() {
         let ray = Ray::new(vector3::new(0.0, 0.0, 5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let s2 = Rc::clone(&s);
 
         let xs = ray.intersect(s);
@@ -156,7 +156,7 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_all_intersections_have_positive_t() {
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let i1 = Intersection::new(1.0, Rc::clone(&s));
         let i1_copy = i1.clone();
         let i2 = Intersection::new(2.0, Rc::clone(&s));
@@ -168,7 +168,7 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_some_intersections_have_negative_t() {
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let i1 = Intersection::new(-1.0, Rc::clone(&s));
         let i2 = Intersection::new(2.0, Rc::clone(&s));
         let i2_copy = i2.clone();
@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_all_intersections_have_negative_t() {
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let i1 = Intersection::new(-2.0, Rc::clone(&s));
         let i2 = Intersection::new(-1.0, Rc::clone(&s));
         let xs = Intersections::new(vec![i2, i1]);
@@ -191,7 +191,7 @@ mod tests {
 
     #[test]
     fn test_the_hit_is_always_the_lowest_nonnegative_intersection() {
-        let s = Rc::new(sphere::new(None));
+        let s = Rc::new(sphere::new(None, None));
         let i1 = Intersection::new(5.0, Rc::clone(&s));
         let i2 = Intersection::new(7.0, Rc::clone(&s));
         let i3 = Intersection::new(-3.0, Rc::clone(&s));
@@ -224,7 +224,7 @@ mod tests {
     #[test]
     fn intersecting_a_scaled_sphere_with_a_ray() {
         let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = sphere::new(Some(transformations::scaling(&vector3::new(2.0, 2.0, 2.0))));
+        let s = sphere::new(Some(transformations::scaling(&vector3::new(2.0, 2.0, 2.0))), None);
         let s = Rc::new(s);
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 2);
@@ -235,7 +235,7 @@ mod tests {
     #[test]
     fn intersecting_a_translated_sphere_with_a_ray() {
         let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
-        let s = sphere::new(Some(transformations::translation(&vector3::new(5.0, 0.0, 0.0))));
+        let s = sphere::new(Some(transformations::translation(&vector3::new(5.0, 0.0, 0.0))), None);
         let s = Rc::new(s);
         let xs = ray.intersect(s);
         assert_eq!(xs.len(), 0);

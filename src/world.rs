@@ -1,5 +1,6 @@
 use crate::color;
 use crate::color::Color;
+use crate::material::Material;
 use crate::mathf::intersection::{Computations, Intersection, Intersections};
 use crate::mathf::ray::Ray;
 use crate::mathf::sphere;
@@ -26,13 +27,15 @@ pub fn new() -> World {
 pub fn default_world() -> World {
     let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
-    let mut s1 = sphere::new(None);
-    s1.material.color = Color::new(0.8, 1.0, 0.6);
-    s1.material.diffuse = 0.7;
-    s1.material.specular = 0.2;
+    let mut material = Material::new();
+    material.color = Color::new(0.8, 1.0, 0.6);
+    material.diffuse = 0.7;
+    material.specular = 0.2;
+
+    let s1 = sphere::new(None, Some(material));
     let s1 = Rc::new(s1);
 
-    let s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
+    let s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), None);
     let s2 = Rc::new(s2);
 
     World {
@@ -77,7 +80,7 @@ impl World {
         // and add the resulting colors together.
 
         phong_lighting::lighting(
-            &computations.object.material,
+            &computations.object.material(),
             &self.light.as_ref().unwrap(),
             &computations.point,
             &computations.eye_vector,
@@ -109,15 +112,15 @@ mod tests {
         assert!(world
             .objects
             .iter()
-            .any(|sphere| sphere.material.color == Color::new(0.8, 1.0, 0.6)));
+            .any(|sphere| sphere.material().color == Color::new(0.8, 1.0, 0.6)));
         assert!(world
             .objects
             .iter()
-            .any(|sphere| sphere.material.diffuse == 0.7));
+            .any(|sphere| sphere.material().diffuse == 0.7));
         assert!(world
             .objects
             .iter()
-            .any(|sphere| sphere.material.specular == 0.2));
+            .any(|sphere| sphere.material().specular == 0.2));
         assert!(world
             .objects
             .iter()
@@ -187,15 +190,18 @@ mod tests {
         let world = {
             let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
-            let mut s1 = sphere::new(None);
-            s1.material.color = Color::new(0.8, 1.0, 0.6);
-            s1.material.ambient = 1.0;
-            s1.material.diffuse = 0.7;
-            s1.material.specular = 0.2;
+            let mut material = Material::new();
+            material.color = Color::new(0.8, 1.0, 0.6);
+            material.ambient = 1.0;
+            material.diffuse = 0.7;
+            material.specular = 0.2;
+
+            let s1 = sphere::new(None, Some(material));
             let s1 = Rc::new(s1);
 
-            let mut s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
-            s2.material.ambient = 1.0;
+            let mut material = Material::new();
+            material.ambient = 1.0;
+            let s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), Some(material));
             let s2 = Rc::new(s2);
 
             World {
@@ -204,7 +210,7 @@ mod tests {
             }
         };
 
-        let inner_color = world.objects[1].material.color.clone();
+        let inner_color = world.objects[1].material().color.clone();
 
         let ray = Ray::new(vector3::new(0.0, 0.0, 0.75), vector3::new(0.0, 0.0, -1.0));
         let color = world.color_at(ray);

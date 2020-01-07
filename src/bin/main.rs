@@ -28,22 +28,20 @@ fn main() {
 #[allow(dead_code)]
 fn draw_three_spheres_scene() {
     let floor_transform = transformations::scaling(&vector3::new(10., 0.01, 10.));
-    let mut floor = sphere::new(Some(floor_transform));
-    floor.material = Material::new();
-    floor.material.color = Color::new(1.0, 0.9, 0.9);
-    floor.material.specular = 0.;
+    let mut floor_material = Material::new();
+    floor_material.color = Color::new(1.0, 0.9, 0.9);
+    floor_material.specular = 0.;
+    let floor = sphere::new(Some(floor_transform), Some(floor_material));
 
 
     let wall_left_transform = transformations::translation(&vector3::new(0., 0.0, 5.))
         .multiply_4x4(&transformations::rotation_y(-PI / 4.))
         .multiply_4x4(&transformations::rotation_x(PI / 2.))
         .multiply_4x4(&transformations::scaling(&vector3::new(10., 0.01, 10.)));
-
-    let mut wall_left = sphere::new(Some(wall_left_transform));
-    wall_left.material = Material::new();
-    wall_left.material.color = Color::new(1.0, 0.9, 0.9);
-    wall_left.material.specular = 0.;
-
+    let mut wall_left_material = Material::new();
+    wall_left_material.color = Color::new(1.0, 0.9, 0.9);
+    wall_left_material.specular = 0.;
+    let wall_left = sphere::new(Some(wall_left_transform), Some(wall_left_material));
 
 
     let wall_right_transform = transformations::translation(&vector3::new(0., 0.0, 5.))
@@ -51,34 +49,34 @@ fn draw_three_spheres_scene() {
         .multiply_4x4(&transformations::rotation_x(PI / 2.))
         .multiply_4x4(&transformations::scaling(&vector3::new(10., 0.01, 10.)));
 
-    let mut wall_right = sphere::new(Some(wall_right_transform));
-    wall_right.material = Material::new();
-    wall_right.material.color = Color::new(1.0, 0.9, 0.9);
-    wall_right.material.specular = 0.;
+    let mut wall_right_material = Material::new();
+    wall_right_material.color = Color::new(1.0, 0.9, 0.9);
+    wall_right_material.specular = 0.;
+    let wall_right = sphere::new(Some(wall_right_transform), Some(wall_right_material));
 
 
     let middle_transform = transformations::translation(&vector3::new(-0.5, 1., 0.5));
-    let mut middle = sphere::new(Some(middle_transform));
-    middle.material = Material::new();
-    middle.material.color = Color::new(0.1, 1., 0.5);
-    middle.material.diffuse = 0.7;
-    middle.material.specular = 0.3;
+    let mut middle_material = Material::new();
+    middle_material.color = Color::new(0.1, 1., 0.5);
+    middle_material.diffuse = 0.7;
+    middle_material.specular = 0.3;
+    let middle = sphere::new(Some(middle_transform), Some(middle_material));
 
 
     let right_transform = transformations::translation(&vector3::new(1.5, 0.5, -0.5)).multiply_4x4(&transformations::scaling(&vector3::new(0.5, 0.5, 0.5)));
-    let mut right = sphere::new(Some(right_transform));
-    right.material = Material::new();
-    right.material.color = Color::new(0.5, 1., 0.1);
-    right.material.diffuse = 0.7;
-    right.material.specular = 0.3;
+    let mut right_material = Material::new();
+    right_material.color = Color::new(0.5, 1., 0.1);
+    right_material.diffuse = 0.7;
+    right_material.specular = 0.3;
+    let right = sphere::new(Some(right_transform), Some(right_material));
 
 
     let left_transform = transformations::translation(&vector3::new(-1.5, 0.33, -0.75)).multiply_4x4(&transformations::scaling(&vector3::new(0.33, 0.33, 0.33)));
-    let mut left = sphere::new(Some(left_transform));
-    left.material = Material::new();
-    left.material.color = Color::new(1.0, 0.8, 0.1);
-    left.material.diffuse = 0.7;
-    left.material.specular = 0.3;
+    let mut left_material = Material::new();
+    left_material.color = Color::new(1.0, 0.8, 0.1);
+    left_material.diffuse = 0.7;
+    left_material.specular = 0.3;
+    let left = sphere::new(Some(left_transform), Some(left_material));
 
 
     let mut world = world::new();
@@ -116,8 +114,7 @@ fn draw_circle_lit() {
     let mut material = Material::new();
     material.color = Color::new(1.0, 0.2, 1.0);
 
-    let mut shape = sphere::new(None);
-    shape.material = material;
+    let shape = sphere::new(None, Some(material));
     let shape = Rc::new(shape);
 
     let light_position = vector3::new(-10.0, 10.0, -10.0);
@@ -144,7 +141,7 @@ fn draw_circle_lit() {
                 let normal = hit_info.object.normal_at(&point);
                 let eye = -r.direction;
                 let color = phong_lighting::lighting(
-                    &hit_info.object.material,
+                    &hit_info.object.material(),
                     &light,
                     &point,
                     &eye,
@@ -173,7 +170,7 @@ fn draw_circle() {
 
 
     let t = transformations::scaling(&vector3::new(0.5, 1.0, 1.0));
-    let shape = sphere::new(Some(t));
+    let shape = sphere::new(Some(t), None);
     let shape = Rc::new(shape);
 
     for y in 0..canvas_pixels {
