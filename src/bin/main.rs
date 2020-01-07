@@ -6,7 +6,7 @@ use rust_ray_tracer::material::Material;
 use rust_ray_tracer::mathf;
 use rust_ray_tracer::mathf::intersection::Intersections;
 use rust_ray_tracer::mathf::ray::Ray;
-use rust_ray_tracer::mathf::sphere;
+use rust_ray_tracer::mathf::sphere::Sphere;
 use rust_ray_tracer::mathf::vector3;
 use rust_ray_tracer::phong_lighting;
 use rust_ray_tracer::point_light::PointLight;
@@ -31,7 +31,7 @@ fn draw_three_spheres_scene() {
     let mut floor_material = Material::new();
     floor_material.color = Color::new(1.0, 0.9, 0.9);
     floor_material.specular = 0.;
-    let floor = sphere::new(Some(floor_transform), Some(floor_material));
+    let floor = Sphere::new(Some(floor_transform), Some(floor_material));
 
 
     let wall_left_transform = transformations::translation(&vector3::new(0., 0.0, 5.))
@@ -41,7 +41,7 @@ fn draw_three_spheres_scene() {
     let mut wall_left_material = Material::new();
     wall_left_material.color = Color::new(1.0, 0.9, 0.9);
     wall_left_material.specular = 0.;
-    let wall_left = sphere::new(Some(wall_left_transform), Some(wall_left_material));
+    let wall_left = Sphere::new(Some(wall_left_transform), Some(wall_left_material));
 
 
     let wall_right_transform = transformations::translation(&vector3::new(0., 0.0, 5.))
@@ -52,7 +52,7 @@ fn draw_three_spheres_scene() {
     let mut wall_right_material = Material::new();
     wall_right_material.color = Color::new(1.0, 0.9, 0.9);
     wall_right_material.specular = 0.;
-    let wall_right = sphere::new(Some(wall_right_transform), Some(wall_right_material));
+    let wall_right = Sphere::new(Some(wall_right_transform), Some(wall_right_material));
 
 
     let middle_transform = transformations::translation(&vector3::new(-0.5, 1., 0.5));
@@ -60,7 +60,7 @@ fn draw_three_spheres_scene() {
     middle_material.color = Color::new(0.1, 1., 0.5);
     middle_material.diffuse = 0.7;
     middle_material.specular = 0.3;
-    let middle = sphere::new(Some(middle_transform), Some(middle_material));
+    let middle = Sphere::new(Some(middle_transform), Some(middle_material));
 
 
     let right_transform = transformations::translation(&vector3::new(1.5, 0.5, -0.5)).multiply_4x4(&transformations::scaling(&vector3::new(0.5, 0.5, 0.5)));
@@ -68,7 +68,7 @@ fn draw_three_spheres_scene() {
     right_material.color = Color::new(0.5, 1., 0.1);
     right_material.diffuse = 0.7;
     right_material.specular = 0.3;
-    let right = sphere::new(Some(right_transform), Some(right_material));
+    let right = Sphere::new(Some(right_transform), Some(right_material));
 
 
     let left_transform = transformations::translation(&vector3::new(-1.5, 0.33, -0.75)).multiply_4x4(&transformations::scaling(&vector3::new(0.33, 0.33, 0.33)));
@@ -76,7 +76,7 @@ fn draw_three_spheres_scene() {
     left_material.color = Color::new(1.0, 0.8, 0.1);
     left_material.diffuse = 0.7;
     left_material.specular = 0.3;
-    let left = sphere::new(Some(left_transform), Some(left_material));
+    let left = Sphere::new(Some(left_transform), Some(left_material));
 
 
     let mut world = world::new();
@@ -114,7 +114,7 @@ fn draw_circle_lit() {
     let mut material = Material::new();
     material.color = Color::new(1.0, 0.2, 1.0);
 
-    let shape = sphere::new(None, Some(material));
+    let shape = Sphere::new(None, Some(material));
     let shape = Rc::new(shape);
 
     let light_position = vector3::new(-10.0, 10.0, -10.0);
@@ -130,16 +130,15 @@ fn draw_circle_lit() {
 
             let ray_origin = vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
-            let r = Ray::new(ray_origin, (&position - &ray_origin2).normalize());
-            let xs = r.intersect(Rc::clone(&shape));
-
+            let ray = Ray::new(ray_origin, (&position - &ray_origin2).normalize());
+            let xs = Sphere::intersect(Rc::clone(&shape), &ray);
             let xs = Intersections::new(xs);
             let hit = xs.hit();
 
             if let Some(hit_info) = hit {
-                let point = r.position(hit_info.t);
+                let point = ray.position(hit_info.t);
                 let normal = hit_info.object.normal_at(&point);
-                let eye = -r.direction;
+                let eye = -ray.direction;
                 let color = phong_lighting::lighting(
                     &hit_info.object.material(),
                     &light,
@@ -170,7 +169,7 @@ fn draw_circle() {
 
 
     let t = transformations::scaling(&vector3::new(0.5, 1.0, 1.0));
-    let shape = sphere::new(Some(t), None);
+    let shape = Sphere::new(Some(t), None);
     let shape = Rc::new(shape);
 
     for y in 0..canvas_pixels {
@@ -181,8 +180,8 @@ fn draw_circle() {
             let position = vector3::new(world_x, world_y, wall_z);
             let ray_origin = vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
-            let r = Ray::new(ray_origin, &position - &ray_origin2);
-            let xs = r.intersect(Rc::clone(&shape));
+            let ray = Ray::new(ray_origin, &position - &ray_origin2);
+            let xs = Sphere::intersect(Rc::clone(&shape), &ray);
 
             let xs = Intersections::new(xs);
             let hit = xs.hit();

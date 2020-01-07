@@ -88,10 +88,11 @@ mod tests {
     use super::*;
     use crate::mathf::approximately;
     use crate::mathf::vector3;
+    use crate::mathf::sphere::Sphere;
 
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
-        let s = Rc::new(sphere::new(None, None));
+        let s = Rc::new(Sphere::new(None, None));
         let i = Intersection::new(3.5, Rc::clone(&s));
         assert!(approximately(i.t, 3.5));
         assert_eq!(i.object, s);
@@ -99,7 +100,7 @@ mod tests {
 
     #[test]
     fn aggregating_intersections() {
-        let s = Rc::new(sphere::new(None, None));
+        let s = Rc::new(Sphere::new(None, None));
         let i1 = Intersection::new(1.0, Rc::clone(&s));
         let i2 = Intersection::new(2.0, Rc::clone(&s));
 
@@ -112,7 +113,7 @@ mod tests {
     #[test]
     fn precomputing_the_state_of_an_intersection() {
         let ray = Ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
-        let sphere = Rc::new(sphere::new(None, None));
+        let sphere = Rc::new(Sphere::new(None, None));
         let i = Intersection::new(4., Rc::clone(&sphere));
 
         let computations = i.prepare_computations(&ray);
@@ -126,7 +127,7 @@ mod tests {
     #[test]
     fn test_precomputing_the_hit_when_an_intersection_happens_on_the_outside() {
         let ray = Ray::new(vector3::new(0., 0., -5.), vector3::new(0., 0., 1.));
-        let sphere = Rc::new(sphere::new(None, None));
+        let sphere = Rc::new(Sphere::new(None, None));
         let i = Intersection::new(4., Rc::clone(&sphere));
 
         let computations = i.prepare_computations(&ray);
@@ -136,7 +137,7 @@ mod tests {
     #[test]
     fn test_precomputing_the_hit_when_an_intersection_happens_on_the_inside() {
         let ray = Ray::new(vector3::new(0., 0., 0.), vector3::new(0., 0., 1.));
-        let sphere = Rc::new(sphere::new(None, None));
+        let sphere = Rc::new(Sphere::new(None, None));
         let i = Intersection::new(1., Rc::clone(&sphere));
 
         let computations = i.prepare_computations(&ray);

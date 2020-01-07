@@ -3,7 +3,6 @@ use crate::color::Color;
 use crate::material::Material;
 use crate::mathf::intersection::{Computations, Intersection, Intersections};
 use crate::mathf::ray::Ray;
-use crate::mathf::sphere;
 use crate::mathf::sphere::Sphere;
 use crate::mathf::vector3;
 use crate::phong_lighting;
@@ -32,10 +31,10 @@ pub fn default_world() -> World {
     material.diffuse = 0.7;
     material.specular = 0.2;
 
-    let s1 = sphere::new(None, Some(material));
+    let s1 = Sphere::new(None, Some(material));
     let s1 = Rc::new(s1);
 
-    let s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), None);
+    let s2 = Sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), None);
     let s2 = Rc::new(s2);
 
     World {
@@ -60,7 +59,7 @@ impl World {
     fn intersect(&self, ray: &Ray) -> Intersections {
         let mut result: Vec<Intersection> = vec![];
         for object in self.objects.iter() {
-            let i = ray.intersect(Rc::clone(&object));
+            let i = Sphere::intersect(Rc::clone(&object), &ray);
             result.extend(i);
         }
 
@@ -186,7 +185,6 @@ mod tests {
 
     #[test]
     fn test_the_color_with_an_intersection_behind_the_ray() {
-        //let mut world = default_world();
         let world = {
             let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
@@ -196,12 +194,12 @@ mod tests {
             material.diffuse = 0.7;
             material.specular = 0.2;
 
-            let s1 = sphere::new(None, Some(material));
+            let s1 = Sphere::new(None, Some(material));
             let s1 = Rc::new(s1);
 
             let mut material = Material::new();
             material.ambient = 1.0;
-            let s2 = sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), Some(material));
+            let s2 = Sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), Some(material));
             let s2 = Rc::new(s2);
 
             World {
