@@ -4,7 +4,7 @@ use crate::material::Material;
 use crate::mathf::intersection::{Computations, Intersection, Intersections};
 use crate::mathf::ray::Ray;
 use crate::mathf::sphere::Sphere;
-use crate::mathf::vector3;
+use crate::mathf::vector3::Vector3;
 use crate::phong_lighting;
 use crate::point_light::PointLight;
 use crate::transformations;
@@ -24,7 +24,7 @@ pub fn new() -> World {
 }
 
 pub fn default_world() -> World {
-    let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
+    let light = PointLight::new(Vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
     let mut material = Material::new();
     material.color = Color::new(0.8, 1.0, 0.6);
@@ -34,7 +34,7 @@ pub fn default_world() -> World {
     let s1 = Sphere::new(None, Some(material));
     let s1 = Rc::new(s1);
 
-    let s2 = Sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), None);
+    let s2 = Sphere::new(Some(transformations::scaling(&Vector3::new(0.5, 0.5, 0.5))), None);
     let s2 = Rc::new(s2);
 
     World {
@@ -101,7 +101,7 @@ mod tests {
 
     #[test]
     fn test_creating_a_default_world() {
-        let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
+        let light = PointLight::new(Vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
         let world = default_world();
         assert_eq!(world.light.unwrap(), light);
@@ -123,13 +123,13 @@ mod tests {
         assert!(world
             .objects
             .iter()
-            .any(|sphere| sphere.transform() == &transformations::scaling(&vector3::new(0.5, 0.5, 0.5))));
+            .any(|sphere| sphere.transform() == &transformations::scaling(&Vector3::new(0.5, 0.5, 0.5))));
     }
 
     #[test]
     fn test_intersect_a_world_with_a_ray() {
         let world = default_world();
-        let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
         let xs = world.intersect(&ray);
         assert_eq!(xs.intersections.len(), 4);
         assert_eq!(xs.intersections[0].t, 4.0);
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_shading_an_intersection() {
         let world = default_world();
-        let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[0];
         let intersection = Intersection::new(4., Rc::clone(&shape));
         let computations = intersection.prepare_computations(&ray);
@@ -154,11 +154,11 @@ mod tests {
     fn test_shading_an_intersection_from_the_inside() {
         let mut world = default_world();
         world.light = Some(PointLight::new(
-            vector3::new(0., 0.25, 0.),
+            Vector3::new(0., 0.25, 0.),
             Color::new(1., 1., 1.),
         ));
 
-        let ray = Ray::new(vector3::new(0.0, 0.0, 0.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[1];
         let intersection = Intersection::new(0.5, Rc::clone(&shape));
         let computations = intersection.prepare_computations(&ray);
@@ -170,7 +170,7 @@ mod tests {
     #[test]
     fn test_the_color_when_a_ray_misses() {
         let world = default_world();
-        let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 1.0, 0.0));
+        let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 1.0, 0.0));
         let color = world.color_at(ray);
         assert_eq!(color, Color::new(0., 0., 0.)); // Black
     }
@@ -178,7 +178,7 @@ mod tests {
     #[test]
     fn test_the_color_when_a_ray_hits() {
         let world = default_world();
-        let ray = Ray::new(vector3::new(0.0, 0.0, -5.0), vector3::new(0.0, 0.0, 1.0));
+        let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
         let color = world.color_at(ray);
         assert_eq!(color, Color::new(0.38066, 0.47583, 0.2855));
     }
@@ -186,7 +186,7 @@ mod tests {
     #[test]
     fn test_the_color_with_an_intersection_behind_the_ray() {
         let world = {
-            let light = PointLight::new(vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
+            let light = PointLight::new(Vector3::new(-10., 10., -10.), Color::new(1., 1., 1.));
 
             let mut material = Material::new();
             material.color = Color::new(0.8, 1.0, 0.6);
@@ -199,7 +199,7 @@ mod tests {
 
             let mut material = Material::new();
             material.ambient = 1.0;
-            let s2 = Sphere::new(Some(transformations::scaling(&vector3::new(0.5, 0.5, 0.5))), Some(material));
+            let s2 = Sphere::new(Some(transformations::scaling(&Vector3::new(0.5, 0.5, 0.5))), Some(material));
             let s2 = Rc::new(s2);
 
             World {
@@ -210,7 +210,7 @@ mod tests {
 
         let inner_color = world.objects[1].material().color.clone();
 
-        let ray = Ray::new(vector3::new(0.0, 0.0, 0.75), vector3::new(0.0, 0.0, -1.0));
+        let ray = Ray::new(Vector3::new(0.0, 0.0, 0.75), Vector3::new(0.0, 0.0, -1.0));
         let color = world.color_at(ray);
         assert_eq!(color, inner_color);
     }

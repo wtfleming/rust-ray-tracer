@@ -1,8 +1,7 @@
 use crate::canvas::Canvas;
-use crate::mathf::matrix;
 use crate::mathf::matrix::Matrix;
 use crate::mathf::ray::Ray;
-use crate::mathf::vector3;
+use crate::mathf::vector3::Vector3;
 use crate::world::World;
 
 pub struct Camera {
@@ -36,7 +35,7 @@ impl Camera {
             hsize,
             vsize,
             field_of_view,
-            transform: matrix::identity_4x4(),
+            transform: Matrix::identity_4x4(),
             pixel_size,
             half_width,
             half_height,
@@ -59,11 +58,11 @@ impl Camera {
         let pixel = self
             .transform
             .inverse()
-            .multiply_vector3(&vector3::new(world_x, world_y, -1.));
+            .multiply_vector3(&Vector3::new(world_x, world_y, -1.));
         let origin = self
             .transform
             .inverse()
-            .multiply_vector3(&vector3::new(0., 0., 0.));
+            .multiply_vector3(&Vector3::new(0., 0., 0.));
 
         let direction = (&pixel - &origin).normalize();
         Ray::new(origin, direction)
@@ -100,7 +99,7 @@ mod tests {
         assert_eq!(camera.hsize, 160);
         assert_eq!(camera.vsize, 120);
         assert_eq!(camera.field_of_view, PI / 2.);
-        assert_eq!(camera.transform, matrix::identity_4x4());
+        assert_eq!(camera.transform, Matrix::identity_4x4());
     }
 
     #[test]
@@ -119,29 +118,29 @@ mod tests {
     fn constructing_a_ray_through_the_center_of_the_canvas() {
         let camera = Camera::new(201, 101, PI / 2.);
         let ray = camera.ray_for_pixel(100, 50);
-        assert_eq!(ray.origin, vector3::new(0., 0., 0.));
-        assert_eq!(ray.direction, vector3::new(0., 0., -1.));
+        assert_eq!(ray.origin, Vector3::new(0., 0., 0.));
+        assert_eq!(ray.direction, Vector3::new(0., 0., -1.));
     }
 
     #[test]
     fn constructing_a_ray_through_a_corner_of_the_canvas() {
         let camera = Camera::new(201, 101, PI / 2.);
         let ray = camera.ray_for_pixel(0, 0);
-        assert_eq!(ray.origin, vector3::new(0., 0., 0.));
-        assert_eq!(ray.direction, vector3::new(0.66519, 0.33259, -0.66851));
+        assert_eq!(ray.origin, Vector3::new(0., 0., 0.));
+        assert_eq!(ray.direction, Vector3::new(0.66519, 0.33259, -0.66851));
     }
 
     #[test]
     fn constructing_a_ray_when_the_camera_is_transformed() {
         let mut camera = Camera::new(201, 101, PI / 2.);
         camera.transform = transformations::rotation_y(PI / 4.)
-            .multiply_4x4(&transformations::translation(&vector3::new(0., -2., 5.)));
+            .multiply_4x4(&transformations::translation(&Vector3::new(0., -2., 5.)));
 
         let ray = camera.ray_for_pixel(100, 50);
-        assert_eq!(ray.origin, vector3::new(0., 2., -5.));
+        assert_eq!(ray.origin, Vector3::new(0., 2., -5.));
         assert_eq!(
             ray.direction,
-            vector3::new(2.0f64.sqrt() / 2., 0., -(2.0f64.sqrt() / 2.))
+            Vector3::new(2.0f64.sqrt() / 2., 0., -(2.0f64.sqrt() / 2.))
         );
     }
 
@@ -149,9 +148,9 @@ mod tests {
     fn rendering_a_world_with_a_camera() {
         let world = world::default_world();
         let mut camera = Camera::new(11, 11, PI / 2.);
-        let from = vector3::new(0., 0., -5.);
-        let to = vector3::new(0., 0., 0.);
-        let up = vector3::new(0., 1., 0.);
+        let from = Vector3::new(0., 0., -5.);
+        let to = Vector3::new(0., 0., 0.);
+        let up = Vector3::new(0., 1., 0.);
         camera.transform = transformations::view_transform(from, to, up);
         let image = camera.render(&world);
 

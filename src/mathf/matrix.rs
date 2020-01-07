@@ -1,7 +1,5 @@
 use crate::mathf;
-use crate::mathf::vector3;
 use crate::mathf::vector3::Vector3;
-use crate::mathf::vector4;
 use crate::mathf::vector4::Vector4;
 
 #[derive(Debug, Clone)]
@@ -10,30 +8,6 @@ pub struct Matrix {
     pub num_cols: usize,
     pub data: Vec<std::vec::Vec<f64>>,
 }
-
-pub fn new(num_rows: usize, num_cols: usize) -> Matrix {
-    Matrix {
-        num_rows,
-        num_cols,
-        data: vec![vec![0.0f64; num_rows]; num_cols],
-    }
-}
-
-pub fn identity_4x4() -> Matrix {
-    let mut matrix = Matrix {
-        num_rows: 4,
-        num_cols: 4,
-        data: vec![vec![0.0f64; 4]; 4],
-    };
-
-    matrix.data[0][0] = 1.0;
-    matrix.data[1][1] = 1.0;
-    matrix.data[2][2] = 1.0;
-    matrix.data[3][3] = 1.0;
-
-    matrix
-}
-
 
 impl PartialEq for Matrix {
     fn eq(&self, other: &Self) -> bool {
@@ -51,14 +25,36 @@ impl PartialEq for Matrix {
     }
 }
 
-
 impl Matrix {
+    pub fn new(num_rows: usize, num_cols: usize) -> Matrix {
+        Matrix {
+            num_rows,
+            num_cols,
+            data: vec![vec![0.0f64; num_rows]; num_cols],
+        }
+    }
+
+    pub fn identity_4x4() -> Matrix {
+        let mut matrix = Matrix {
+            num_rows: 4,
+            num_cols: 4,
+            data: vec![vec![0.0f64; 4]; 4],
+        };
+
+        matrix.data[0][0] = 1.0;
+        matrix.data[1][1] = 1.0;
+        matrix.data[2][2] = 1.0;
+        matrix.data[3][3] = 1.0;
+
+        matrix
+    }
+
     pub fn multiply_4x4(&self, rhs: &Matrix) -> Matrix {
         if self.num_rows != 4 || self.num_cols != 4 || rhs.num_rows != 4 || rhs.num_cols != 4 {
             panic!("Currently only supports multiplying 4x4 matrices");
         }
 
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         for row in 0..4 {
             for col in 0..4 {
                 matrix.data[row][col] = self.data[row][0] * rhs.data[0][col]
@@ -75,8 +71,8 @@ impl Matrix {
             panic!("Currently only supports multiplying 4x4 matrices");
         }
 
-        let result = self.multiply_vector4(&vector4::new(rhs.x, rhs.y, rhs.z, 1.0));
-        vector3::new(result.x, result.y, result.z)
+        let result = self.multiply_vector4(&Vector4::new(rhs.x, rhs.y, rhs.z, 1.0));
+        Vector3::new(result.x, result.y, result.z)
     }
 
     pub fn multiply_vector4(&self, rhs: &Vector4) -> Vector4 {
@@ -84,7 +80,7 @@ impl Matrix {
             panic!("Currently only supports multiplying 4x4 matrices");
         }
 
-        let mut vector = vector4::new(0.0, 0.0, 0.0, 0.0);
+        let mut vector = Vector4::new(0.0, 0.0, 0.0, 0.0);
 
         vector.x = self.data[0][0] * rhs.x
             + self.data[0][1] * rhs.y
@@ -110,7 +106,7 @@ impl Matrix {
     }
 
     pub fn transpose(&self) -> Matrix {
-        let mut matrix = new(self.num_rows, self.num_cols);
+        let mut matrix = Matrix::new(self.num_rows, self.num_cols);
         for row in 0..self.num_rows {
             for col in 0..self.num_cols {
                 matrix.data[row][col] = self.data[col][row];
@@ -122,7 +118,7 @@ impl Matrix {
 
     // Return a copy of a matrix with a given row and column removed
     pub fn submatrix(&self, remove_row: usize, remove_col: usize) -> Matrix {
-        let mut matrix = new(self.num_rows - 1, self.num_cols - 1);
+        let mut matrix = Matrix::new(self.num_rows - 1, self.num_cols - 1);
 
         for row in 0..matrix.num_rows {
             let mut actual_row = row;
@@ -178,7 +174,7 @@ impl Matrix {
             panic!("To inverse a matrix it must be invertible");
         }
 
-        let mut matrix = new(self.num_rows, self.num_cols);
+        let mut matrix = Matrix::new(self.num_rows, self.num_cols);
         for row in 0..self.num_rows {
             for col in 0..self.num_cols {
                 let c = self.cofactor(row, col);
@@ -199,7 +195,7 @@ mod tests {
 
     #[test]
     fn it_creates_a_4x4_matrix() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = 1.0;
         matrix.data[0][1] = 2.0;
         matrix.data[0][2] = 3.0;
@@ -231,7 +227,7 @@ mod tests {
 
     #[test]
     fn it_creates_a_2x2_matrix() {
-        let mut matrix = new(2, 2);
+        let mut matrix = Matrix::new(2, 2);
         matrix.data[0][0] = -3.0;
         matrix.data[0][1] = 5.0;
         matrix.data[1][0] = 1.0;
@@ -245,7 +241,7 @@ mod tests {
 
     #[test]
     fn it_creates_a_3x3_matrix() {
-        let mut matrix = new(3, 3);
+        let mut matrix = Matrix::new(3, 3);
         matrix.data[0][0] = -3.0;
         matrix.data[0][1] = 5.0;
         matrix.data[0][2] = 0.0;
@@ -265,13 +261,13 @@ mod tests {
 
     #[test]
     fn test_identical_matrices_are_equal() {
-        let mut matrix1 = new(2, 2);
+        let mut matrix1 = Matrix::new(2, 2);
         matrix1.data[0][0] = -3.0;
         matrix1.data[0][1] = 5.0;
         matrix1.data[1][0] = 1.0;
         matrix1.data[1][1] = -2.0;
 
-        let mut matrix2 = new(2, 2);
+        let mut matrix2 = Matrix::new(2, 2);
         matrix2.data[0][0] = -3.0;
         matrix2.data[0][1] = 5.0;
         matrix2.data[1][0] = 1.0;
@@ -282,13 +278,13 @@ mod tests {
 
     #[test]
     fn test_different_matrices_are_not_equal() {
-        let mut matrix1 = new(2, 2);
+        let mut matrix1 = Matrix::new(2, 2);
         matrix1.data[0][0] = -3.0;
         matrix1.data[0][1] = 5.0;
         matrix1.data[1][0] = 1.0;
         matrix1.data[1][1] = -2.0;
 
-        let mut matrix2 = new(2, 2);
+        let mut matrix2 = Matrix::new(2, 2);
         matrix2.data[0][0] = 1.0;
         matrix2.data[0][1] = 2.0;
         matrix2.data[1][0] = 3.0;
@@ -299,7 +295,7 @@ mod tests {
 
     #[test]
     fn test_matrix_multipy_4x4() {
-        let mut matrix1 = new(4, 4);
+        let mut matrix1 = Matrix::new(4, 4);
         matrix1.data[0][0] = 1.0;
         matrix1.data[0][1] = 2.0;
         matrix1.data[0][2] = 3.0;
@@ -320,7 +316,7 @@ mod tests {
         matrix1.data[3][2] = 3.0;
         matrix1.data[3][3] = 2.0;
 
-        let mut matrix2 = new(4, 4);
+        let mut matrix2 = Matrix::new(4, 4);
         matrix2.data[0][0] = -2.0;
         matrix2.data[0][1] = 1.0;
         matrix2.data[0][2] = 2.0;
@@ -366,7 +362,7 @@ mod tests {
 
     #[test]
     fn test_matrix_multiply_vector4() {
-        let mut matrix1 = new(4, 4);
+        let mut matrix1 = Matrix::new(4, 4);
         matrix1.data[0][0] = 1.0;
         matrix1.data[0][1] = 2.0;
         matrix1.data[0][2] = 3.0;
@@ -387,7 +383,7 @@ mod tests {
         matrix1.data[3][2] = 0.0;
         matrix1.data[3][3] = 1.0;
 
-        let vector = vector4::new(1.0, 2.0, 3.0, 1.0);
+        let vector = Vector4::new(1.0, 2.0, 3.0, 1.0);
 
         let result = matrix1.multiply_vector4(&vector);
 
@@ -399,7 +395,7 @@ mod tests {
 
     #[test]
     fn test_matrix_multiply_by_identity() {
-        let mut matrix1 = new(4, 4);
+        let mut matrix1 = Matrix::new(4, 4);
         matrix1.data[0][0] = 0.0;
         matrix1.data[0][1] = 1.0;
         matrix1.data[0][2] = 2.0;
@@ -420,14 +416,14 @@ mod tests {
         matrix1.data[3][2] = 16.0;
         matrix1.data[3][3] = 32.0;
 
-        let result = matrix1.multiply_4x4(&identity_4x4());
+        let result = matrix1.multiply_4x4(&Matrix::identity_4x4());
         assert_eq!(matrix1, result);
     }
 
     #[test]
     fn test_multiply_identity_4x4_by_vector4() {
-        let matrix = identity_4x4();
-        let vector = vector4::new(1.0, 2.0, 3.0, 4.0);
+        let matrix = Matrix::identity_4x4();
+        let vector = Vector4::new(1.0, 2.0, 3.0, 4.0);
         let result = matrix.multiply_vector4(&vector);
 
         assert_eq!(vector.x, result.x);
@@ -438,7 +434,7 @@ mod tests {
 
     #[test]
     fn test_matrix_transpose() {
-        let mut matrix1 = new(4, 4);
+        let mut matrix1 = Matrix::new(4, 4);
         matrix1.data[0][0] = 0.0;
         matrix1.data[0][1] = 9.0;
         matrix1.data[0][2] = 3.0;
@@ -459,7 +455,7 @@ mod tests {
         matrix1.data[3][2] = 5.0;
         matrix1.data[3][3] = 8.0;
 
-        let mut expected = new(4, 4);
+        let mut expected = Matrix::new(4, 4);
         expected.data[0][0] = 0.0;
         expected.data[0][1] = 9.0;
         expected.data[0][2] = 1.0;
@@ -486,14 +482,14 @@ mod tests {
 
     #[test]
     fn test_matrix_transpose_identity_matrix() {
-        let identity_matrix = identity_4x4();
+        let identity_matrix = Matrix::identity_4x4();
         let result = identity_matrix.transpose();
         assert_eq!(result, identity_matrix);
     }
 
     #[test]
     fn test_matrix_submatrix_3x3() {
-        let mut matrix = new(3, 3);
+        let mut matrix = Matrix::new(3, 3);
         matrix.data[0][0] = 1.0;
         matrix.data[0][1] = 5.0;
         matrix.data[0][2] = 0.0;
@@ -506,7 +502,7 @@ mod tests {
         matrix.data[2][1] = 6.0;
         matrix.data[2][2] = -3.0;
 
-        let mut expected = new(2, 2);
+        let mut expected = Matrix::new(2, 2);
         expected.data[0][0] = -3.0;
         expected.data[0][1] = 2.0;
         expected.data[1][0] = 0.0;
@@ -520,7 +516,7 @@ mod tests {
 
     #[test]
     fn test_matrix_submatrix_4x4() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = -6.0;
         matrix.data[0][1] = 1.0;
         matrix.data[0][2] = 1.0;
@@ -541,7 +537,7 @@ mod tests {
         matrix.data[3][2] = -1.0;
         matrix.data[3][3] = 1.0;
 
-        let mut expected = new(3, 3);
+        let mut expected = Matrix::new(3, 3);
         expected.data[0][0] = -6.0;
         expected.data[0][1] = 1.0;
         expected.data[0][2] = 6.0;
@@ -562,7 +558,7 @@ mod tests {
 
     #[test]
     fn test_matrix_minor_3x3() {
-        let mut matrix = new(3, 3);
+        let mut matrix = Matrix::new(3, 3);
         matrix.data[0][0] = 3.0;
         matrix.data[0][1] = 5.0;
         matrix.data[0][2] = 0.0;
@@ -583,7 +579,7 @@ mod tests {
 
     #[test]
     fn test_3x3_matrix_cofactor() {
-        let mut matrix = new(3, 3);
+        let mut matrix = Matrix::new(3, 3);
         matrix.data[0][0] = 3.0;
         matrix.data[0][1] = 5.0;
         matrix.data[0][2] = 0.0;
@@ -604,7 +600,7 @@ mod tests {
 
     #[test]
     fn test_2x2_matrix_determinant() {
-        let mut matrix = new(2, 2);
+        let mut matrix = Matrix::new(2, 2);
         matrix.data[0][0] = 1.0;
         matrix.data[0][1] = 5.0;
         matrix.data[1][0] = -3.0;
@@ -616,7 +612,7 @@ mod tests {
 
     #[test]
     fn test_3x3_matrix_determinate() {
-        let mut matrix = new(3, 3);
+        let mut matrix = Matrix::new(3, 3);
         matrix.data[0][0] = 1.0;
         matrix.data[0][1] = 2.0;
         matrix.data[0][2] = 6.0;
@@ -637,7 +633,7 @@ mod tests {
 
     #[test]
     fn test_4x4_matrix_determinate() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = -2.0;
         matrix.data[0][1] = -8.0;
         matrix.data[0][2] = 3.0;
@@ -667,7 +663,7 @@ mod tests {
 
     #[test]
     fn test_4x4_matrix_is_invertible() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = 6.0;
         matrix.data[0][1] = 4.0;
         matrix.data[0][2] = 4.0;
@@ -693,7 +689,7 @@ mod tests {
 
     #[test]
     fn test_4x4_matrix_is_not_invertible() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = -4.0;
         matrix.data[0][1] = 2.0;
         matrix.data[0][2] = -2.0;
@@ -719,7 +715,7 @@ mod tests {
 
     #[test]
     fn test_4x4_matrix_inverse() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = -5.0;
         matrix.data[0][1] = 2.0;
         matrix.data[0][2] = 6.0;
@@ -747,7 +743,7 @@ mod tests {
         assert_eq!(matrix.cofactor(3, 2), 105.0);
         assert_eq!(inverted_matrix.data[2][3], 105.0 / 532.0);
 
-        let mut expected = new(4, 4);
+        let mut expected = Matrix::new(4, 4);
         expected.data[0][0] = 0.21805;
         expected.data[0][1] = 0.45113;
         expected.data[0][2] = 0.24060;
@@ -772,7 +768,7 @@ mod tests {
 
     #[test]
     fn test_4x4_matrix_inverse_2() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = 8.0;
         matrix.data[0][1] = -5.0;
         matrix.data[0][2] = 9.0;
@@ -795,7 +791,7 @@ mod tests {
 
         let inverted_matrix = matrix.inverse();
 
-        let mut expected = new(4, 4);
+        let mut expected = Matrix::new(4, 4);
         expected.data[0][0] = -0.15385;
         expected.data[0][1] = -0.15385;
         expected.data[0][2] = -0.28205;
@@ -820,7 +816,7 @@ mod tests {
 
     #[test]
     fn test_4x4_matrix_inverse_3() {
-        let mut matrix = new(4, 4);
+        let mut matrix = Matrix::new(4, 4);
         matrix.data[0][0] = 9.0;
         matrix.data[0][1] = 3.0;
         matrix.data[0][2] = 0.0;
@@ -843,7 +839,7 @@ mod tests {
 
         let inverted_matrix = matrix.inverse();
 
-        let mut expected = new(4, 4);
+        let mut expected = Matrix::new(4, 4);
         expected.data[0][0] = -0.04074;
         expected.data[0][1] = -0.07778;
         expected.data[0][2] = 0.14444;
@@ -870,7 +866,7 @@ mod tests {
     fn test_4x4_matrix_inverse_inverse() {
         // Testing that if you multiply a matrix A by another matrix B, producing C,
         // you can multiply C by the inverse of B to get A again.
-        let mut matrix_a = new(4, 4);
+        let mut matrix_a = Matrix::new(4, 4);
         matrix_a.data[0][0] = 3.0;
         matrix_a.data[0][1] = -9.0;
         matrix_a.data[0][2] = 7.0;
@@ -891,7 +887,7 @@ mod tests {
         matrix_a.data[3][2] = -1.0;
         matrix_a.data[3][3] = 1.0;
 
-        let mut matrix_b = new(4, 4);
+        let mut matrix_b = Matrix::new(4, 4);
         matrix_b.data[0][0] = 8.0;
         matrix_b.data[0][1] = 2.0;
         matrix_b.data[0][2] = 2.0;
@@ -917,5 +913,4 @@ mod tests {
         let result = matrix_c.multiply_4x4(&matrix_b.inverse());
         assert_eq!(result, matrix_a);
     }
-
 }

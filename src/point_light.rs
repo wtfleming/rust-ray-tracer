@@ -25,15 +25,15 @@ impl PartialEq for PointLight {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mathf::vector3;
+    use crate::mathf::vector3::Vector3;
 
     #[test]
     fn a_point_light_has_a_position_and_intensity() {
         let intensity = Color::new(1.0, 1.0, 1.0);
-        let position = vector3::new(0.0, 0.0, 0.0);
+        let position = Vector3::new(0.0, 0.0, 0.0);
         let light = PointLight::new(position, intensity);
 
-        assert_eq!(light.position, vector3::new(0.0, 0.0, 0.0));
+        assert_eq!(light.position, Vector3::new(0.0, 0.0, 0.0));
         assert_eq!(light.intensity, Color::new(1.0, 1.0, 1.0));
     }
 }

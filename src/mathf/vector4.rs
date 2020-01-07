@@ -6,8 +6,10 @@ pub struct Vector4 {
     pub w: f64
 }
 
-pub fn new(x: f64, y: f64, z: f64, w: f64) -> Vector4 {
-    Vector4 { x, y, z, w }
+impl Vector4 {
+    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Vector4 {
+        Vector4 { x, y, z, w }
+    }
 }
 
 
@@ -17,7 +19,7 @@ mod tests {
 
     #[test]
     fn it_creates_a_vector4() {
-        let vector = new(1.0, 2.0, 3.0, 4.0);
+        let vector = Vector4::new(1.0, 2.0, 3.0, 4.0);
         assert_eq!(vector.x, 1.0);
         assert_eq!(vector.y, 2.0);
         assert_eq!(vector.z, 3.0);

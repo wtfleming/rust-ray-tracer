@@ -7,7 +7,7 @@ use rust_ray_tracer::mathf;
 use rust_ray_tracer::mathf::intersection::Intersections;
 use rust_ray_tracer::mathf::ray::Ray;
 use rust_ray_tracer::mathf::sphere::Sphere;
-use rust_ray_tracer::mathf::vector3;
+use rust_ray_tracer::mathf::vector3::Vector3;
 use rust_ray_tracer::phong_lighting;
 use rust_ray_tracer::point_light::PointLight;
 use rust_ray_tracer::ppm;
@@ -27,27 +27,27 @@ fn main() {
 
 #[allow(dead_code)]
 fn draw_three_spheres_scene() {
-    let floor_transform = transformations::scaling(&vector3::new(10., 0.01, 10.));
+    let floor_transform = transformations::scaling(&Vector3::new(10., 0.01, 10.));
     let mut floor_material = Material::new();
     floor_material.color = Color::new(1.0, 0.9, 0.9);
     floor_material.specular = 0.;
     let floor = Sphere::new(Some(floor_transform), Some(floor_material));
 
 
-    let wall_left_transform = transformations::translation(&vector3::new(0., 0.0, 5.))
+    let wall_left_transform = transformations::translation(&Vector3::new(0., 0.0, 5.))
         .multiply_4x4(&transformations::rotation_y(-PI / 4.))
         .multiply_4x4(&transformations::rotation_x(PI / 2.))
-        .multiply_4x4(&transformations::scaling(&vector3::new(10., 0.01, 10.)));
+        .multiply_4x4(&transformations::scaling(&Vector3::new(10., 0.01, 10.)));
     let mut wall_left_material = Material::new();
     wall_left_material.color = Color::new(1.0, 0.9, 0.9);
     wall_left_material.specular = 0.;
     let wall_left = Sphere::new(Some(wall_left_transform), Some(wall_left_material));
 
 
-    let wall_right_transform = transformations::translation(&vector3::new(0., 0.0, 5.))
+    let wall_right_transform = transformations::translation(&Vector3::new(0., 0.0, 5.))
         .multiply_4x4(&transformations::rotation_y(PI / 4.))
         .multiply_4x4(&transformations::rotation_x(PI / 2.))
-        .multiply_4x4(&transformations::scaling(&vector3::new(10., 0.01, 10.)));
+        .multiply_4x4(&transformations::scaling(&Vector3::new(10., 0.01, 10.)));
 
     let mut wall_right_material = Material::new();
     wall_right_material.color = Color::new(1.0, 0.9, 0.9);
@@ -55,7 +55,7 @@ fn draw_three_spheres_scene() {
     let wall_right = Sphere::new(Some(wall_right_transform), Some(wall_right_material));
 
 
-    let middle_transform = transformations::translation(&vector3::new(-0.5, 1., 0.5));
+    let middle_transform = transformations::translation(&Vector3::new(-0.5, 1., 0.5));
     let mut middle_material = Material::new();
     middle_material.color = Color::new(0.1, 1., 0.5);
     middle_material.diffuse = 0.7;
@@ -63,7 +63,7 @@ fn draw_three_spheres_scene() {
     let middle = Sphere::new(Some(middle_transform), Some(middle_material));
 
 
-    let right_transform = transformations::translation(&vector3::new(1.5, 0.5, -0.5)).multiply_4x4(&transformations::scaling(&vector3::new(0.5, 0.5, 0.5)));
+    let right_transform = transformations::translation(&Vector3::new(1.5, 0.5, -0.5)).multiply_4x4(&transformations::scaling(&Vector3::new(0.5, 0.5, 0.5)));
     let mut right_material = Material::new();
     right_material.color = Color::new(0.5, 1., 0.1);
     right_material.diffuse = 0.7;
@@ -71,7 +71,7 @@ fn draw_three_spheres_scene() {
     let right = Sphere::new(Some(right_transform), Some(right_material));
 
 
-    let left_transform = transformations::translation(&vector3::new(-1.5, 0.33, -0.75)).multiply_4x4(&transformations::scaling(&vector3::new(0.33, 0.33, 0.33)));
+    let left_transform = transformations::translation(&Vector3::new(-1.5, 0.33, -0.75)).multiply_4x4(&transformations::scaling(&Vector3::new(0.33, 0.33, 0.33)));
     let mut left_material = Material::new();
     left_material.color = Color::new(1.0, 0.8, 0.1);
     left_material.diffuse = 0.7;
@@ -80,7 +80,7 @@ fn draw_three_spheres_scene() {
 
 
     let mut world = world::new();
-    let light = PointLight::new(vector3::new(-10., 10., -10.), color::WHITE);
+    let light = PointLight::new(Vector3::new(-10., 10., -10.), color::WHITE);
     world.light = Some(light);
     world.objects = vec![Rc::new(floor), Rc::new(wall_left), Rc::new(wall_right), Rc::new(middle), Rc::new(right), Rc::new(left)];
 
@@ -90,9 +90,9 @@ fn draw_three_spheres_scene() {
     // let mut camera = Camera::new(100, 100, PI / 3.);
     // let mut camera = Camera::new(10, 5, PI / 3.);
     camera.transform = transformations::view_transform(
-        vector3::new(0., 1.5, -5.),
-        vector3::new(0., 1., 0.),
-        vector3::new(0., 1., 0.),
+        Vector3::new(0., 1.5, -5.),
+        Vector3::new(0., 1., 0.),
+        Vector3::new(0., 1., 0.),
     );
 
     let canvas = camera.render(&world);
@@ -117,7 +117,7 @@ fn draw_circle_lit() {
     let shape = Sphere::new(None, Some(material));
     let shape = Rc::new(shape);
 
-    let light_position = vector3::new(-10.0, 10.0, -10.0);
+    let light_position = Vector3::new(-10.0, 10.0, -10.0);
     let light_color = Color::new(1.0, 1.0, 1.0);
     let light = PointLight::new(light_position, light_color);
 
@@ -126,10 +126,10 @@ fn draw_circle_lit() {
         for x in 0..canvas_pixels {
             let world_x = -half + pixel_size * (x as f64);
 
-            let position = vector3::new(world_x, world_y, wall_z);
+            let position = Vector3::new(world_x, world_y, wall_z);
 
-            let ray_origin = vector3::new(0.0, 0.0, -5.0);
-            let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
+            let ray_origin = Vector3::new(0.0, 0.0, -5.0);
+            let ray_origin2 = Vector3::new(0.0, 0.0, -5.0);
             let ray = Ray::new(ray_origin, (&position - &ray_origin2).normalize());
             let xs = Sphere::intersect(Rc::clone(&shape), &ray);
             let xs = Intersections::new(xs);
@@ -168,7 +168,7 @@ fn draw_circle() {
     let color = color::RED;
 
 
-    let t = transformations::scaling(&vector3::new(0.5, 1.0, 1.0));
+    let t = transformations::scaling(&Vector3::new(0.5, 1.0, 1.0));
     let shape = Sphere::new(Some(t), None);
     let shape = Rc::new(shape);
 
@@ -177,9 +177,9 @@ fn draw_circle() {
         for x in 0..canvas_pixels {
             let world_x = -half + pixel_size * (x as f64);
 
-            let position = vector3::new(world_x, world_y, wall_z);
-            let ray_origin = vector3::new(0.0, 0.0, -5.0);
-            let ray_origin2 = vector3::new(0.0, 0.0, -5.0);
+            let position = Vector3::new(world_x, world_y, wall_z);
+            let ray_origin = Vector3::new(0.0, 0.0, -5.0);
+            let ray_origin2 = Vector3::new(0.0, 0.0, -5.0);
             let ray = Ray::new(ray_origin, &position - &ray_origin2);
             let xs = Sphere::intersect(Rc::clone(&shape), &ray);
 
@@ -215,15 +215,15 @@ fn draw_clock() {
     let radius = 30.0;
     let red = color::RED;
 
-    let origin = vector3::new(0.0, 0.0, 0.0);
+    let origin = Vector3::new(0.0, 0.0, 0.0);
 
     // Draw a dot for every hour on a clock
     for x in 0..12 {
-        let to_center_of_canvas = vector3::new(50.0, 50.0, 0.0);
+        let to_center_of_canvas = Vector3::new(50.0, 50.0, 0.0);
         let rotation_degrees = (x as f64) * (360.0 / 12.0);
 
         let rotation_mat = transformations::rotation_z(mathf::degree_to_radian(rotation_degrees));
-        let translation_mat = transformations::translation(&vector3::new(radius, radius, 0.0));
+        let translation_mat = transformations::translation(&Vector3::new(radius, radius, 0.0));
 
         let position = rotation_mat
             .multiply_4x4(&translation_mat)
