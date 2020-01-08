@@ -1,66 +1,66 @@
 use crate::mathf::matrix::Matrix;
+use crate::mathf::matrix::Row;
 use crate::mathf::vector3::Vector3;
 
 /// Creates a translation matrix
 pub fn translation(vector3: &Vector3) -> Matrix {
     let mut matrix = Matrix::identity_4x4();
-    matrix.data[0][3] = vector3.x;
-    matrix.data[1][3] = vector3.y;
-    matrix.data[2][3] = vector3.z;
+    matrix[0] = Row::new(vec![1., 0., 0., vector3.x]);
+    matrix[1] = Row::new(vec![0., 1., 0., vector3.y]);
+    matrix[2] = Row::new(vec![0., 0., 1., vector3.z]);
+    matrix[3] = Row::new(vec![0., 0., 0., 1.]);
     matrix
 }
 
 /// Creates a scaling matrix
 pub fn scaling(vector3: &Vector3) -> Matrix {
     let mut matrix = Matrix::identity_4x4();
-    matrix.data[0][0] = vector3.x;
-    matrix.data[1][1] = vector3.y;
-    matrix.data[2][2] = vector3.z;
+    matrix[0] = Row::new(vec![vector3.x, 0., 0., 0.]);
+    matrix[1] = Row::new(vec![0., vector3.y, 0., 0.]);
+    matrix[2] = Row::new(vec![0., 0., vector3.z, 0.]);
+    matrix[3] = Row::new(vec![0., 0., 0., 1.]);
     matrix
 }
 
 /// Creates a rotation around the x axis matrix
 pub fn rotation_x(radians: f64) -> Matrix {
     let mut matrix = Matrix::identity_4x4();
-    matrix.data[1][1] = radians.cos();
-    matrix.data[1][2] = -radians.sin();
-    matrix.data[2][1] = radians.sin();
-    matrix.data[2][2] = radians.cos();
+    matrix[0] = Row::new(vec![1., 0., 0., 0.]);
+    matrix[1] = Row::new(vec![0., radians.cos(), -radians.sin(), 0.]);
+    matrix[2] = Row::new(vec![0., radians.sin(), radians.cos(), 0.]);
+    matrix[3] = Row::new(vec![0., 0., 0., 1.]);
     matrix
 }
 
 /// Creates a rotation around the y axis matrix
 pub fn rotation_y(radians: f64) -> Matrix {
     let mut matrix = Matrix::identity_4x4();
-    matrix.data[0][0] = radians.cos();
-    matrix.data[0][2] = radians.sin();
-    matrix.data[2][0] = -radians.sin();
-    matrix.data[2][2] = radians.cos();
+    matrix[0] = Row::new(vec![radians.cos(), 0., radians.sin(), 0.]);
+    matrix[1] = Row::new(vec![0., 1., 0., 0.]);
+    matrix[2] = Row::new(vec![-radians.sin(), 0., radians.cos(), 0.]);
+    matrix[3] = Row::new(vec![0., 0., 0., 1.]);
     matrix
 }
 
 /// Creates a rotation around the z axis matrix
 pub fn rotation_z(radians: f64) -> Matrix {
     let mut matrix = Matrix::identity_4x4();
-    matrix.data[0][0] = radians.cos();
-    matrix.data[0][1] = -radians.sin();
-    matrix.data[1][0] = radians.sin();
-    matrix.data[1][1] = radians.cos();
+    matrix[0] = Row::new(vec![radians.cos(), -radians.sin(), 0., 0.]);
+    matrix[1] = Row::new(vec![radians.sin(), radians.cos(), 0., 0.]);
+    matrix[2] = Row::new(vec![0., 0., 1., 0.]);
+    matrix[3] = Row::new(vec![0., 0., 0., 1.]);
     matrix
 }
 
 /// Creates a shearing matrix
 pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
     let mut matrix = Matrix::identity_4x4();
-    matrix.data[0][1] = xy;
-    matrix.data[0][2] = xz;
-    matrix.data[1][0] = yx;
-    matrix.data[1][2] = yz;
-    matrix.data[2][0] = zx;
-    matrix.data[2][1] = zy;
+    matrix[0] = Row::new(vec![1., xy, xz, 0.]);
+    matrix[1] = Row::new(vec![yx, 1., yz, 0.]);
+    matrix[2] = Row::new(vec![zx, zy, 1., 0.]);
+    matrix[3] = Row::new(vec![0., 0., 0., 1.]);
     matrix
 }
-
 
 pub fn view_transform(from: Vector3, to: Vector3, up: Vector3) -> Matrix {
     let forward = (&to - &from).normalize();
@@ -68,10 +68,10 @@ pub fn view_transform(from: Vector3, to: Vector3, up: Vector3) -> Matrix {
     let true_up = left.cross(&forward);
 
     let mut orientation = Matrix::identity_4x4();
-    orientation.data[0] = vec![left.x, left.y, left.z, 0.];
-    orientation.data[1] = vec![true_up.x, true_up.y, true_up.z, 0.];
-    orientation.data[2] = vec![-forward.x, -forward.y, -forward.z, 0.];
-    orientation.data[3] = vec![0., 0., 0., 1.];
+    orientation.data[0] = Row::new(vec![left.x, left.y, left.z, 0.]);
+    orientation.data[1] = Row::new(vec![true_up.x, true_up.y, true_up.z, 0.]);
+    orientation.data[2] = Row::new(vec![-forward.x, -forward.y, -forward.z, 0.]);
+    orientation.data[3] = Row::new(vec![0., 0., 0., 1.]);
 
     orientation.multiply_4x4(&translation(&Vector3::new(-from.x, -from.y, -from.z)))
 }

@@ -2,11 +2,48 @@ use crate::mathf;
 use crate::mathf::vector3::Vector3;
 use crate::mathf::vector4::Vector4;
 
+
+#[derive(Debug, Clone)]
+pub struct Row {
+    columns: std::vec::Vec<f64>,
+    size: usize
+}
+
+impl Row {
+    pub fn new(data: std::vec::Vec<f64>) -> Row {
+        let size = data.len();
+        Row { columns: data, size }
+    }
+}
+
+
+impl std::ops::Index<usize> for Row {
+    type Output = f64;
+    fn index(&self, col: usize) -> &Self::Output {
+        if col >= self.size { panic!("Index out-of-bounds") }
+        &self.columns[col]
+    }
+}
+impl std::ops::IndexMut<usize> for Row {
+    fn index_mut(&mut self, col: usize) -> &mut Self::Output {
+//        if row >= self.size { panic!("Index out-of-bounds") }
+        &mut self.columns[col]
+    }
+}
+
+
+impl PartialEq for Row {
+    fn eq(&self, other: &Self) -> bool {
+        (0..self.size).all(|col| mathf::approximately(self[col], other[col]))
+    }
+}
+
+
 #[derive(Debug, Clone)]
 pub struct Matrix {
     pub num_rows: usize,
     pub num_cols: usize,
-    pub data: Vec<std::vec::Vec<f64>>,
+    pub data: Vec<Row>,
 }
 
 impl PartialEq for Matrix {
@@ -25,26 +62,37 @@ impl PartialEq for Matrix {
     }
 }
 
+impl std::ops::Index<usize> for Matrix {
+    type Output = Row;
+    fn index(&self, row: usize) -> &Self::Output {
+//        if row >= self.size { panic!("Index out-of-bounds") }
+        &self.data[row]
+    }
+}
+
+impl std::ops::IndexMut<usize> for Matrix {
+    fn index_mut(&mut self, row: usize) -> &mut Self::Output {
+//        if row >= self.size { panic!("Index out-of-bounds") }
+        &mut self.data[row]
+    }
+}
+
+
 impl Matrix {
-    pub fn new(num_rows: usize, num_cols: usize) -> Matrix {
+    fn new(num_rows: usize, num_cols: usize) -> Matrix {
         Matrix {
             num_rows,
             num_cols,
-            data: vec![vec![0.0f64; num_rows]; num_cols],
+            data: vec![Row::new(vec![0.0f64; num_cols]); num_rows],
         }
     }
 
     pub fn identity_4x4() -> Matrix {
-        let mut matrix = Matrix {
-            num_rows: 4,
-            num_cols: 4,
-            data: vec![vec![0.0f64; 4]; 4],
-        };
-
-        matrix.data[0][0] = 1.0;
-        matrix.data[1][1] = 1.0;
-        matrix.data[2][2] = 1.0;
-        matrix.data[3][3] = 1.0;
+        let mut matrix = Matrix::new(4, 4);
+        matrix.data[0] = Row::new(vec![1., 0., 0., 0.]);
+        matrix.data[1] = Row::new(vec![0., 1., 0., 0.]);
+        matrix.data[2] = Row::new(vec![0., 0., 1., 0.]);
+        matrix.data[3] = Row::new(vec![0., 0., 0., 1.]);
 
         matrix
     }
@@ -223,6 +271,20 @@ mod tests {
         assert!(approximately(matrix.data[2][2], 11.0));
         assert!(approximately(matrix.data[3][0], 13.5));
         assert!(approximately(matrix.data[3][2], 15.5));
+    }
+
+
+    #[test]
+    fn it_creates_a_3x5_matrix() {
+        let mut matrix = Matrix::new(3, 5);
+        matrix.data[0] = Row::new(vec![9., 1., 2., 0., 3.]);
+        matrix.data[1] = Row::new(vec![0., 0., 2., 3., 1.]);
+        matrix.data[2] = Row::new(vec![8., 7., 5., 4., 6.]);
+
+        assert!(approximately(matrix.data[0][0], 9.0));
+        assert!(approximately(matrix.data[0][4], 3.0));
+        assert!(approximately(matrix.data[2][0], 8.0));
+        assert!(approximately(matrix.data[2][4], 6.0));
     }
 
     #[test]
