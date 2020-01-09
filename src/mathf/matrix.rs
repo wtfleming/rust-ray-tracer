@@ -230,10 +230,11 @@ impl Matrix {
         !mathf::approximately(self.determinant(), 0.0)
     }
 
-    pub fn inverse(&self) -> Matrix {
+    pub fn inverse(&self) -> Option<Matrix> {
         debug_assert!(self.size == 4);
         if !self.is_invertible() {
-            panic!("To inverse a matrix it must be invertible");
+            // To inverse a matrix it must be invertible
+            return None
         }
 
         let mut matrix = Matrix::new();
@@ -246,7 +247,7 @@ impl Matrix {
             }
         }
 
-        matrix
+        Some(matrix)
     }
 }
 
@@ -799,7 +800,7 @@ mod tests {
         matrix.data[3][2] = 7.0;
         matrix.data[3][3] = 4.0;
 
-        let inverted_matrix = matrix.inverse();
+        let inverted_matrix = matrix.inverse().unwrap();
         assert_eq!(matrix.determinant(), 532.0);
         assert_eq!(matrix.cofactor(2, 3), -160.0);
         assert_eq!(inverted_matrix.data[3][2], -160.0 / 532.0);
@@ -852,7 +853,7 @@ mod tests {
         matrix.data[3][2] = -9.0;
         matrix.data[3][3] = -4.0;
 
-        let inverted_matrix = matrix.inverse();
+        let inverted_matrix = matrix.inverse().unwrap();
 
         let mut expected = Matrix::new();
         expected.data[0][0] = -0.15385;
@@ -900,7 +901,7 @@ mod tests {
         matrix.data[3][2] = 6.0;
         matrix.data[3][3] = 2.0;
 
-        let inverted_matrix = matrix.inverse();
+        let inverted_matrix = matrix.inverse().unwrap();
 
         let mut expected = Matrix::new();
         expected.data[0][0] = -0.04074;
@@ -973,7 +974,7 @@ mod tests {
 
         let matrix_c = matrix_a.multiply_4x4(&matrix_b);
 
-        let result = matrix_c.multiply_4x4(&matrix_b.inverse());
+        let result = matrix_c.multiply_4x4(&matrix_b.inverse().unwrap());
         assert_eq!(result, matrix_a);
     }
 }

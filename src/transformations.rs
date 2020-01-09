@@ -94,7 +94,7 @@ mod tests {
     #[test]
     fn test_multiplying_by_the_inverse_of_a_translation_matrix() {
         let transform = translation(&Vector3::new(5.0, -3.0, 2.0));
-        let inv = transform.inverse();
+        let inv = transform.inverse().unwrap();
 
         let point = Vector3::new(-3.0, 4.0, 5.0);
         let result = inv.multiply_point(&point);
@@ -113,7 +113,7 @@ mod tests {
     #[test]
     fn test_multiplying_by_the_inverse_of_a_scaling_matrix() {
         let transform = scaling(&Vector3::new(2.0, 3.0, 4.0));
-        let inv = transform.inverse();
+        let inv = transform.inverse().unwrap();
 
         let point = Vector3::new(-4.0, 6.0, 8.0);
         let result = inv.multiply_point(&point);
@@ -147,7 +147,7 @@ mod tests {
         let point = Vector3::new(0.0, 1.0, 0.0);
         let half_quarter = rotation_x(PI / 4.0);
 
-        let inv = half_quarter.inverse();
+        let inv = half_quarter.inverse().unwrap();
         let half_quarter_expected = Vector3::new(0.0, 2.0f64.sqrt() / 2.0, -(2.0f64.sqrt() / 2.0));
         assert_eq!(inv.multiply_point(&point), half_quarter_expected);
     }

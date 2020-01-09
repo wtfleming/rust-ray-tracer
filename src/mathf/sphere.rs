@@ -43,7 +43,7 @@ impl Sphere {
             None => Material::new(),
             Some(x) => x,
         };
-        let inverse_transform = t.inverse();
+        let inverse_transform = t.inverse().unwrap();
 
         Sphere {
             id: sphere_id(),
@@ -66,11 +66,12 @@ impl Sphere {
     }
 
     pub fn normal_at(&self, world_point: &Vector3) -> Vector3 {
-        let object_point = self.transform.inverse().multiply_point(&world_point);
+        let object_point = self.transform.inverse().unwrap().multiply_point(&world_point);
         let object_normal = &object_point - &Vector3::new(0.0, 0.0, 0.0);
         let world_normal = self
             .transform
             .inverse()
+            .unwrap()
             .transpose()
             .multiply_vector(&object_normal);
         world_normal.normalize()
