@@ -133,9 +133,7 @@ impl Matrix {
     }
 
     fn multiply_vector4(&self, rhs: &Vector3, w: f64) -> Vector3 {
-        // if self.num_rows != 4 || self.num_cols != 4 {
-        //     panic!("Currently only supports multiplying 4x4 matrices");
-        // }
+        debug_assert!(self.size == 4, "Currently only supports 4x4 matrices");
 
         let x = self.data[0][0] * rhs.x
             + self.data[0][1] * rhs.y
@@ -161,7 +159,7 @@ impl Matrix {
     }
 
     pub fn transpose(&self) -> Matrix {
-        debug_assert!(self.size == 4);
+        debug_assert!(self.size == 4, "Currently only supports 4x4 matrices");
         let mut matrix = Matrix::new();
         for row in 0..self.size {
             for col in 0..self.size {
@@ -174,7 +172,7 @@ impl Matrix {
 
     // Return a copy of a matrix with a given row and column removed
     pub fn submatrix(&self, remove_row: usize, remove_col: usize) -> Matrix {
-        debug_assert!(self.size == 4 || self.size == 3);
+        debug_assert!(self.size == 4 || self.size == 3, "Only supports 4x4 and 3x3 matrices");
         let mut matrix = match self.size {
             4 => Matrix::new_size(3),
             3 => Matrix::new_size(2),
@@ -231,9 +229,9 @@ impl Matrix {
     }
 
     pub fn inverse(&self) -> Option<Matrix> {
-        debug_assert!(self.size == 4);
+        debug_assert!(self.size == 4, "Currently only supports 4x4 matrices");
+
         if !self.is_invertible() {
-            // To inverse a matrix it must be invertible
             return None
         }
 
