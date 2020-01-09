@@ -149,7 +149,7 @@ fn draw_circle_lit() {
                     &normal,
                 );
 
-                canvas.write_pixel(x as isize, y as isize, &color);
+                canvas.write_pixel(x as usize, y as usize, &color);
             }
         }
     }
@@ -188,7 +188,7 @@ fn draw_circle() {
             let xs = Intersections::new(xs);
             let hit = xs.hit();
             if hit.is_some() {
-                canvas.write_pixel(x as isize, y as isize, &color);
+                canvas.write_pixel(x as usize, y as usize, &color);
             }
         }
     }
@@ -232,7 +232,7 @@ fn draw_clock() {
             .multiply_point(&origin);
         let position = &position + &to_center_of_canvas;
 
-        canvas.write_pixel(position.y as isize, position.x as isize, &red);
+        canvas.write_pixel(position.y as usize, position.x as usize, &red);
     }
 
     let ppm_data = ppm::canvas_to_ppm(&canvas);

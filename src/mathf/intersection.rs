@@ -1,17 +1,17 @@
 use crate::mathf::ray::Ray;
-use crate::mathf::sphere;
+use crate::mathf::sphere::Sphere;
 use crate::mathf::vector3::Vector3;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct Intersection {
     pub t: f64,
-    pub object: Arc<sphere::Sphere>,
+    pub object: Arc<Sphere>,
 }
 
 pub struct Computations {
     pub t: f64,
-    pub object: Arc<sphere::Sphere>,
+    pub object: Arc<Sphere>,
     pub point: Vector3,
     pub eye_vector: Vector3,
     pub normal_vector: Vector3,
@@ -55,7 +55,7 @@ impl Intersections {
 }
 
 impl Intersection {
-    pub fn new(t: f64, object: Arc<sphere::Sphere>) -> Intersection {
+    pub fn new(t: f64, object: Arc<Sphere>) -> Intersection {
         Intersection { t, object }
     }
 

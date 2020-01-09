@@ -15,13 +15,7 @@ impl Canvas {
         }
     }
 
-    pub fn write_pixel(&mut self, x: isize, y: isize, color: &Color) {
-        // Note that x and y are positions in world space, they might not be in the camera's canvas
-
-        // if x < 0 || y < 0 || (x as usize) >= self.width || (y as usize) >= self.height {
-        //     // This is a part of the image not visible in the canvas, so do nothing
-        //     return;
-        // }
+    pub fn write_pixel(&mut self, x: usize, y: usize, color: &Color) {
         self.pixels[y as usize][x as usize] = color.clone();
     }
 }
