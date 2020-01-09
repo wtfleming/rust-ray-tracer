@@ -94,10 +94,7 @@ impl Matrix {
     }
 
     pub fn multiply_4x4(&self, rhs: &Matrix) -> Matrix {
-        if self.size != 4 || rhs.size != 4 {
-            panic!("Currently only supports multiplying 4x4 matrices");
-        }
-
+        debug_assert!(self.size == 4 && rhs.size == 4, "Only supports 4x4 matrices");
         let mut matrix = Matrix::new();
         for row in 0..4 {
             for col in 0..4 {
@@ -114,10 +111,7 @@ impl Matrix {
         // We only want translation matrices to affect "points" and not "vectors".
         // By setting w to be 1 the point * transform = transformed point in space;
         // If w = 0 then point * transform = only rotated point.
-        if self.size != 4 {
-            panic!("Currently only supports multiplying 4x4 matrices");
-        }
-
+        debug_assert!(self.size == 4, "Currently only supports 4x4 matrices");
         self.multiply_vector4(&rhs, 1.)
     }
 
@@ -125,10 +119,7 @@ impl Matrix {
         // We only want translation matrices to affect "points" and not "vectors".
         // By setting w to be 1 the point * transform = transformed point in space;
         // If w = 0 then point * transform = only rotated point.
-        if self.size != 4 {
-            panic!("Currently only supports multiplying 4x4 matrices");
-        }
-
+        debug_assert!(self.size == 4, "Currently only supports 4x4 matrices");
         self.multiply_vector4(&rhs, 0.)
     }
 
