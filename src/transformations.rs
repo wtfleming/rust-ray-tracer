@@ -87,7 +87,7 @@ mod tests {
         let transform = translation(&Vector3::new(5.0, -3.0, 2.0));
 
         let point = Vector3::new(-3.0, 4.0, 5.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(2.0, 1.0, 7.0));
     }
 
@@ -97,7 +97,7 @@ mod tests {
         let inv = transform.inverse();
 
         let point = Vector3::new(-3.0, 4.0, 5.0);
-        let result = inv.multiply_vector3(&point);
+        let result = inv.multiply_point(&point);
         assert_eq!(result, Vector3::new(-8.0, 7.0, 3.0));
     }
 
@@ -106,7 +106,7 @@ mod tests {
         let transform = scaling(&Vector3::new(2.0, 3.0, 4.0));
 
         let point = Vector3::new(-4.0, 6.0, 8.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(-8.0, 18.0, 32.0));
     }
 
@@ -116,7 +116,7 @@ mod tests {
         let inv = transform.inverse();
 
         let point = Vector3::new(-4.0, 6.0, 8.0);
-        let result = inv.multiply_vector3(&point);
+        let result = inv.multiply_point(&point);
         assert_eq!(result, Vector3::new(-2.0, 2.0, 2.0));
     }
 
@@ -125,7 +125,7 @@ mod tests {
         let transform = scaling(&Vector3::new(-1.0, 1.0, 1.0));
 
         let point = Vector3::new(2.0, 3.0, 4.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(-2.0, 3.0, 4.0));
     }
 
@@ -136,10 +136,10 @@ mod tests {
         let full_quarter = rotation_x(PI / 2.0);
 
         let half_quarter_expected = Vector3::new(0.0, 2.0f64.sqrt() / 2.0, 2.0f64.sqrt() / 2.0);
-        assert_eq!(half_quarter.multiply_vector3(&point), half_quarter_expected);
+        assert_eq!(half_quarter.multiply_point(&point), half_quarter_expected);
 
         let full_quarter_expected = Vector3::new(0.0, 0.0, 1.0);
-        assert_eq!(full_quarter.multiply_vector3(&point), full_quarter_expected);
+        assert_eq!(full_quarter.multiply_point(&point), full_quarter_expected);
     }
 
     #[test]
@@ -149,7 +149,7 @@ mod tests {
 
         let inv = half_quarter.inverse();
         let half_quarter_expected = Vector3::new(0.0, 2.0f64.sqrt() / 2.0, -(2.0f64.sqrt() / 2.0));
-        assert_eq!(inv.multiply_vector3(&point), half_quarter_expected);
+        assert_eq!(inv.multiply_point(&point), half_quarter_expected);
     }
 
     #[test]
@@ -159,10 +159,10 @@ mod tests {
         let full_quarter = rotation_y(PI / 2.0);
 
         let half_quarter_expected = Vector3::new(2.0f64.sqrt() / 2.0, 0.0, 2.0f64.sqrt() / 2.0);
-        assert_eq!(half_quarter.multiply_vector3(&point), half_quarter_expected);
+        assert_eq!(half_quarter.multiply_point(&point), half_quarter_expected);
 
         let full_quarter_expected = Vector3::new(1.0, 0.0, 0.0);
-        assert_eq!(full_quarter.multiply_vector3(&point), full_quarter_expected);
+        assert_eq!(full_quarter.multiply_point(&point), full_quarter_expected);
     }
 
     #[test]
@@ -172,17 +172,17 @@ mod tests {
         let full_quarter = rotation_z(PI / 2.0);
 
         let half_quarter_expected = Vector3::new(-(2.0f64.sqrt() / 2.0), 2.0f64.sqrt() / 2.0, 0.0);
-        assert_eq!(half_quarter.multiply_vector3(&point), half_quarter_expected);
+        assert_eq!(half_quarter.multiply_point(&point), half_quarter_expected);
 
         let full_quarter_expected = Vector3::new(-1.0, 0.0, 0.0);
-        assert_eq!(full_quarter.multiply_vector3(&point), full_quarter_expected);
+        assert_eq!(full_quarter.multiply_point(&point), full_quarter_expected);
     }
 
     #[test]
     fn a_shearing_transformation_moves_x_in_proportion_to_y() {
         let transform = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         let point = Vector3::new(2.0, 3.0, 4.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(5.0, 3.0, 4.0));
     }
 
@@ -190,7 +190,7 @@ mod tests {
     fn a_shearing_transformation_moves_x_in_proportion_to_z() {
         let transform = shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
         let point = Vector3::new(2.0, 3.0, 4.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(6.0, 3.0, 4.0));
     }
 
@@ -198,7 +198,7 @@ mod tests {
     fn a_shearing_transformation_moves_y_in_proportion_to_x() {
         let transform = shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
         let point = Vector3::new(2.0, 3.0, 4.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(2.0, 5.0, 4.0));
     }
 
@@ -206,7 +206,7 @@ mod tests {
     fn a_shearing_transformation_moves_y_in_proportion_to_z() {
         let transform = shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
         let point = Vector3::new(2.0, 3.0, 4.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(2.0, 7.0, 4.0));
     }
 
@@ -214,7 +214,7 @@ mod tests {
     fn a_shearing_transformation_moves_z_in_proportion_to_x() {
         let transform = shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
         let point = Vector3::new(2.0, 3.0, 4.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(2.0, 3.0, 6.0));
     }
 
@@ -222,7 +222,7 @@ mod tests {
     fn a_shearing_transformation_moves_z_in_proportion_to_y() {
         let transform = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
         let point = Vector3::new(2.0, 3.0, 4.0);
-        let result = transform.multiply_vector3(&point);
+        let result = transform.multiply_point(&point);
         assert_eq!(result, Vector3::new(2.0, 3.0, 7.0));
     }
 
@@ -233,13 +233,13 @@ mod tests {
         let scaling = scaling(&Vector3::new(5.0, 5.0, 5.0));
         let translation = translation(&Vector3::new(10.0, 5.0, 7.0));
 
-        let p2 = rotation.multiply_vector3(&point);
+        let p2 = rotation.multiply_point(&point);
         assert_eq!(p2, Vector3::new(1.0, -1.0, 0.0));
 
-        let p3 = scaling.multiply_vector3(&p2);
+        let p3 = scaling.multiply_point(&p2);
         assert_eq!(p3, Vector3::new(5.0, -5.0, 0.0));
 
-        let p4 = translation.multiply_vector3(&p3);
+        let p4 = translation.multiply_point(&p3);
         assert_eq!(p4, Vector3::new(15.0, 0.0, 7.0));
     }
 
@@ -253,7 +253,7 @@ mod tests {
         let transform = translation.multiply_4x4(&scaling).multiply_4x4(&rotation);
 
         let expected = Vector3::new(15.0, 0.0, 7.0);
-        assert_eq!(expected, transform.multiply_vector3(&point));
+        assert_eq!(expected, transform.multiply_point(&point));
     }
 
     #[test]

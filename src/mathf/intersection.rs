@@ -116,7 +116,7 @@ mod tests {
         let sphere = Rc::new(Sphere::new(None, None));
         let i = Intersection::new(4., Rc::clone(&sphere));
 
-        let computations = i.prepare_computations(&ray);
+        let computations = i.prepare_computations(ray);
         assert_eq!(computations.t, i.t);
         assert_eq!(computations.object, sphere);
         assert_eq!(computations.point, Vector3::new(0., 0., -1.));
@@ -130,7 +130,7 @@ mod tests {
         let sphere = Rc::new(Sphere::new(None, None));
         let i = Intersection::new(4., Rc::clone(&sphere));
 
-        let computations = i.prepare_computations(&ray);
+        let computations = i.prepare_computations(ray);
         assert!(!computations.is_inside);
     }
 
@@ -140,7 +140,7 @@ mod tests {
         let sphere = Rc::new(Sphere::new(None, None));
         let i = Intersection::new(1., Rc::clone(&sphere));
 
-        let computations = i.prepare_computations(&ray);
+        let computations = i.prepare_computations(ray);
         assert_eq!(computations.point, Vector3::new(0., 0., 1.));
         assert_eq!(computations.eye_vector, Vector3::new(0., 0., -1.));
         assert!(computations.is_inside);

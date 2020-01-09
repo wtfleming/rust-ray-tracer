@@ -144,7 +144,7 @@ mod tests {
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[0];
         let intersection = Intersection::new(4., Rc::clone(&shape));
-        let computations = intersection.prepare_computations(&ray);
+        let computations = intersection.prepare_computations(ray);
         let color = world.shade_hit(computations);
 
         assert_eq!(color, Color::new(0.38066, 0.47583, 0.2855));
@@ -161,7 +161,7 @@ mod tests {
         let ray = Ray::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[1];
         let intersection = Intersection::new(0.5, Rc::clone(&shape));
-        let computations = intersection.prepare_computations(&ray);
+        let computations = intersection.prepare_computations(ray);
         let color = world.shade_hit(computations);
 
         assert_eq!(color, Color::new(0.90498, 0.90498, 0.90498));

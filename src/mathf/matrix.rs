@@ -1,43 +1,43 @@
 use crate::mathf;
 use crate::mathf::vector3::Vector3;
-use crate::mathf::vector4::Vector4;
-
 
 #[derive(Debug, Clone)]
 pub struct Row {
     columns: std::vec::Vec<f64>,
-    size: usize
+    size: usize,
 }
 
 impl Row {
     pub fn new(data: std::vec::Vec<f64>) -> Row {
         let size = data.len();
-        Row { columns: data, size }
+        Row {
+            columns: data,
+            size,
+        }
     }
 }
-
 
 impl std::ops::Index<usize> for Row {
     type Output = f64;
     fn index(&self, col: usize) -> &Self::Output {
-        if col >= self.size { panic!("Index out-of-bounds") }
+        if col >= self.size {
+            panic!("Index out-of-bounds")
+        }
         &self.columns[col]
     }
 }
 impl std::ops::IndexMut<usize> for Row {
     fn index_mut(&mut self, col: usize) -> &mut Self::Output {
-//        if row >= self.size { panic!("Index out-of-bounds") }
+        //        if row >= self.size { panic!("Index out-of-bounds") }
         &mut self.columns[col]
     }
 }
-
 
 impl PartialEq for Row {
     fn eq(&self, other: &Self) -> bool {
         (0..self.size).all(|col| mathf::approximately(self[col], other[col]))
     }
 }
-
 
 #[derive(Debug, Clone)]
 pub struct Matrix {
@@ -65,18 +65,15 @@ impl PartialEq for Matrix {
 impl std::ops::Index<usize> for Matrix {
     type Output = Row;
     fn index(&self, row: usize) -> &Self::Output {
-//        if row >= self.size { panic!("Index out-of-bounds") }
         &self.data[row]
     }
 }
 
 impl std::ops::IndexMut<usize> for Matrix {
     fn index_mut(&mut self, row: usize) -> &mut Self::Output {
-//        if row >= self.size { panic!("Index out-of-bounds") }
         &mut self.data[row]
     }
 }
-
 
 impl Matrix {
     fn new(num_rows: usize, num_cols: usize) -> Matrix {
@@ -114,44 +111,56 @@ impl Matrix {
         matrix
     }
 
-    pub fn multiply_vector3(&self, rhs: &Vector3) -> Vector3 {
+    pub fn multiply_point(&self, rhs: &Vector3) -> Vector3 {
+        // We only want translation matrices to affect "points" and not "vectors".
+        // By setting w to be 1 the point * transform = transformed point in space;
+        // If w = 0 then point * transform = only rotated point.
         if self.num_rows != 4 || self.num_cols != 4 {
             panic!("Currently only supports multiplying 4x4 matrices");
         }
 
-        let result = self.multiply_vector4(&Vector4::new(rhs.x, rhs.y, rhs.z, 1.0));
-        Vector3::new(result.x, result.y, result.z)
+        self.multiply_vector4(&rhs, 1.)
     }
 
-    pub fn multiply_vector4(&self, rhs: &Vector4) -> Vector4 {
+    pub fn multiply_vector(&self, rhs: &Vector3) -> Vector3 {
+        // We only want translation matrices to affect "points" and not "vectors".
+        // By setting w to be 1 the point * transform = transformed point in space;
+        // If w = 0 then point * transform = only rotated point.
         if self.num_rows != 4 || self.num_cols != 4 {
             panic!("Currently only supports multiplying 4x4 matrices");
         }
 
-        let mut vector = Vector4::new(0.0, 0.0, 0.0, 0.0);
+        self.multiply_vector4(&rhs, 0.)
+    }
 
-        vector.x = self.data[0][0] * rhs.x
+    fn multiply_vector4(&self, rhs: &Vector3, w: f64) -> Vector3 {
+        // if self.num_rows != 4 || self.num_cols != 4 {
+        //     panic!("Currently only supports multiplying 4x4 matrices");
+        // }
+
+        let x = self.data[0][0] * rhs.x
             + self.data[0][1] * rhs.y
             + self.data[0][2] * rhs.z
-            + self.data[0][3] * rhs.w;
+            + self.data[0][3] * w;
 
-        vector.y = self.data[1][0] * rhs.x
+        let y = self.data[1][0] * rhs.x
             + self.data[1][1] * rhs.y
             + self.data[1][2] * rhs.z
-            + self.data[1][3] * rhs.w;
+            + self.data[1][3] * w;
 
-        vector.z = self.data[2][0] * rhs.x
+        let z = self.data[2][0] * rhs.x
             + self.data[2][1] * rhs.y
             + self.data[2][2] * rhs.z
-            + self.data[2][3] * rhs.w;
+            + self.data[2][3] * w;
 
-        vector.w = self.data[3][0] * rhs.x
-            + self.data[3][1] * rhs.y
-            + self.data[3][2] * rhs.z
-            + self.data[3][3] * rhs.w;
+        // let w = self.data[3][0] * rhs.x
+        //     + self.data[3][1] * rhs.y
+        //     + self.data[3][2] * rhs.z
+        //     + self.data[3][3] * w;
 
-        vector
+        Vector3::new(x, y, z)
     }
+
 
     pub fn transpose(&self) -> Matrix {
         let mut matrix = Matrix::new(self.num_rows, self.num_cols);
@@ -272,7 +281,6 @@ mod tests {
         assert!(approximately(matrix.data[3][0], 13.5));
         assert!(approximately(matrix.data[3][2], 15.5));
     }
-
 
     #[test]
     fn it_creates_a_3x5_matrix() {
@@ -445,14 +453,15 @@ mod tests {
         matrix1.data[3][2] = 0.0;
         matrix1.data[3][3] = 1.0;
 
-        let vector = Vector4::new(1.0, 2.0, 3.0, 1.0);
+        // let vector = Vector4::new(1.0, 2.0, 3.0, 1.0);
+        let vector = Vector3::new(1.0, 2.0, 3.0);
 
-        let result = matrix1.multiply_vector4(&vector);
+        let result = matrix1.multiply_vector4(&vector, 1.0);
 
         assert!(approximately(result.x, 18.0));
         assert!(approximately(result.y, 24.0));
         assert!(approximately(result.z, 33.0));
-        assert!(approximately(result.w, 1.0));
+        // assert!(approximately(result.w, 1.0));
     }
 
     #[test]
@@ -485,13 +494,15 @@ mod tests {
     #[test]
     fn test_multiply_identity_4x4_by_vector4() {
         let matrix = Matrix::identity_4x4();
-        let vector = Vector4::new(1.0, 2.0, 3.0, 4.0);
-        let result = matrix.multiply_vector4(&vector);
+        // let vector = Vector4::new(1.0, 2.0, 3.0, 4.0);
+        // let result = matrix.multiply_vector4(&vector);
+        let vector = Vector3::new(1.0, 2.0, 3.0);
+        let result = matrix.multiply_vector4(&vector, 0.);
 
         assert_eq!(vector.x, result.x);
         assert_eq!(vector.y, result.y);
         assert_eq!(vector.z, result.z);
-        assert_eq!(vector.w, result.w);
+        // assert_eq!(vector.w, result.w);
     }
 
     #[test]

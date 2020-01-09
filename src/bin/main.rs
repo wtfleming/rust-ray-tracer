@@ -228,7 +228,7 @@ fn draw_clock() {
 
         let position = rotation_mat
             .multiply_4x4(&translation_mat)
-            .multiply_vector3(&origin);
+            .multiply_point(&origin);
         let position = &position + &to_center_of_canvas;
 
         canvas.write_pixel(position.y as isize, position.x as isize, &red);

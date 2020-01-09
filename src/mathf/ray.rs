@@ -1,6 +1,6 @@
 use crate::mathf::matrix::Matrix;
 use crate::mathf::vector3::Vector3;
-use crate::mathf::vector4::Vector4;
+
 
 #[derive(Debug)]
 pub struct Ray {
@@ -19,18 +19,10 @@ impl Ray {
     }
 
     pub fn transform(&self, matrix: &Matrix) -> Ray {
-        // We only want translation matrices to affect "points" and not "vectors".
-        // By setting w to be 1 the point * transform = transformed point in space;
-        // If w = 0 then point * transform = only rotated point.
-        let origin = Vector4::new(self.origin.x, self.origin.y, self.origin.z, 1.0);
-        let direction = Vector4::new(self.direction.x, self.direction.y, self.direction.z, 0.0);
-
-        let origin = matrix.multiply_vector4(&origin);
-        let direction = matrix.multiply_vector4(&direction);
-
-        // Now convert back to a Vector3 representation
-        let origin = Vector3::new(origin.x, origin.y, origin.z);
-        let direction = Vector3::new(direction.x, direction.y, direction.z);
+        // Note that we only want translation matrices to affect "points" and not "vectors".
+        // So we use different multiplication fns for them
+        let origin = matrix.multiply_point(&self.origin);
+        let direction = matrix.multiply_vector(&self.direction);
         Ray { origin, direction }
     }
 }

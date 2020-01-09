@@ -51,9 +51,9 @@ mod tests {
         let mut canvas = Canvas::new(10, 20);
         let red = Color::new(1.0, 0.0, 0.0);
         canvas.write_pixel(2, 3, &red);
-        assert!(canvas.pixels[2][3] == red);
+        assert!(canvas.pixels[3][2] == red);
 
         let black = Color::new(0.0, 0.0, 0.0);
-        assert!(canvas.pixels[1][2] == black);
+        assert!(canvas.pixels[2][1] == black);
     }
 }

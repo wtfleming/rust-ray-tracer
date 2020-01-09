@@ -67,13 +67,13 @@ impl Sphere {
     }
 
     pub fn normal_at(&self, world_point: &Vector3) -> Vector3 {
-        let object_point = self.transform.inverse().multiply_vector3(&world_point);
+        let object_point = self.transform.inverse().multiply_point(&world_point);
         let object_normal = &object_point - &Vector3::new(0.0, 0.0, 0.0);
         let world_normal = self
             .transform
             .inverse()
             .transpose()
-            .multiply_vector3(&object_normal);
+            .multiply_vector(&object_normal);
         world_normal.normalize()
     }
 
