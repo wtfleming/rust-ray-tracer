@@ -49,7 +49,7 @@ impl World {
         match xs.hit() {
             None => color::BLACK,
             Some(i) => {
-                let comps = i.prepare_computations(&ray);
+                let comps = i.prepare_computations(ray);
                 self.shade_hit(comps)
             }
         }

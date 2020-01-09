@@ -21,7 +21,7 @@ fn main() {
     // draw_simple();
     // draw_clock();
     // draw_circle();
-    //draw_circle_lit();
+    // draw_circle_lit();
     draw_three_spheres_scene();
 }
 
@@ -85,6 +85,7 @@ fn draw_three_spheres_scene() {
     world.objects = vec![Rc::new(floor), Rc::new(wall_left), Rc::new(wall_right), Rc::new(middle), Rc::new(right), Rc::new(left)];
 
     let mut camera = Camera::new(100, 50, PI / 3.);
+    // let mut camera = Camera::new(700, 500, PI / 3.);
     // let mut camera = Camera::new(150, 50, PI / 3.);
     // let mut camera = Camera::new(50, 100, PI / 3.);
     // let mut camera = Camera::new(100, 100, PI / 3.);

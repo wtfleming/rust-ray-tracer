@@ -11,19 +11,18 @@ impl Canvas {
         Canvas {
             width,
             height,
-            pixels: vec![vec![Color::new(0.0, 0.0, 0.0); height]; width],
+            pixels: vec![vec![Color::new(0.0, 0.0, 0.0); width]; height],
         }
     }
 
     pub fn write_pixel(&mut self, x: isize, y: isize, color: &Color) {
         // Note that x and y are positions in world space, they might not be in the camera's canvas
 
-        // TODO is there a better way to handle the usize and isize in Rust?
-        if x < 0 || y < 0 || (x as usize) >= self.width || (y as usize) >= self.height {
-            // This is a part of the image not visible in the canvas, so do nothing
-            return;
-        }
-        self.pixels[x as usize][y as usize] = color.clone();
+        // if x < 0 || y < 0 || (x as usize) >= self.width || (y as usize) >= self.height {
+        //     // This is a part of the image not visible in the canvas, so do nothing
+        //     return;
+        // }
+        self.pixels[y as usize][x as usize] = color.clone();
     }
 }
 

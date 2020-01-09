@@ -59,9 +59,9 @@ impl Intersection {
         Intersection { t, object }
     }
 
-    pub fn prepare_computations(&self, ray: &Ray) -> Computations {
+    pub fn prepare_computations(&self, ray: Ray) -> Computations {
         let point = ray.position(self.t);
-        let eye_vector = -(ray.direction.clone());
+        let eye_vector = -ray.direction;
         let mut normal_vector = self.object.normal_at(&point);
 
         let is_inside;

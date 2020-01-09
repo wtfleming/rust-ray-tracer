@@ -79,10 +79,7 @@ impl Sphere {
 
     pub fn intersect(sphere: Rc<Sphere>, world_ray: &Ray) -> Vec<Intersection> {
         let object_ray = world_ray.transform(&sphere.inverse_transform());
-
         let sphere_to_ray = &object_ray.origin - &Vector3::new(0.0, 0.0, 0.0);
-
-        // println!("{:?}", sphere_to_ray); // TODO THIS SEEMS TO ALWAYS BE THE SAME FOR EACH PIXEL - IF SO CAN CACHE IT ON THE SPHERE OBJECT?
 
         let a = object_ray.direction.dot(&object_ray.direction);
         let b = 2. * object_ray.direction.dot(&sphere_to_ray);
