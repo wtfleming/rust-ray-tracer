@@ -24,7 +24,7 @@ pub struct Intersections {
 
 impl PartialEq for Intersection {
     fn eq(&self, other: &Intersection) -> bool {
-        self.t == other.t && &self.object == &other.object
+        self.t == other.t && self.object == other.object
     }
 }
 

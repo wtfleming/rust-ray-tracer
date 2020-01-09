@@ -10,6 +10,12 @@ pub struct Material {
     pub shininess: f64,
 }
 
+impl Default for Material {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Material {
     pub fn new() -> Material {
         Material {

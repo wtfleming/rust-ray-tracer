@@ -21,15 +21,11 @@ impl Camera {
         let half_view = (field_of_view / 2.).tan();
         let aspect_ratio = hsize as f64 / vsize as f64;
 
-        let half_width;
-        let half_height;
-        if aspect_ratio >= 1. {
-            half_width = half_view;
-            half_height = half_view / aspect_ratio;
+        let (half_width, half_height) = if aspect_ratio >= 1. {
+            (half_view, half_view / aspect_ratio)
         } else {
-            half_width = half_view * aspect_ratio;
-            half_height = half_view;
-        }
+            (half_view * aspect_ratio, half_view)
+        };
 
         let pixel_size = half_width * 2. / hsize as f64;
 
@@ -85,10 +81,13 @@ impl Camera {
     pub fn render_multithreaded(&self, world: &World) -> Canvas {
         let mut image = Canvas::new(self.hsize, self.vsize);
         for y in 0..self.vsize {
-            let colors: Vec<crate::color::Color>  = (0..self.hsize).into_par_iter().map(|x|  {
-                let ray = self.ray_for_pixel(x, y);
-                world.color_at(ray)
-            }).collect();
+            let colors: Vec<crate::color::Color> = (0..self.hsize)
+                .into_par_iter()
+                .map(|x| {
+                    let ray = self.ray_for_pixel(x, y);
+                    world.color_at(ray)
+                })
+                .collect();
 
             for (x, color) in colors.iter().enumerate() {
                 image.write_pixel(x, y, &color);

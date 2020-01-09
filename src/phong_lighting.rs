@@ -19,7 +19,7 @@ pub fn lighting(
     let effective_color = &material.color * &light.intensity;
 
     // Find the direction to the light source
-    let light_vector = (&light.position - &point).normalize();
+    let light_vector = (&light.position - point).normalize();
 
     // Compute the ambient contribution
     let ambient = &effective_color * material.ambient;

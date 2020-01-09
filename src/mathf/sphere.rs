@@ -43,7 +43,7 @@ impl Sphere {
             None => Material::new(),
             Some(x) => x,
         };
-        let inverse_transform = t.inverse().clone();
+        let inverse_transform = t.inverse();
 
         Sphere {
             id: sphere_id(),

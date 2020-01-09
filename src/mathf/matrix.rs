@@ -220,14 +220,14 @@ impl Matrix {
 
         let mut det = 0.0;
         for col in 0..self.size {
-            det = det + self.data[0][col] * self.cofactor(0, col);
+            det += self.data[0][col] * self.cofactor(0, col);
         }
 
         det
     }
 
     pub fn is_invertible(&self) -> bool {
-        mathf::approximately(self.determinant(), 0.0) == false
+        !mathf::approximately(self.determinant(), 0.0)
     }
 
     pub fn inverse(&self) -> Matrix {

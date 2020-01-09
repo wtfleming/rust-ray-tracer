@@ -10,7 +10,7 @@ pub struct PointLight {
 impl PointLight {
     pub fn new(position: Vector3, intensity: Color) -> PointLight {
         PointLight {
-            position: position,
+            position,
             intensity,
         }
     }
