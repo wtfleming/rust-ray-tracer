@@ -8,12 +8,12 @@ use crate::mathf::vector3::Vector3;
 use crate::phong_lighting;
 use crate::point_light::PointLight;
 use crate::transformations;
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct World {
     pub light: Option<PointLight>,
-    pub objects: Vec<Rc<Sphere>>,
+    pub objects: Vec<Arc<Sphere>>,
 }
 
 pub fn new() -> World {
@@ -32,10 +32,10 @@ pub fn default_world() -> World {
     material.specular = 0.2;
 
     let s1 = Sphere::new(None, Some(material));
-    let s1 = Rc::new(s1);
+    let s1 = Arc::new(s1);
 
     let s2 = Sphere::new(Some(transformations::scaling(&Vector3::new(0.5, 0.5, 0.5))), None);
-    let s2 = Rc::new(s2);
+    let s2 = Arc::new(s2);
 
     World {
         light: Some(light),
@@ -59,7 +59,7 @@ impl World {
     fn intersect(&self, ray: &Ray) -> Intersections {
         let mut result: Vec<Intersection> = vec![];
         for object in self.objects.iter() {
-            let i = Sphere::intersect(Rc::clone(&object), &ray);
+            let i = Sphere::intersect(Arc::clone(&object), &ray);
             result.extend(i);
         }
 
@@ -143,7 +143,7 @@ mod tests {
         let world = default_world();
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[0];
-        let intersection = Intersection::new(4., Rc::clone(&shape));
+        let intersection = Intersection::new(4., Arc::clone(&shape));
         let computations = intersection.prepare_computations(ray);
         let color = world.shade_hit(computations);
 
@@ -160,7 +160,7 @@ mod tests {
 
         let ray = Ray::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0));
         let shape = &world.objects[1];
-        let intersection = Intersection::new(0.5, Rc::clone(&shape));
+        let intersection = Intersection::new(0.5, Arc::clone(&shape));
         let computations = intersection.prepare_computations(ray);
         let color = world.shade_hit(computations);
 
@@ -195,12 +195,12 @@ mod tests {
             material.specular = 0.2;
 
             let s1 = Sphere::new(None, Some(material));
-            let s1 = Rc::new(s1);
+            let s1 = Arc::new(s1);
 
             let mut material = Material::new();
             material.ambient = 1.0;
             let s2 = Sphere::new(Some(transformations::scaling(&Vector3::new(0.5, 0.5, 0.5))), Some(material));
-            let s2 = Rc::new(s2);
+            let s2 = Arc::new(s2);
 
             World {
                 light: Some(light),

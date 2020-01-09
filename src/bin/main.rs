@@ -15,7 +15,7 @@ use rust_ray_tracer::transformations;
 use rust_ray_tracer::world;
 use std::f64::consts::PI;
 use std::fs;
-use std::rc::Rc;
+use std::sync::Arc;
 
 fn main() {
     // draw_simple();
@@ -82,10 +82,10 @@ fn draw_three_spheres_scene() {
     let mut world = world::new();
     let light = PointLight::new(Vector3::new(-10., 10., -10.), color::WHITE);
     world.light = Some(light);
-    world.objects = vec![Rc::new(floor), Rc::new(wall_left), Rc::new(wall_right), Rc::new(middle), Rc::new(right), Rc::new(left)];
+    world.objects = vec![Arc::new(floor), Arc::new(wall_left), Arc::new(wall_right), Arc::new(middle), Arc::new(right), Arc::new(left)];
 
-    let mut camera = Camera::new(100, 50, PI / 3.);
-    // let mut camera = Camera::new(700, 500, PI / 3.);
+    // let mut camera = Camera::new(100, 50, PI / 3.);
+    let mut camera = Camera::new(700, 500, PI / 3.);
     // let mut camera = Camera::new(150, 50, PI / 3.);
     // let mut camera = Camera::new(50, 100, PI / 3.);
     // let mut camera = Camera::new(100, 100, PI / 3.);
@@ -96,7 +96,8 @@ fn draw_three_spheres_scene() {
         Vector3::new(0., 1., 0.),
     );
 
-    let canvas = camera.render(&world);
+    // let canvas = camera.render(&world);
+    let canvas = camera.render_multithreaded(&world);
     let ppm_data = ppm::canvas_to_ppm(&canvas);
     fs::write("renders/three_spheres.ppm", ppm_data).expect("Unable to write file");
 }
@@ -116,7 +117,7 @@ fn draw_circle_lit() {
     material.color = Color::new(1.0, 0.2, 1.0);
 
     let shape = Sphere::new(None, Some(material));
-    let shape = Rc::new(shape);
+    let shape = Arc::new(shape);
 
     let light_position = Vector3::new(-10.0, 10.0, -10.0);
     let light_color = Color::new(1.0, 1.0, 1.0);
@@ -132,7 +133,7 @@ fn draw_circle_lit() {
             let ray_origin = Vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = Vector3::new(0.0, 0.0, -5.0);
             let ray = Ray::new(ray_origin, (&position - &ray_origin2).normalize());
-            let xs = Sphere::intersect(Rc::clone(&shape), &ray);
+            let xs = Sphere::intersect(Arc::clone(&shape), &ray);
             let xs = Intersections::new(xs);
             let hit = xs.hit();
 
@@ -171,7 +172,7 @@ fn draw_circle() {
 
     let t = transformations::scaling(&Vector3::new(0.5, 1.0, 1.0));
     let shape = Sphere::new(Some(t), None);
-    let shape = Rc::new(shape);
+    let shape = Arc::new(shape);
 
     for y in 0..canvas_pixels {
         let world_y = half - pixel_size * (y as f64);
@@ -182,7 +183,7 @@ fn draw_circle() {
             let ray_origin = Vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = Vector3::new(0.0, 0.0, -5.0);
             let ray = Ray::new(ray_origin, &position - &ray_origin2);
-            let xs = Sphere::intersect(Rc::clone(&shape), &ray);
+            let xs = Sphere::intersect(Arc::clone(&shape), &ray);
 
             let xs = Intersections::new(xs);
             let hit = xs.hit();

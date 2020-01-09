@@ -1,3 +1,5 @@
+use rayon::prelude::*;
+
 use crate::canvas::Canvas;
 use crate::mathf::matrix::Matrix;
 use crate::mathf::ray::Ray;
@@ -74,6 +76,21 @@ impl Camera {
             for x in 0..self.hsize {
                 let ray = self.ray_for_pixel(x, y);
                 let color = world.color_at(ray);
+                image.write_pixel(x as isize, y as isize, &color);
+            }
+        }
+        image
+    }
+
+    pub fn render_multithreaded(&self, world: &World) -> Canvas {
+        let mut image = Canvas::new(self.hsize, self.vsize);
+        for y in 0..self.vsize {
+            let colors: Vec<crate::color::Color>  = (0..self.hsize).into_par_iter().map(|x|  {
+                let ray = self.ray_for_pixel(x, y);
+                world.color_at(ray)
+            }).collect();
+
+            for (x, color) in colors.iter().enumerate() {
                 image.write_pixel(x as isize, y as isize, &color);
             }
         }

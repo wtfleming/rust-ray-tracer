@@ -3,8 +3,7 @@ use crate::mathf::intersection::Intersection;
 use crate::mathf::matrix::Matrix;
 use crate::mathf::ray::Ray;
 use crate::mathf::vector3::Vector3;
-
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Sphere {
@@ -77,7 +76,7 @@ impl Sphere {
         world_normal.normalize()
     }
 
-    pub fn intersect(sphere: Rc<Sphere>, world_ray: &Ray) -> Vec<Intersection> {
+    pub fn intersect(sphere: Arc<Sphere>, world_ray: &Ray) -> Vec<Intersection> {
         let object_ray = world_ray.transform(&sphere.inverse_transform());
         let sphere_to_ray = &object_ray.origin - &Vector3::new(0.0, 0.0, 0.0);
 
@@ -94,8 +93,8 @@ impl Sphere {
             let t1 = (-b - disc_root) / (2. * a);
             let t2 = (-b + disc_root) / (2. * a);
 
-            let a = Intersection::new(t1, Rc::clone(&sphere));
-            let b = Intersection::new(t2, Rc::clone(&sphere));
+            let a = Intersection::new(t1, Arc::clone(&sphere));
+            let b = Intersection::new(t2, Arc::clone(&sphere));
             vec![a, b]
         }
     }
@@ -239,7 +238,7 @@ mod tests {
             Some(transformations::scaling(&Vector3::new(2.0, 2.0, 2.0))),
             None,
         );
-        let s = Rc::new(s);
+        let s = Arc::new(s);
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 3.0);
@@ -253,7 +252,7 @@ mod tests {
             Some(transformations::translation(&Vector3::new(5.0, 0.0, 0.0))),
             None,
         );
-        let s = Rc::new(s);
+        let s = Arc::new(s);
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 0);
     }
@@ -261,7 +260,7 @@ mod tests {
     #[test]
     fn a_ray_intersects_a_sphere_at_two_points() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(Sphere::new(None, None));
+        let s = Arc::new(Sphere::new(None, None));
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 4.0);
@@ -271,7 +270,7 @@ mod tests {
     #[test]
     fn a_ray_intersects_a_sphere_at_a_tangent() {
         let ray = Ray::new(Vector3::new(0.0, 1.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(Sphere::new(None, None));
+        let s = Arc::new(Sphere::new(None, None));
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 5.0);
@@ -281,7 +280,7 @@ mod tests {
     #[test]
     fn a_ray_misses_a_sphere() {
         let ray = Ray::new(Vector3::new(0.0, 2.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(Sphere::new(None, None));
+        let s = Arc::new(Sphere::new(None, None));
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 0);
     }
@@ -289,7 +288,7 @@ mod tests {
     #[test]
     fn a_ray_originates_inside_a_sphere() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(Sphere::new(None, None));
+        let s = Arc::new(Sphere::new(None, None));
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -1.0);
@@ -299,8 +298,8 @@ mod tests {
     #[test]
     fn a_sphere_is_behind_a_ray() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, 5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Rc::new(Sphere::new(None, None));
-        let s2 = Rc::clone(&s);
+        let s = Arc::new(Sphere::new(None, None));
+        let s2 = Arc::clone(&s);
 
         let xs = Sphere::intersect(s, &ray);
         assert_eq!(xs.len(), 2);
@@ -313,10 +312,10 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_all_intersections_have_positive_t() {
-        let s = Rc::new(Sphere::new(None, None));
-        let i1 = Intersection::new(1.0, Rc::clone(&s));
+        let s = Arc::new(Sphere::new(None, None));
+        let i1 = Intersection::new(1.0, Arc::clone(&s));
         let i1_copy = i1.clone();
-        let i2 = Intersection::new(2.0, Rc::clone(&s));
+        let i2 = Intersection::new(2.0, Arc::clone(&s));
         let xs = Intersections::new(vec![i2, i1]);
         let i = xs.hit();
 
@@ -325,9 +324,9 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_some_intersections_have_negative_t() {
-        let s = Rc::new(Sphere::new(None, None));
-        let i1 = Intersection::new(-1.0, Rc::clone(&s));
-        let i2 = Intersection::new(2.0, Rc::clone(&s));
+        let s = Arc::new(Sphere::new(None, None));
+        let i1 = Intersection::new(-1.0, Arc::clone(&s));
+        let i2 = Intersection::new(2.0, Arc::clone(&s));
         let i2_copy = i2.clone();
         let xs = Intersections::new(vec![i2, i1]);
         let i = xs.hit();
@@ -337,9 +336,9 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_all_intersections_have_negative_t() {
-        let s = Rc::new(Sphere::new(None, None));
-        let i1 = Intersection::new(-2.0, Rc::clone(&s));
-        let i2 = Intersection::new(-1.0, Rc::clone(&s));
+        let s = Arc::new(Sphere::new(None, None));
+        let i1 = Intersection::new(-2.0, Arc::clone(&s));
+        let i2 = Intersection::new(-1.0, Arc::clone(&s));
         let xs = Intersections::new(vec![i2, i1]);
         let i = xs.hit();
 
@@ -348,11 +347,11 @@ mod tests {
 
     #[test]
     fn test_the_hit_is_always_the_lowest_nonnegative_intersection() {
-        let s = Rc::new(Sphere::new(None, None));
-        let i1 = Intersection::new(5.0, Rc::clone(&s));
-        let i2 = Intersection::new(7.0, Rc::clone(&s));
-        let i3 = Intersection::new(-3.0, Rc::clone(&s));
-        let i4 = Intersection::new(2.0, Rc::clone(&s));
+        let s = Arc::new(Sphere::new(None, None));
+        let i1 = Intersection::new(5.0, Arc::clone(&s));
+        let i2 = Intersection::new(7.0, Arc::clone(&s));
+        let i3 = Intersection::new(-3.0, Arc::clone(&s));
+        let i4 = Intersection::new(2.0, Arc::clone(&s));
         let i4_copy = i4.clone();
         let xs = Intersections::new(vec![i1, i2, i3, i4]);
         let i = xs.hit();
