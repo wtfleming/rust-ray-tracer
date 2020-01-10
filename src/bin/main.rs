@@ -5,6 +5,7 @@ use rust_ray_tracer::color::Color;
 use rust_ray_tracer::material::Material;
 use rust_ray_tracer::mathf;
 use rust_ray_tracer::mathf::intersection::Intersections;
+use rust_ray_tracer::mathf::plane::Plane;
 use rust_ray_tracer::mathf::ray::Ray;
 use rust_ray_tracer::mathf::sphere::Sphere;
 use rust_ray_tracer::mathf::vector3::Vector3;
@@ -23,8 +24,58 @@ fn main() {
     // draw_clock();
     // draw_circle();
     // draw_circle_lit();
-    draw_three_spheres_scene();
+    // draw_three_spheres_scene();
+    draw_three_spheres_and_plane_scene();
 }
+
+#[allow(dead_code)]
+fn draw_three_spheres_and_plane_scene() {
+    let floor_plane = Plane::new(None, None);
+
+
+    let middle_transform = transformations::translation(&Vector3::new(-0.5, 1., 0.5));
+    let mut middle_material = Material::new();
+    middle_material.color = Color::new(0.1, 1., 0.5);
+    middle_material.diffuse = 0.7;
+    middle_material.specular = 0.3;
+    let middle = Sphere::new(Some(middle_transform), Some(middle_material));
+
+
+    let right_transform = transformations::translation(&Vector3::new(1.5, 0.5, -0.5)).multiply_4x4(&transformations::scaling(&Vector3::new(0.5, 0.5, 0.5)));
+    let mut right_material = Material::new();
+    right_material.color = Color::new(0.5, 1., 0.1);
+    right_material.diffuse = 0.7;
+    right_material.specular = 0.3;
+    let right = Sphere::new(Some(right_transform), Some(right_material));
+
+
+    let left_transform = transformations::translation(&Vector3::new(-1.5, 0.33, -0.75)).multiply_4x4(&transformations::scaling(&Vector3::new(0.33, 0.33, 0.33)));
+    let mut left_material = Material::new();
+    left_material.color = Color::new(1.0, 0.8, 0.1);
+    left_material.diffuse = 0.7;
+    left_material.specular = 0.3;
+    let left = Sphere::new(Some(left_transform), Some(left_material));
+
+
+    let mut world = world::new();
+    let light = PointLight::new(Vector3::new(-10., 10., -10.), color::WHITE);
+    world.light = Some(light);
+    world.objects = vec![Arc::new(floor_plane), Arc::new(middle), Arc::new(right), Arc::new(left)];
+
+    // let mut camera = Camera::new(100, 50, PI / 3.);
+    let mut camera = Camera::new(700, 500, PI / 3.);
+    camera.transform = transformations::view_transform(
+        Vector3::new(0., 1.5, -5.),
+        Vector3::new(0., 1., 0.),
+        Vector3::new(0., 1., 0.),
+    );
+
+    // let canvas = camera.render(&world);
+    let canvas = camera.render_multithreaded(&world);
+    let ppm_data = ppm::canvas_to_ppm(&canvas);
+    fs::write("renders/three_spheres_and_plane.ppm", ppm_data).expect("Unable to write file");
+}
+
 
 #[allow(dead_code)]
 fn draw_three_spheres_scene() {
@@ -87,10 +138,6 @@ fn draw_three_spheres_scene() {
 
     // let mut camera = Camera::new(100, 50, PI / 3.);
     let mut camera = Camera::new(700, 500, PI / 3.);
-    // let mut camera = Camera::new(150, 50, PI / 3.);
-    // let mut camera = Camera::new(50, 100, PI / 3.);
-    // let mut camera = Camera::new(100, 100, PI / 3.);
-    // let mut camera = Camera::new(10, 5, PI / 3.);
     camera.transform = transformations::view_transform(
         Vector3::new(0., 1.5, -5.),
         Vector3::new(0., 1., 0.),

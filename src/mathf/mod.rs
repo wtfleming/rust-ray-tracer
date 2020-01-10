@@ -1,5 +1,6 @@
 pub mod intersection;
 pub mod matrix;
+pub mod plane;
 pub mod ray;
 pub mod shapes;
 pub mod sphere;

@@ -70,8 +70,7 @@ impl Shape for Sphere {
     }
 
     fn local_normal_at(&self, object_point: Vector3) -> Vector3 {
-        let object_normal = &object_point - &Vector3::new(0.0, 0.0, 0.0);
-        object_normal
+        &object_point - &Vector3::new(0.0, 0.0, 0.0)
     }
 
     fn local_eq(&self, other: &dyn Shape) -> bool {
