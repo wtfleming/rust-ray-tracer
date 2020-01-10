@@ -1,3 +1,4 @@
+use crate::mathf;
 use crate::mathf::ray::Ray;
 use crate::mathf::sphere::Sphere;
 use crate::mathf::vector3::Vector3;
@@ -16,6 +17,7 @@ pub struct Computations {
     pub eye_vector: Vector3,
     pub normal_vector: Vector3,
     pub is_inside: bool,
+    pub over_point: Vector3,
 }
 
 pub struct Intersections {
@@ -72,6 +74,7 @@ impl Intersection {
             is_inside = false;
         }
 
+        let over_point = &point + &(normal_vector.clone() * mathf::EPSILON);
         Computations {
             t: self.t,
             object: Arc::clone(&self.object),
@@ -79,6 +82,7 @@ impl Intersection {
             eye_vector,
             normal_vector,
             is_inside,
+            over_point,
         }
     }
 }
@@ -89,6 +93,7 @@ mod tests {
     use crate::mathf::approximately;
     use crate::mathf::vector3::Vector3;
     use crate::mathf::sphere::Sphere;
+    use crate::transformations;
 
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
@@ -147,5 +152,18 @@ mod tests {
 
         // Normal would have been (0, 0, 1), but is inverted
         assert_eq!(computations.normal_vector, Vector3::new(0., 0., -1.));
+    }
+
+    #[test]
+    fn the_hit_should_offset_the_point() {
+        let ray = Ray::new(Vector3::new(0., 0., -5.), Vector3::new(0., 0., 1.));
+
+        let sphere = Sphere::new(Some(transformations::translation(&Vector3::new(0., 0., 1.))), None);
+        let sphere = Arc::new(sphere);
+        let i = Intersection::new(5., Arc::clone(&sphere));
+
+        let computations = i.prepare_computations(ray);
+        assert!(computations.over_point.z < -crate::mathf::EPSILON / 2.);
+        assert!(computations.point.z > computations.over_point.z);
     }
 }

@@ -147,6 +147,7 @@ fn draw_circle_lit() {
                     &point,
                     &eye,
                     &normal,
+                    false,
                 );
 
                 canvas.write_pixel(x as usize, y as usize, &color);

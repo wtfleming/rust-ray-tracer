@@ -6,7 +6,7 @@ pub mod vector3;
 
 use std::f64::consts::PI;
 
-const EPSILON: f64 = 0.00001;
+pub const EPSILON: f64 = 0.00001;
 const DEGREE_TO_RADIAN: f64 = (PI * 2.0) / 360.0;
 const RADIAN_TO_DEGREE: f64 = 360.0 / (PI * 2.0);
 

@@ -11,6 +11,7 @@ pub fn lighting(
     point: &Vector3,
     eye_vector: &Vector3,
     normal_vector: &Vector3,
+    in_shadow: bool,
 ) -> Color {
     let diffuse;
     let specular;
@@ -18,11 +19,15 @@ pub fn lighting(
     // Combine the surface color with the light's color/intensity
     let effective_color = &material.color * &light.intensity;
 
-    // Find the direction to the light source
-    let light_vector = (&light.position - point).normalize();
-
     // Compute the ambient contribution
     let ambient = &effective_color * material.ambient;
+
+    if in_shadow {
+        return ambient;
+    }
+
+    // Find the direction to the light source
+    let light_vector = (&light.position - point).normalize();
 
     // light_dot_normal represents the cosine of the angle between the light
     // vector and the normal vector. A negative number means the light is
@@ -68,7 +73,7 @@ mod tests {
         let eye_vector = Vector3::new(0.0, 0.0, -1.0);
         let normal_vector = Vector3::new(0.0, 0.0, -1.0);
         let light = PointLight::new(Vector3::new(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
-        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
+        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector, false);
 
         assert_eq!(result, Color::new(1.9, 1.9, 1.9));
     }
@@ -81,7 +86,7 @@ mod tests {
         let eye_vector = Vector3::new(0.0, 2.0f64.sqrt() / 2.0, -2.0f64.sqrt() / 2.0);
         let normal_vector = Vector3::new(0.0, 0.0, -1.0);
         let light = PointLight::new(Vector3::new(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
-        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
+        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector, false);
 
         assert_eq!(result, Color::new(1.0, 1.0, 1.0));
     }
@@ -94,7 +99,7 @@ mod tests {
         let eye_vector = Vector3::new(0.0, 0.0, -1.0);
         let normal_vector = Vector3::new(0.0, 0.0, -1.0);
         let light = PointLight::new(Vector3::new(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
+        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector, false);
 
         assert_eq!(result, Color::new(0.73640, 0.73640, 0.73640));
     }
@@ -107,7 +112,7 @@ mod tests {
         let eye_vector = Vector3::new(0.0, -2.0f64.sqrt() / 2.0, -2.0f64.sqrt() / 2.0);
         let normal_vector = Vector3::new(0.0, 0.0, -1.0);
         let light = PointLight::new(Vector3::new(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
+        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector, false);
 
         assert_eq!(result, Color::new(1.6364, 1.6364, 1.6364));
     }
@@ -120,8 +125,23 @@ mod tests {
         let eye_vector = Vector3::new(0.0, 0.0, -1.0);
         let normal_vector = Vector3::new(0.0, 0.0, -1.0);
         let light = PointLight::new(Vector3::new(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
-        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector);
+        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector, false);
 
         assert_eq!(result, Color::new(0.1, 0.1, 0.1));
     }
+
+    #[test]
+    fn lighting_with_the_eye_between_the_surface_in_shadow() {
+        let material = Material::new();
+        let position = Vector3::new(0.0, 0.0, 0.0);
+
+        let eye_vector = Vector3::new(0.0, 0.0, -1.0);
+        let normal_vector = Vector3::new(0.0, 0.0, -1.0);
+        let light = PointLight::new(Vector3::new(0.0, 0.0, -10.0), Color::new(1., 1., 1.));
+        let in_shadow = true;
+        let result = lighting(&material, &light, &position, &eye_vector, &normal_vector, in_shadow);
+
+        assert_eq!(result, Color::new(0.1, 0.1, 0.1));
+    }
+
 }
