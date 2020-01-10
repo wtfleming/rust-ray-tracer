@@ -64,6 +64,7 @@ fn draw_three_spheres_and_plane_scene() {
 
     // let mut camera = Camera::new(100, 50, PI / 3.);
     let mut camera = Camera::new(700, 500, PI / 3.);
+    //    let mut camera = Camera::new(1200, 600, PI / 3.);
     camera.transform = transformations::view_transform(
         Vector3::new(0., 1.5, -5.),
         Vector3::new(0., 1., 0.),
