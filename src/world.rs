@@ -9,11 +9,13 @@ use crate::phong_lighting;
 use crate::point_light::PointLight;
 use crate::transformations;
 use std::sync::Arc;
+use crate::mathf::shapes::Shape;
+
 
 #[derive(Debug)]
 pub struct World {
     pub light: Option<PointLight>,
-    pub objects: Vec<Arc<Sphere>>,
+    pub objects: Vec<Arc<dyn Shape>>,
 }
 
 pub fn new() -> World {
@@ -45,7 +47,7 @@ pub fn default_world() -> World {
 
 impl World {
     pub fn color_at(&self, ray: Ray) -> Color {
-        let xs = self.intersect(&ray);
+        let xs = self.intersect(ray.clone());
         match xs.hit() {
             None => color::BLACK,
             Some(i) => {
@@ -56,10 +58,10 @@ impl World {
     }
 
 
-    fn intersect(&self, ray: &Ray) -> Intersections {
+    fn intersect(&self, ray: Ray) -> Intersections {
         let mut result: Vec<Intersection> = vec![];
         for object in self.objects.iter() {
-            let i = Sphere::intersect(Arc::clone(&object), &ray);
+            let i = object.intersect(Arc::clone(&object), ray.clone());
             result.extend(i);
         }
 
@@ -91,12 +93,12 @@ impl World {
     }
 
     fn is_shadowed(&self, point: &Vector3) -> bool {
-        let vector = &(self.light.as_ref().unwrap().position) - &point;
+        let vector = &(self.light.as_ref().unwrap().position) - point;
         let distance = vector.magnitude();
         let direction = vector.normalize();
 
         let ray = Ray::new(point.clone(), direction);
-        let intersections = self.intersect(&ray);
+        let intersections = self.intersect(ray);
         let hit = intersections.hit();
 
         hit.is_some() && hit.unwrap().t < distance
@@ -145,7 +147,7 @@ mod tests {
     fn test_intersect_a_world_with_a_ray() {
         let world = default_world();
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let xs = world.intersect(&ray);
+        let xs = world.intersect(ray);
         assert_eq!(xs.intersections.len(), 4);
         assert_eq!(xs.intersections[0].t, 4.0);
         assert_eq!(xs.intersections[1].t, 4.5);
@@ -261,10 +263,10 @@ mod tests {
     #[test]
     fn shade_hit_is_given_an_intersection_in_shadow() {
         let s1 = Sphere::new(None, None);
-        let s1 = Arc::new(s1);
+        let s1: Arc<dyn Shape> = Arc::new(s1);
 
         let s2 = Sphere::new(Some(transformations::translation(&Vector3::new(0., 0., 10.))), None);
-        let s2 = Arc::new(s2);
+        let s2: Arc<dyn Shape> = Arc::new(s2);
         let s2_clone = s2.clone();
 
         let world = {

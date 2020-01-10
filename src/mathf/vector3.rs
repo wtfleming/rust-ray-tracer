@@ -8,6 +8,9 @@ pub struct Vector3 {
     pub z: f64,
 }
 
+pub const ORIGIN: Vector3 = Vector3 { x: 0., y: 0., z: 0. };
+pub const VECTOR_Y_UP: Vector3 = Vector3 { x: 0., y: 1., z: 0. };
+
 impl Vector3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
         Vector3 { x, y, z }

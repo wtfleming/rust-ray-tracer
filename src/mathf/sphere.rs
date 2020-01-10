@@ -2,6 +2,7 @@ use crate::material::Material;
 use crate::mathf::intersection::Intersection;
 use crate::mathf::matrix::Matrix;
 use crate::mathf::ray::Ray;
+use crate::mathf::shapes::Shape;
 use crate::mathf::vector3::Vector3;
 use std::sync::Arc;
 
@@ -17,11 +18,11 @@ pub fn reflect(vector: &Vector3, normal: &Vector3) -> Vector3 {
     vector - &(normal * 2.0 * vector.dot(&normal))
 }
 
-impl PartialEq for Sphere {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
-    }
-}
+// impl PartialEq for Sphere {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.id == other.id
+//     }
+// }
 
 // TODO there is likely a better way to handle this than using an unsafe block
 static mut SPHERE_ID: u32 = 0;
@@ -33,52 +34,20 @@ pub fn sphere_id() -> u32 {
     }
 }
 
-impl Sphere {
-    pub fn new(transform: Option<Matrix>, material: Option<Material>) -> Sphere {
-        let t = match transform {
-            None => Matrix::identity_4x4(),
-            Some(x) => x,
-        };
-        let mat = match material {
-            None => Material::new(),
-            Some(x) => x,
-        };
-        let inverse_transform = t.inverse().unwrap();
-
-        Sphere {
-            id: sphere_id(),
-            transform: t,
-            material: mat,
-            inverse_transform,
-        }
-    }
-
-    pub fn material(&self) -> &Material {
+impl Shape for Sphere {
+    fn material(&self) -> &Material {
         &self.material
     }
 
-    pub fn transform(&self) -> &Matrix {
+    fn transform(&self) -> &Matrix {
         &self.transform
     }
 
-    pub fn inverse_transform(&self) -> &Matrix {
+    fn inverse_transform(&self) -> &Matrix {
         &self.inverse_transform
     }
 
-    pub fn normal_at(&self, world_point: &Vector3) -> Vector3 {
-        let object_point = self.transform.inverse().unwrap().multiply_point(&world_point);
-        let object_normal = &object_point - &Vector3::new(0.0, 0.0, 0.0);
-        let world_normal = self
-            .transform
-            .inverse()
-            .unwrap()
-            .transpose()
-            .multiply_vector(&object_normal);
-        world_normal.normalize()
-    }
-
-    pub fn intersect(sphere: Arc<Sphere>, world_ray: &Ray) -> Vec<Intersection> {
-        let object_ray = world_ray.transform(&sphere.inverse_transform());
+    fn local_intersect(&self, shape: Arc<dyn Shape>, object_ray: Ray) -> Vec<Intersection> {
         let sphere_to_ray = &object_ray.origin - &Vector3::new(0.0, 0.0, 0.0);
 
         let a = object_ray.direction.dot(&object_ray.direction);
@@ -94,9 +63,36 @@ impl Sphere {
             let t1 = (-b - disc_root) / (2. * a);
             let t2 = (-b + disc_root) / (2. * a);
 
-            let a = Intersection::new(t1, Arc::clone(&sphere));
-            let b = Intersection::new(t2, Arc::clone(&sphere));
+            let a = Intersection::new(t1, Arc::clone(&shape));
+            let b = Intersection::new(t2, Arc::clone(&shape));
             vec![a, b]
+        }
+    }
+
+    fn local_normal_at(&self, object_point: Vector3) -> Vector3 {
+        let object_normal = &object_point - &Vector3::new(0.0, 0.0, 0.0);
+        object_normal
+    }
+
+    fn local_eq(&self, other: &dyn Shape) -> bool {
+        //        self.id == other.id
+        self.material() == other.material() || self.transform() == other.transform()
+    }
+}
+
+impl Sphere {
+    pub fn new(transform: Option<Matrix>, material: Option<Material>) -> Sphere {
+        let t = match transform {
+            None => Matrix::identity_4x4(),
+            Some(x) => x,
+        };
+        let inverse_transform = t.inverse().unwrap();
+        let mat = material.unwrap_or_default();
+        Sphere {
+            id: sphere_id(),
+            transform: t,
+            material: mat,
+            inverse_transform,
         }
     }
 }
@@ -127,28 +123,28 @@ mod tests {
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
         let s = Sphere::new(None, None);
-        let n = s.normal_at(&Vector3::new(1.0, 0.0, 0.0));
+        let n = s.normal_at(Vector3::new(1.0, 0.0, 0.0));
         assert_eq!(n, Vector3::new(1.0, 0.0, 0.0));
     }
 
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_y_axis() {
         let s = Sphere::new(None, None);
-        let n = s.normal_at(&Vector3::new(0.0, 1.0, 0.0));
+        let n = s.normal_at(Vector3::new(0.0, 1.0, 0.0));
         assert_eq!(n, Vector3::new(0.0, 1.0, 0.0));
     }
 
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_z_axis() {
         let s = Sphere::new(None, None);
-        let n = s.normal_at(&Vector3::new(0.0, 0.0, 1.0));
+        let n = s.normal_at(Vector3::new(0.0, 0.0, 1.0));
         assert_eq!(n, Vector3::new(0.0, 0.0, 1.0));
     }
 
     #[test]
     fn the_normal_on_a_sphere_at_a_nonaxial_point() {
         let s = Sphere::new(None, None);
-        let n = s.normal_at(&Vector3::new(
+        let n = s.normal_at(Vector3::new(
             3.0f64.sqrt() / 3.0,
             3.0f64.sqrt() / 3.0,
             3.0f64.sqrt() / 3.0,
@@ -166,7 +162,7 @@ mod tests {
     #[test]
     fn the_normal_is_a_normalized_vector() {
         let s = Sphere::new(None, None);
-        let n = s.normal_at(&Vector3::new(
+        let n = s.normal_at(Vector3::new(
             3.0f64.sqrt() / 3.0,
             3.0f64.sqrt() / 3.0,
             3.0f64.sqrt() / 3.0,
@@ -180,7 +176,7 @@ mod tests {
             Some(transformations::translation(&Vector3::new(0.0, 1.0, 0.0))),
             None,
         );
-        let n = s.normal_at(&Vector3::new(0.0, 1.70711, -0.70711));
+        let n = s.normal_at(Vector3::new(0.0, 1.70711, -0.70711));
         assert_eq!(n, Vector3::new(0.0, 0.70711, -0.70711));
     }
 
@@ -189,7 +185,7 @@ mod tests {
         let m = transformations::scaling(&Vector3::new(1.0, 0.5, 1.0))
             .multiply_4x4(&transformations::rotation_z(PI / 5.0));
         let s = Sphere::new(Some(m), None);
-        let n = s.normal_at(&Vector3::new(
+        let n = s.normal_at(Vector3::new(
             0.0,
             2.0f64.sqrt() / 2.0,
             -(2.0f64.sqrt() / 2.0),
@@ -239,8 +235,8 @@ mod tests {
             Some(transformations::scaling(&Vector3::new(2.0, 2.0, 2.0))),
             None,
         );
-        let s = Arc::new(s);
-        let xs = Sphere::intersect(s, &ray);
+        let s: Arc<dyn Shape> = Arc::new(s);
+        let xs = s.intersect(Arc::clone(&s), ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 3.0);
         assert_eq!(xs[1].t, 7.0);
@@ -253,16 +249,16 @@ mod tests {
             Some(transformations::translation(&Vector3::new(5.0, 0.0, 0.0))),
             None,
         );
-        let s = Arc::new(s);
-        let xs = Sphere::intersect(s, &ray);
+        let s: Arc<dyn Shape> = Arc::new(s);
+        let xs = s.intersect(Arc::clone(&s), ray);
         assert_eq!(xs.len(), 0);
     }
 
     #[test]
     fn a_ray_intersects_a_sphere_at_two_points() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Arc::new(Sphere::new(None, None));
-        let xs = Sphere::intersect(s, &ray);
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
+        let xs = s.intersect(Arc::clone(&s), ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 4.0);
         assert_eq!(xs[1].t, 6.0);
@@ -271,8 +267,8 @@ mod tests {
     #[test]
     fn a_ray_intersects_a_sphere_at_a_tangent() {
         let ray = Ray::new(Vector3::new(0.0, 1.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Arc::new(Sphere::new(None, None));
-        let xs = Sphere::intersect(s, &ray);
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
+        let xs = s.intersect(Arc::clone(&s), ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 5.0);
         assert_eq!(xs[1].t, 5.0);
@@ -281,16 +277,16 @@ mod tests {
     #[test]
     fn a_ray_misses_a_sphere() {
         let ray = Ray::new(Vector3::new(0.0, 2.0, -5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Arc::new(Sphere::new(None, None));
-        let xs = Sphere::intersect(s, &ray);
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
+        let xs = s.intersect(Arc::clone(&s), ray);
         assert_eq!(xs.len(), 0);
     }
 
     #[test]
     fn a_ray_originates_inside_a_sphere() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Arc::new(Sphere::new(None, None));
-        let xs = Sphere::intersect(s, &ray);
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
+        let xs = s.intersect(Arc::clone(&s), ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -1.0);
         assert_eq!(xs[1].t, 1.0);
@@ -299,21 +295,21 @@ mod tests {
     #[test]
     fn a_sphere_is_behind_a_ray() {
         let ray = Ray::new(Vector3::new(0.0, 0.0, 5.0), Vector3::new(0.0, 0.0, 1.0));
-        let s = Arc::new(Sphere::new(None, None));
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
         let s2 = Arc::clone(&s);
 
-        let xs = Sphere::intersect(s, &ray);
+        let xs = s.intersect(Arc::clone(&s), ray);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -6.0);
         assert_eq!(xs[1].t, -4.0);
 
-        assert_eq!(xs[0].object, s2);
-        assert_eq!(xs[1].object, s2);
+        assert_eq!(&xs[0].object, &s2);
+        assert_eq!(&xs[1].object, &s2);
     }
 
     #[test]
     fn test_the_hit_when_all_intersections_have_positive_t() {
-        let s = Arc::new(Sphere::new(None, None));
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
         let i1 = Intersection::new(1.0, Arc::clone(&s));
         let i1_copy = i1.clone();
         let i2 = Intersection::new(2.0, Arc::clone(&s));
@@ -325,7 +321,7 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_some_intersections_have_negative_t() {
-        let s = Arc::new(Sphere::new(None, None));
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
         let i1 = Intersection::new(-1.0, Arc::clone(&s));
         let i2 = Intersection::new(2.0, Arc::clone(&s));
         let i2_copy = i2.clone();
@@ -337,7 +333,7 @@ mod tests {
 
     #[test]
     fn test_the_hit_when_all_intersections_have_negative_t() {
-        let s = Arc::new(Sphere::new(None, None));
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
         let i1 = Intersection::new(-2.0, Arc::clone(&s));
         let i2 = Intersection::new(-1.0, Arc::clone(&s));
         let xs = Intersections::new(vec![i2, i1]);
@@ -348,7 +344,7 @@ mod tests {
 
     #[test]
     fn test_the_hit_is_always_the_lowest_nonnegative_intersection() {
-        let s = Arc::new(Sphere::new(None, None));
+        let s: Arc<dyn Shape> = Arc::new(Sphere::new(None, None));
         let i1 = Intersection::new(5.0, Arc::clone(&s));
         let i2 = Intersection::new(7.0, Arc::clone(&s));
         let i3 = Intersection::new(-3.0, Arc::clone(&s));

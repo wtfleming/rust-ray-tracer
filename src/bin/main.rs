@@ -16,6 +16,7 @@ use rust_ray_tracer::world;
 use std::f64::consts::PI;
 use std::fs;
 use std::sync::Arc;
+use crate::mathf::shapes::Shape;
 
 fn main() {
     // draw_simple();
@@ -117,7 +118,7 @@ fn draw_circle_lit() {
     material.color = Color::new(1.0, 0.2, 1.0);
 
     let shape = Sphere::new(None, Some(material));
-    let shape = Arc::new(shape);
+    let shape: Arc<dyn Shape> = Arc::new(shape);
 
     let light_position = Vector3::new(-10.0, 10.0, -10.0);
     let light_color = Color::new(1.0, 1.0, 1.0);
@@ -133,13 +134,13 @@ fn draw_circle_lit() {
             let ray_origin = Vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = Vector3::new(0.0, 0.0, -5.0);
             let ray = Ray::new(ray_origin, (&position - &ray_origin2).normalize());
-            let xs = Sphere::intersect(Arc::clone(&shape), &ray);
+            let xs = shape.intersect(Arc::clone(&shape), ray.clone());
             let xs = Intersections::new(xs);
             let hit = xs.hit();
 
             if let Some(hit_info) = hit {
                 let point = ray.position(hit_info.t);
-                let normal = hit_info.object.normal_at(&point);
+                let normal = hit_info.object.normal_at(point.clone());
                 let eye = -ray.direction;
                 let color = phong_lighting::lighting(
                     &hit_info.object.material(),
@@ -173,7 +174,7 @@ fn draw_circle() {
 
     let t = transformations::scaling(&Vector3::new(0.5, 1.0, 1.0));
     let shape = Sphere::new(Some(t), None);
-    let shape = Arc::new(shape);
+    let shape: Arc<dyn Shape> = Arc::new(shape);
 
     for y in 0..canvas_pixels {
         let world_y = half - pixel_size * (y as f64);
@@ -184,8 +185,7 @@ fn draw_circle() {
             let ray_origin = Vector3::new(0.0, 0.0, -5.0);
             let ray_origin2 = Vector3::new(0.0, 0.0, -5.0);
             let ray = Ray::new(ray_origin, &position - &ray_origin2);
-            let xs = Sphere::intersect(Arc::clone(&shape), &ray);
-
+            let xs = shape.intersect(Arc::clone(&shape), ray);
             let xs = Intersections::new(xs);
             let hit = xs.hit();
             if hit.is_some() {

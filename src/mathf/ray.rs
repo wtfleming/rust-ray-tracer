@@ -2,7 +2,7 @@ use crate::mathf::matrix::Matrix;
 use crate::mathf::vector3::Vector3;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Ray {
     pub origin: Vector3,
     pub direction: Vector3,
