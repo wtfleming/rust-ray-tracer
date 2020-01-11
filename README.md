@@ -6,3 +6,5 @@ Toy ray tracer implementation using Rust from the book `The Ray Tracer Challenge
 ```
 cargo run --release
 ```
+
+![raytraced image](/example.png)

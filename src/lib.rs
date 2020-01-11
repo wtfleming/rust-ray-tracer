@@ -4,6 +4,7 @@ pub mod color;
 pub mod material;
 pub mod mathf;
 pub mod phong_lighting;
+pub mod png_encoder;
 pub mod point_light;
 pub mod ppm;
 pub mod transformations;

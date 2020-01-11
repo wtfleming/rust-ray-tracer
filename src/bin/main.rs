@@ -73,8 +73,9 @@ fn draw_three_spheres_and_plane_scene() {
 
     // let canvas = camera.render(&world);
     let canvas = camera.render_multithreaded(&world);
-    let ppm_data = ppm::canvas_to_ppm(&canvas);
-    fs::write("renders/three_spheres_and_plane.ppm", ppm_data).expect("Unable to write file");
+    rust_ray_tracer::png_encoder::save_canvas_to_png(&canvas, String::from("renders/three_spheres_and_plane.png"));
+    // let ppm_data = ppm::canvas_to_ppm(&canvas);
+    // fs::write("renders/three_spheres_and_plane.ppm", ppm_data).expect("Unable to write file");
 }
 
 
