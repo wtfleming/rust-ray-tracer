@@ -1,23 +1,25 @@
-use rust_ray_tracer::camera::Camera;
-use rust_ray_tracer::canvas::Canvas;
-use rust_ray_tracer::color;
-use rust_ray_tracer::color::Color;
-use rust_ray_tracer::material::Material;
-use rust_ray_tracer::mathf;
-use rust_ray_tracer::mathf::intersection::Intersections;
-use rust_ray_tracer::mathf::plane::Plane;
-use rust_ray_tracer::mathf::ray::Ray;
-use rust_ray_tracer::mathf::sphere::Sphere;
-use rust_ray_tracer::mathf::vector3::Vector3;
-use rust_ray_tracer::phong_lighting;
-use rust_ray_tracer::point_light::PointLight;
-use rust_ray_tracer::ppm;
-use rust_ray_tracer::transformations;
-use rust_ray_tracer::world;
+use ray_tracer_lib::camera::Camera;
+use ray_tracer_lib::canvas::Canvas;
+use ray_tracer_lib::color;
+use ray_tracer_lib::color::Color;
+use ray_tracer_lib::material::Material;
+use ray_tracer_lib::mathf;
+use ray_tracer_lib::mathf::intersection::Intersections;
+use ray_tracer_lib::mathf::plane::Plane;
+use ray_tracer_lib::mathf::ray::Ray;
+use ray_tracer_lib::mathf::sphere::Sphere;
+use ray_tracer_lib::mathf::vector3::Vector3;
+use ray_tracer_lib::phong_lighting;
+use ray_tracer_lib::point_light::PointLight;
+use ray_tracer_lib::ppm;
+use ray_tracer_lib::transformations;
+use ray_tracer_lib::world;
 use std::f64::consts::PI;
 use std::fs;
 use std::sync::Arc;
 use crate::mathf::shapes::Shape;
+use ray_tracer_lib::png_encoder;
+
 
 fn main() {
     // draw_simple();
@@ -62,7 +64,8 @@ fn draw_three_spheres_and_plane_scene() {
     world.light = Some(light);
     world.objects = vec![Arc::new(floor_plane), Arc::new(middle), Arc::new(right), Arc::new(left)];
 
-    // let mut camera = Camera::new(100, 50, PI / 3.);
+    // let mut camera = Camera::new(200, 100, PI / 3.);
+    //let mut camera = Camera::new(100, 50, PI / 3.);
     let mut camera = Camera::new(700, 500, PI / 3.);
     //    let mut camera = Camera::new(1200, 600, PI / 3.);
     camera.transform = transformations::view_transform(
@@ -71,9 +74,9 @@ fn draw_three_spheres_and_plane_scene() {
         Vector3::new(0., 1., 0.),
     );
 
-    // let canvas = camera.render(&world);
+    //let canvas = camera.render(&world);
     let canvas = camera.render_multithreaded(&world);
-    rust_ray_tracer::png_encoder::save_canvas_to_png(&canvas, String::from("renders/three_spheres_and_plane.png"));
+    png_encoder::save_canvas_to_png(&canvas, String::from("renders/three_spheres_and_plane.png"));
     // let ppm_data = ppm::canvas_to_ppm(&canvas);
     // fs::write("renders/three_spheres_and_plane.ppm", ppm_data).expect("Unable to write file");
 }

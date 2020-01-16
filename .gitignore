@@ -3,3 +3,7 @@
 
 /renders
 
+
+node_modules/
+
+target/

@@ -1,23 +1,17 @@
-[package]
-name = "rust_ray_tracer"
-version = "0.1.0"
-authors = ["Will Fleming <wfleming77@gmail.com>"]
-edition = "2018"
+[workspace]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+members = [
+    "ray_tracer_main",
+    "ray_tracer_lib",
+    "ray_tracer_wasm",
+]
 
-[lib]
-name = "rust_ray_tracer"
-path = "src/lib.rs"
+default-members = [
+    "ray_tracer_main"
+]
 
-[[bin]]
-name = "rust_ray_tracer"
-path = "src/bin/main.rs"
-
-[dependencies]
-num = "0.2.0"
-rayon = "1.3.0"
-png = "0.15.3"
-
-# [profile.release]
+[profile.release]
+# This makes the compiled code faster and smaller, but it makes compiling slower,
+# so it's only enabled in release mode.
+lto = true
 # debug = true
