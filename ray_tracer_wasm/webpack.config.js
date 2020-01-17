@@ -20,22 +20,19 @@ const appConfig = {
     new CopyPlugin([
       path.resolve(__dirname, "static")
     ]),
-
-    new WasmPackPlugin({
-        crateDirectory: __dirname,
-        forceMode: "production",
-        extraArgs: "--out-name index"
-    }),
   ]
 };
 
 const workerConfig = {
+  mode: "production",
   entry: "./worker/worker.js",
   target: "webworker",
-  plugins: [
-    new WasmPackPlugin({
-      crateDirectory: path.resolve(__dirname, "../crate-wasm")
-    })
+    plugins: [
+        new WasmPackPlugin({
+            crateDirectory: path.resolve(__dirname),
+            forceMode: "production",  // Rendering while in development is too slow if we don't set this
+            extraArgs: "--out-name index"
+        })
   ],
   resolve: {
     extensions: [".js", ".wasm"]
