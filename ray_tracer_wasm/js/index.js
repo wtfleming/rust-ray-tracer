@@ -31,20 +31,25 @@ for (let i = 0; i < numCores; i++) {
     workers[i] = worker;
 }
 
-// Send messages to each worker round robin, which for this example is "good enough".
-// In a production system you might want to distribute the work less naively.
-let currentWorker = 0;
-for (let y = 0; y < CANVAS_HEIGHT; y++) {
-    for (let x = 0; x < CANVAS_WIDTH; x++) {
-        if (currentWorker === workers.length) {
-            currentWorker = 0;
-        }
-        const worker = workers[currentWorker];
+const button = document.getElementById("raytracer-button");
+button.addEventListener('click', () => {
+    button.disabled = true;
+    // Send messages to each worker round robin, which for this example is "good enough".
+    // In a production system you might want to distribute the work less naively.
+    let currentWorker = 0;
+    for (let y = 0; y < CANVAS_HEIGHT; y++) {
+        for (let x = 0; x < CANVAS_WIDTH; x++) {
+            if (currentWorker === workers.length) {
+                currentWorker = 0;
+            }
+            const worker = workers[currentWorker];
 
-        worker.postMessage({x: x, y: y, width: CANVAS_WIDTH, height: CANVAS_HEIGHT});
-        currentWorker++;
+            worker.postMessage({x: x, y: y, width: CANVAS_WIDTH, height: CANVAS_HEIGHT});
+            currentWorker++;
+        }
     }
-}
+
+});
 
 
 // Alternative implementation without using Web Workers
