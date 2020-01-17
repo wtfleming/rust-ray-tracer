@@ -1,5 +1,6 @@
 use rayon::prelude::*;
 
+use crate::color::Color;
 use crate::canvas::Canvas;
 use crate::mathf::matrix::Matrix;
 use crate::mathf::ray::Ray;
@@ -68,18 +69,26 @@ impl Camera {
         Ray::new(origin, direction)
     }
 
+    pub fn color_at_pixel(&self, world: &World, x: usize, y: usize) -> Color {
+        let ray = self.ray_for_pixel(x, y);
+        world.color_at(ray)
+    }
+
     pub fn render(&self, world: &World) -> Canvas {
         let mut image = Canvas::new(self.hsize, self.vsize);
         for y in 0..self.vsize {
             for x in 0..self.hsize {
-                let ray = self.ray_for_pixel(x, y);
-                let color = world.color_at(ray);
+                let color = self.color_at_pixel(world, x, y);
+                // let ray = self.ray_for_pixel(x, y);
+                // let color = world.color_at(ray);
                 image.write_pixel(x, y, &color);
             }
         }
         image
     }
 
+    // Note - do not use this function in WebAssembly as Rayon does not support wasm
+    // at this time.
     pub fn render_multithreaded(&self, world: &World) -> Canvas {
         let mut image = Canvas::new(self.hsize, self.vsize);
         for y in 0..self.vsize {
